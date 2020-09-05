@@ -1,0 +1,1 @@
+sudo mn -c; ./experiments/move-experiments.sh; sudo minindn minindn.conf --experiment=random-talks
