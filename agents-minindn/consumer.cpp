@@ -6,7 +6,8 @@
 #include <ndn-cxx/face.hpp>
 #include <iostream>
 #include <chrono>
-#include <ctime>
+#include <time.h>
+#include <libgen.h>
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
@@ -23,6 +24,7 @@ class Consumer
       void onNack(const Interest&, const lp::Nack& nack)   const;
       void onTimeout(const Interest& interest)             const;
       void logResult(float sTimeDiff, const char* pResult) const;
+      void renameExistingLogFile();
 
    private:
       Face m_face;
@@ -49,8 +51,8 @@ void Consumer::run(std::string strInterest, std::string strNode)
       strInterest = "/example/testApp/randomDataAndre";
    }
 
-   m_strNode     = strNode;
-   m_strInterest = strInterest;
+   m_strNode         = strNode;
+   m_strInterest     = strInterest;
 
    // Get current time for log file
    // time(&dtNow);
@@ -129,7 +131,6 @@ void Consumer::onTimeout(const Interest& interest) const
    std::cout << "[Consumer::onTimeout] Timeout for " << interest << std::endl;
 
    float sTimeDiff;
-   FILE* pFile;
    std::chrono::steady_clock::time_point dtEnd;
 
    dtEnd     = std::chrono::steady_clock::now();
@@ -165,6 +166,43 @@ void Consumer::logResult(float sTimeDiff, const char* pResult) const
    }
 }
 
+// --------------------------------------------------------------------------------
+//   renameExistingLogFile
+//
+//
+// --------------------------------------------------------------------------------
+void Consumer::renameExistingLogFile(){
+
+   FILE* pFile;
+   time_t rawtime;
+   struct tm * pTimeInfo;
+   bool bFileExists;
+   char strDate[60], strNewName[60], strOldName[60];
+
+   // Check if a previous log file should be moved   
+   pFile = fopen(m_strLogPath.c_str(), "r");
+   bFileExists = (pFile != NULL);
+
+   if(bFileExists){  
+      // Generate new filename based on time
+      printf("FILE EXISTS\n");
+      ctime(&rawtime);
+      pTimeInfo = localtime(&rawtime);
+      strcpy(strOldName, m_strLogPath.c_str());
+      strftime(strDate, sizeof(strDate), "%d%m%y%H%M%S", pTimeInfo);
+      snprintf(strNewName, sizeof(strNewName), "%s/oldConsumerLog_%s.log", dirname(strOldName), strDate);
+
+      // Rename existing file
+      fclose(pFile);
+      if (rename(m_strLogPath.c_str(), strNewName) != 0){
+         // throw("Could not rename old log file at ");
+         printf("Could not change rename files from %s to %s\n", m_strLogPath.c_str(), strNewName);
+      }
+   }
+   else
+      printf("FILE DOES NOT EXIST %s\n", m_strLogPath.c_str());
+}
+
 } // namespace examples
 } // namespace ndn
 
@@ -176,7 +214,7 @@ int main(int argc, char** argv)
    if (argc > 2){
       // Use explicit interest and node name
       strInterest = argv[1];
-      strNode       = argv[2];
+      strNode     = argv[2];
    }
    else{
       strInterest = "";

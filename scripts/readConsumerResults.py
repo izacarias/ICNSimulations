@@ -41,12 +41,16 @@ hshNodes = {}
 # Visit nodes (directories) one by one
 for strNode in lstNodes:
     # Read result file for each node
-    pFile = open(strBasePath + '/' + strNode + '/' + c_strFileName, 'r')
-    if (pFile):
-        print('[main] reading results for node=' + strNode)
-        hshNodes[strNode] = readResultFile(pFile)
-        pFile.close()
+    strConsumerLog = strBasePath + '/' + strNode + '/' + c_strFileName
+    if (os.path.exists(strConsumerLog)):
+        pFile = open(strConsumerLog, 'r')
+        if (pFile):
+            print('[main] reading results for node=' + strNode)
+            hshNodes[strNode] = readResultFile(pFile)
+            pFile.close()
+        else:
+            print('[main] ERROR reading information for node=' + strNode)
     else:
-        print('[main] ERROR reading information for node=' + strNode)
+        print('[main] could not find %s for node %s' % (c_strFileName, strNode))
 
 
