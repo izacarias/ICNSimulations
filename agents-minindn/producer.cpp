@@ -9,6 +9,7 @@
 #include <ndn-cxx/security/signing-helpers.hpp>
 #include <libgen.h>
 #include <iostream>
+#include <boost/chrono/duration.hpp>
 
 #define STR_APPNAME "C2Data"
 
@@ -20,7 +21,7 @@ namespace examples {
 class Producer
 {
   public:
-    void run(std::string strFilter, std::list<int> lstTTLValues;);
+    void run(std::string strFilter, std::vector<int> lstTTLValues);
 
   private:
     void onInterest(const InterestFilter&, const Interest& interest);
@@ -29,7 +30,7 @@ class Producer
   private:
     Face           m_face;
     KeyChain       m_keyChain;
-    std::list<int> m_lstTTLValues;
+    std::vector<int> m_lstTTLValues;
 };
 
 // --------------------------------------------------------------------------------
@@ -37,7 +38,7 @@ class Producer
 //
 //
 // --------------------------------------------------------------------------------
-void Producer::run(std::string strFilter, std::list<int> lstTTLValues;)
+void Producer::run(std::string strFilter, std::vector<int> lstTTLValues)
 {
   if (strFilter.length() == 0){
     // No specific filter set
@@ -64,6 +65,8 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
 {
   int nType, nID, nRead;
   std::string strPacket;
+  std::string strTTL;
+  boost::chrono::seconds Sec;
 
   std::cout << "[Producer::onInterest] >> I: " << interest << std::endl;
   // interest.toUri() results in the same thing
@@ -78,7 +81,16 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
     static const std::string strContent = "C2Data";
     printf("[Producer::onInterest] C2Data id=%d; type=%d\n", nID, nType);
 
-    // Check m_lstTTLValues
+    // Check m_lstTTLValues for the data`s type
+    if (nType <= m_lstTTLValues.size()){
+      printf("[Producer::onInterest] Using TTL from list %d", m_lstTTLValues[nType]);
+      // Sec(m_lstTTLValues[nType]);
+      Sec = boost::chrono::seconds(m_lstTTLValues[nType]);
+    }
+    else{
+      printf("[Producer::onInterest] Not using TTL value from list for nType=%d", nType);
+      Sec = boost::chrono::seconds(60);
+    }
   }
   else{
     // Use random data to keep retro-compatibility
@@ -91,7 +103,9 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   auto data = make_shared<Data>(interest.getName());
 
   // TODO: Switch between freshness values depending on C2Data type
-  data->setFreshnessPeriod(60_s);   // 60s is the default for control data
+  // data->setFreshnessPeriod(Sec);   // 60s is the default for control data
+  data->setFreshnessPeriod(boost::chrono::milliseconds(Sec));   // 60s is the default for control data
+  
 
   // data->setContent(reinterpret_cast<const uint8_t*>(strContent.data()), strContent.size());
   data->setContent(reinterpret_cast<const uint8_t*>(pMyData), 100);
@@ -125,16 +139,15 @@ void Producer::onRegisterFailed(const Name& prefix, const std::string& reason)
 
 int main(int argc, char** argv)
 {
-  std::string    strFilter;
-  std::list<int> lstTTLValues;
+  std::string      strFilter;
+  std::vector<int> lstTTLValues;
   int nIndex;
 
-
-  if (argc > 2){
+  if (argc >= 2){
     // Filter and TTLs as command line parameters
     strFilter = argv[1];
-    for (nIndex = 2; nIndex++; nIndex < argc){
-      lstTTLValues.push_back(argv[nIndex]);
+    for (nIndex = 2; nIndex < argc; nIndex++){
+      lstTTLValues.push_back(atoi(argv[nIndex]));
     }
   }
   else{

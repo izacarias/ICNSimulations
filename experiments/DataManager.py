@@ -28,7 +28,7 @@ class DataManager:
         """
         self.lstDataTypes = []
         # Initialize known dataTypes
-        self.lstDataTypes.append(C2DataType(nTTL=5000, nPeriod=5, nType=1, nSize=5000, 
+        self.lstDataTypes.append(C2DataType(nTTL=5000, nPeriod=5, nType=1, nSize=5000,
             lstAllowedHostTypes=['d', 'h', 'v', 's'], sRatioMaxReceivers=1, sPeriodWiggleRoom=0.8))   # INTEREST 1
 
     def generateDataQueue(self, lstHosts, nMissionMinutes):
@@ -61,6 +61,16 @@ class DataManager:
         lstDataQueue.sort(key=lambda x: x[0])
         return lstDataQueue
 
+    def getTTLValuesParam(self):
+        """
+        Returns a string listing the TTL values for all available data types
+        """
+        strTTLValues = ''
+        for DataType in self.lstDataTypes:
+            strTTLValues += str(DataType.nTTL) + ' '
+        # Remove last whitespace
+        strTTLValues = strTTLValues[:-1]
+        return strTTLValues
 
 class C2DataType:
 
