@@ -11,7 +11,7 @@ c_strAppName  = 'C2Data'
 # c_strLogFile  = '/home/osboxes/random_talks.log'
 c_strLogFile  = './random_talks.log'
 c_nSleepThresholdMs = 100
-logging.basicConfig(filename="experiment.log", format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
@@ -93,8 +93,6 @@ class RandomTalks():
 
       # Close log file
       self.log('run', 'experiment done in %s seconds log written to %s' % (sElapsedTimeMs/1000, c_strLogFile))
-      if (self.logFile):
-         self.logFile.close()
 
    def send(self, pDataPackage):
       """
@@ -145,15 +143,8 @@ class RandomTalks():
       """
       Logs a line in the Andre standard format
       """
-      if (not self.logFile):
-         self.logFile = open(c_strLogFile, 'a+')
-         self.logFile.write('New run -----------------------------------------\n')
-
       strLine = '[RandomTalks.' + strFunction + '] ' + strContent
-
-      # self.logFile.write(strLine + '\n')
       logging.info(strLine)
-      # print(strLine)
 
 # Experiment.register("random-talks", RandomTalks)
 

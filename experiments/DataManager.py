@@ -28,7 +28,8 @@ class DataManager:
         """
         self.lstDataTypes = []
         # Initialize known dataTypes
-        self.lstDataTypes.append(C2DataType(5000, 5, 1, 5000, ['d', 'h', 'v', 's'], 1, 0.8))   # INTEREST 1
+        self.lstDataTypes.append(C2DataType(nTTL=5000, nPeriod=5, nType=1, nSize=5000, 
+            lstAllowedHostTypes=['d', 'h', 'v', 's'], sRatioMaxReceivers=1, sPeriodWiggleRoom=0.8))   # INTEREST 1
 
     def generateDataQueue(self, lstHosts, nMissionMinutes):
         """
