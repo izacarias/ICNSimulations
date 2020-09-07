@@ -20,15 +20,16 @@ namespace examples {
 class Producer
 {
   public:
-    void run(std::string strFilter);
+    void run(std::string strFilter, std::list<int> lstTTLValues;);
 
   private:
     void onInterest(const InterestFilter&, const Interest& interest);
     void onRegisterFailed(const Name& prefix, const std::string& reason);
 
   private:
-    Face     m_face;
-    KeyChain m_keyChain;
+    Face           m_face;
+    KeyChain       m_keyChain;
+    std::list<int> m_lstTTLValues;
 };
 
 // --------------------------------------------------------------------------------
@@ -36,14 +37,15 @@ class Producer
 //
 //
 // --------------------------------------------------------------------------------
-void Producer::run(std::string strFilter)
+void Producer::run(std::string strFilter, std::list<int> lstTTLValues;)
 {
   if (strFilter.length() == 0){
     // No specific filter set
     strFilter = "/exampleApp/blup";
   }
+  m_lstTTLValues = lstTTLValues;
 
-  fprintf(stderr, "[Producer::run] Producer for filter=%s\n", strFilter.c_str());
+  fprintf(stderr, "[Producer::run] Producer for filter=%s with nTypes=\n", strFilter.c_str(), m_lstTTLValues.size());
 
   // strInterest = '/' + c_strAppName + '/' + str(producer) + '/' + strInterest
   m_face.setInterestFilter(strFilter,
@@ -75,6 +77,8 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
     // Use C2 data
     static const std::string strContent = "C2Data";
     printf("[Producer::onInterest] C2Data id=%d; type=%d\n", nID, nType);
+
+    // Check m_lstTTLValues
   }
   else{
     // Use random data to keep retro-compatibility
@@ -85,7 +89,7 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   // Create Data packet
   const char *pMyData = (char*) malloc(100);
   auto data = make_shared<Data>(interest.getName());
-  
+
   // TODO: Switch between freshness values depending on C2Data type
   data->setFreshnessPeriod(60_s);   // 60s is the default for control data
 
@@ -121,11 +125,17 @@ void Producer::onRegisterFailed(const Name& prefix, const std::string& reason)
 
 int main(int argc, char** argv)
 {
-  std::string strFilter;
+  std::string    strFilter;
+  std::list<int> lstTTLValues;
+  int nIndex;
 
-  if (argc > 1){
-    // Filter as command line parameter
+
+  if (argc > 2){
+    // Filter and TTLs as command line parameters
     strFilter = argv[1];
+    for (nIndex = 2; nIndex++; nIndex < argc){
+      lstTTLValues.push_back(argv[nIndex]);
+    }
   }
   else{
     // No data name
@@ -134,7 +144,7 @@ int main(int argc, char** argv)
 
   try {
     ndn::examples::Producer producer;
-    producer.run(strFilter);
+    producer.run(strFilter, lstTTLValues);
     return 0;
   }
   catch (const std::exception& e) {
