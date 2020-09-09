@@ -7,11 +7,12 @@ from datetime    import datetime, timedelta
 from ndn.experiments.experiment import Experiment
 
 # ---------------------------------------- Constants
-c_strEportCmd       = 'export HOME=/home/osboxes/ && '
-c_strAppName        = 'C2Data'
-c_strLogFile        = '/home/osboxes/icnsimulations/experiments/random_talks.log'
-c_nSleepThresholdMs = 100
-c_bIsMockExperiment = True
+c_strEportCmd        = 'export HOME=/home/osboxes/ && '
+c_strAppName         = 'C2Data'
+c_strLogFile         = './random_talks.log'
+c_nSleepThresholdMs  = 100
+c_bIsMockExperiment  = False
+c_sExperimentTimeSec = 20
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -35,7 +36,7 @@ class RandomTalks(Experiment):
       Setup experiment
       """
       if (c_bIsMockExperiment):
-         self.lstHosts = ['d1', 's1', 'h1', 'v1', 'h2', 's2', 'd2']
+         self.lstHosts = [MockHost('d1'), MockHost('s1'), MockHost('h1'), MockHost('v1'), MockHost('h2'), MockHost('s2'), MockHost('d2')]
       else:
          self.lstHosts = self.net.hosts
 
@@ -54,7 +55,7 @@ class RandomTalks(Experiment):
       # Instantiate all producers
       for pHost in self.lstHosts:
          strFilter = self.getFilterByHostname(str(pHost))
-         # pHost.cmd('producer ' + strFilter + ' ' + strTTLValues + ' &')
+         pHost.cmd('producer ' + strFilter + ' ' + strTTLValues + ' &')
          self.log('setup', 'instantiating new producer ' + str(pHost) + ' ' + strFilter + ' &')
          self.log('setup', 'cmd: ' + 'producer strFiler=' + strFilter + ' ' + strTTLValues + ' &')
 
@@ -68,9 +69,6 @@ class RandomTalks(Experiment):
       """
       self.log('run', 'Running')
 
-      # User parameters
-      sExperimentTimeSec = 1
-
       # Internal parameters
       nHosts             = len(self.lstHosts)
       dtInitialTime      = datetime.now()
@@ -78,7 +76,7 @@ class RandomTalks(Experiment):
       dtDelta            = timedelta()
       nDataIndex         = 0
       sElapsedTimeMs     = 0
-      while (((sElapsedTimeMs/1000) < sExperimentTimeSec) and (nDataIndex < len(self.lstDataQueue))):
+      while (((sElapsedTimeMs/1000) < c_sExperimentTimeSec) and (nDataIndex < len(self.lstDataQueue))):
          # Send data until the end of the experiment time
          # Sweep queue and send data according to the elapsed time
          dtCurTime       = datetime.now()
@@ -121,7 +119,7 @@ class RandomTalks(Experiment):
          pConsumer = self.lstHosts[nConsumer]
          strInterest = pDataPackage.getInterest()
          self.log('send', 'instantiating new consumer ' + str(pConsumer) + ' ' + strInterest + ' &')
-         # pConsumer.cmd('consumer %s %s &' % (strInterest, str(pConsumer)))
+         pConsumer.cmd('consumer %s %s &' % (strInterest, str(pConsumer)))
          self.log('send', 'cmd: ' + 'consumer %s %s &' % (strInterest, str(pConsumer))) 
       else:
          raise Exception('[send] ERROR, invalid origin host in data package=%s' % pDataPackage)
@@ -148,6 +146,17 @@ class RandomTalks(Experiment):
       strLine = '[RandomTalks.' + strFunction + '] ' + strContent
       logging.info(strLine)
 
+class MockHost():
+
+   def __init__(self, strName):
+      # Shit
+      self.strName = strName
+   
+   def __repr__(self):
+      return self.strName
+
+   def cmd(self, strLine):
+      return 0
 
 if (c_bIsMockExperiment):
    talks = RandomTalks('')

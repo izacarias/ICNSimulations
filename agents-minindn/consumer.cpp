@@ -28,10 +28,12 @@ class Consumer
 
    private:
       Face m_face;
+      float m_sTimeDiff;
       std::string m_strNode;
       std::string m_strInterest;
       std::string m_strLogPath;
       std::chrono::steady_clock::time_point m_dtBegin;
+
 };
 
 // --------------------------------------------------------------------------------
@@ -43,6 +45,7 @@ void Consumer::run(std::string strInterest, std::string strNode)
 {
    Name        interestName;
    Interest    interest;
+   std::chrono::steady_clock::time_point dtEnd, dtBegin;
    // time_t      dtNow;
    // struct tm*  pTimeInfo;
 
@@ -72,13 +75,17 @@ void Consumer::run(std::string strInterest, std::string strNode)
    interest.setMustBeFresh(true);
    interest.setInterestLifetime(6_s); // The default is 4 seconds
 
-   m_dtBegin = std::chrono::steady_clock::now();;
+   dtBegin   = std::chrono::steady_clock::now();
    m_face.expressInterest(interest, bind(&Consumer::onData, this,   _1, _2), 
       bind(&Consumer::onNack, this, _1, _2), bind(&Consumer::onTimeout, this, _1));
 
    std::cout << "[Consumer::run] Sending Interest=" << interest << std::endl;
    // processEvents will block until the requested data is received or a timeout occurs
    m_face.processEvents();
+
+   dtEnd       = std::chrono::steady_clock::now();
+   m_sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - dtBegin).count();
+   logResult(m_sTimeDiff, "DATA");
 
    std::cout << "[Consumer::run] Done" << std::endl;
 }
@@ -96,7 +103,7 @@ void Consumer::onData(const Interest&, const Data& data) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "DATA");
+   // logResult(m_sTimeDiff, "DATA");
 
    std::cout << "[Consumer::onData] Received Data=" << data << "Delay=" << sTimeDiff << 
       std::endl;
@@ -115,7 +122,7 @@ void Consumer::onNack(const Interest&, const lp::Nack& nack) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "NACK");
+   logResult(m_sTimeDiff, "NACK");
 
    std::cout << "[Consumer::onNack] Received Nack interest=" << m_strInterest << 
       ";Reason=" << nack.getReason() << "Delay=" << sTimeDiff << std::endl;
@@ -136,7 +143,7 @@ void Consumer::onTimeout(const Interest& interest) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "TIMEOUT");
+   logResult(m_sTimeDiff, "TIMEOUT");
 
    std::cout << "[Consumer::onTimeout] Timeout for interest=" << m_strInterest << "Delay=" 
       << sTimeDiff << std::endl;

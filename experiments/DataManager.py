@@ -28,8 +28,8 @@ class DataManager:
         """
         self.lstDataTypes = []
         # Initialize known dataTypes
-        self.lstDataTypes.append(C2DataType(nTTL=5000, nPeriod=5, nType=1, nSize=5000,
-            lstAllowedHostTypes=['d', 'h', 'v', 's'], sRatioMaxReceivers=1, sPeriodWiggleRoom=0.8))   # INTEREST 1
+        self.lstDataTypes.append(C2DataType(nTTL=5000, nPeriod=20, nType=1, nSize=5000,
+            lstAllowedHostTypes=['d', 'h', 'v', 's'], sRatioMaxReceivers=100, sPeriodWiggleRoom=0.2))   # INTEREST 1
 
     def generateDataQueue(self, lstHosts, nMissionMinutes):
         """
@@ -38,22 +38,23 @@ class DataManager:
         lstDataQueue = []
         for strHost in lstHosts:
             # Generate data from each host
-            if(strHost[0] == 'd'):
+            if(strHost[0] == 'd' and strHost[1] == '1'):
                 # Drone
                 logging.info('[generateDataQueue] Node type drone')
-                self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+                # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+                self.lstDataTypes[0].generateSpreadDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
             elif(strHost[0] == 'h'):
                 # Human
                 logging.info('[generateDataQueue] Node type human')
-                self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+                # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
             elif(strHost[0] == 's'):
                 # Sensor
                 logging.info('[generateDataQueue] Node type sensor')
-                self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+                # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
             elif(strHost[0] == 'v'):
                 # Vehicle
                 logging.info('[generateDataQueue] Node type vehicle')
-                self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+                # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
             else:
                 # Unrecognized host type
                 logging.error('[generateDataQueue] Unrecognized host type ' + strHost)
@@ -67,7 +68,7 @@ class DataManager:
         """
         strTTLValues = ''
         for DataType in self.lstDataTypes:
-            strTTLValues += str(DataType.nTTL) + ' '
+            strTTLValues += str(DataType.nTTL/1000) + ' '
         # Remove last whitespace
         strTTLValues = strTTLValues[:-1]
         return strTTLValues
@@ -116,6 +117,23 @@ class C2DataType:
 
         return nCount
 
+    def generateSpreadDataQueue(self, strHost, nMissionMinutes, lstDataQueue, lstHosts):
+
+        # lstDataQueue    = []
+        nReceiverIndex  = 0
+        nSecondsElapsed = 0
+        for nIndex in range(0, 100):
+            nSecondsElapsed += 1
+            if (nReceiverIndex < len(lstHosts)):
+                strDest         = str(lstHosts[nReceiverIndex])
+                nReceiverIndex += 1
+                if(strDest != strHost):
+                    pData      = DataPackage(self.nType, 1, self.nPayloadSize, strHost, strDest)
+                    nTimestamp = (nSecondsElapsed*500)
+                    lstDataQueue.append([nTimestamp, pData])
+            else:
+                nReceiverIndex = 0
+
     def generatePossibleReceiversList(self, strHost, lstHosts):
         """
         Generates a list with the indexes of all hosts that can receive this data type
@@ -138,13 +156,13 @@ class C2DataType:
         """
         if (self.sRatioMaxReceivers > 0):
             nMaxReceivers = int(self.sRatioMaxReceivers*len(lstPossibleReceivers))
-            nReceivers    = random.randint(1, nMaxReceivers)
+            if (nMaxReceivers <= len(lstPossibleReceivers)):
+                nReceivers = random.randint(1, nMaxReceivers)
+            else:
+                nReceivers = len(lstPossibleReceivers)
         else:
             nMaxReceivers = 1
             nReceivers    = 1
-
-        logging.debug('[C2DataType.getRandomDestHosts] calculating receivers for nType=%s; sRatio=%s; nPossibleReceivers=%s; nReceivers=%s' %
-            (self.nType, self.sRatioMaxReceivers, len(lstPossibleReceivers), nReceivers))
 
         lstReceivers  = []
         if (nReceivers <= len(lstPossibleReceivers)):
@@ -163,8 +181,6 @@ class C2DataType:
         for nReceiver in lstReceivers:
             nTimetampMs = random.randint(nPeriodMs - nPeriodMs*self.sPeriodWiggleRoom, nPeriodMs + nPeriodMs*self.sPeriodWiggleRoom)
             lstResult.append((nTimetampMs, lstPossibleReceivers[nReceiver]))
-            logging.debug('[C2DataType.getRandomDestHosts] calculating timestamps for nType=%s; sWiggle=%s; nPeriodMs=%s; nTimetamps=%s' %
-                (self.nType, self.sPeriodWiggleRoom, nPeriodMs, nTimetampMs))
 
         return lstResult
 

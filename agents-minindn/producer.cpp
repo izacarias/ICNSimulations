@@ -46,7 +46,7 @@ void Producer::run(std::string strFilter, std::vector<int> lstTTLValues)
   }
   m_lstTTLValues = lstTTLValues;
 
-  fprintf(stderr, "[Producer::run] Producer for filter=%s with nTypes=\n", strFilter.c_str(), m_lstTTLValues.size());
+  fprintf(stderr, "[Producer::run] Producer for filter=%s with nTypes=%d\n", strFilter.c_str(), m_lstTTLValues.size());
 
   // strInterest = '/' + c_strAppName + '/' + str(producer) + '/' + strInterest
   m_face.setInterestFilter(strFilter,
@@ -84,8 +84,7 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
     // Check m_lstTTLValues for the data`s type
     if (nType <= m_lstTTLValues.size()){
       printf("[Producer::onInterest] Using TTL from list %d", m_lstTTLValues[nType]);
-      // Sec(m_lstTTLValues[nType]);
-      Sec = boost::chrono::seconds(m_lstTTLValues[nType]);
+      Sec = boost::chrono::seconds(m_lstTTLValues[nType-1]);
     }
     else{
       printf("[Producer::onInterest] Not using TTL value from list for nType=%d", nType);
