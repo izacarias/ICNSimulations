@@ -73,3 +73,16 @@ o que ficou na minha cabeça
 - diferenciar perdas de enlace e por TTL
   fazer alguma simulação pequena pra ter um feeling dos tempos
     - ex instanciar varios pacotes do mesmo tipo (mesmo TTL) em um experimento simples e ver quanto expiram.
+
+
+### New environment:
+
+1. After minindn build is successful, head into `mini-ndn/ndn-src/ndn-cxx` and run `./waf configure --with-examples`, which will set examples in the `mini-ndn/ndn-src/ndn-cxx/examples` folder to be compiled when `./waf` is run.
+
+2. Adjust paths in the `build.sh` and `agents-minindn/move-agents.sh` scripts. **NOTE:** the `data-types/` folder is deprecated so nevermind it.
+
+3. As of before MiniNDN 0.5.0, the minindn symbolic link does not exist, so the best way to run experiments is to create an entire python script which will initialize NDN, NFD, NLSR and the experiment itself, so the `move-experiments.sh` script in the experiments directory is also deprecated.
+
+4. After compiling the `ndn-cxx/examples` experiments folder, create symbolic links to the generated consumer and producer files located in `mini-ndn/ndn-src/ndn-cxx/build/exmaples`
+
+5. When running xterms inside MiniNDN, run `export HOME=/tmp/minindn/<hostname>; cd` for each host. Whithout this an error for `no such file or directory will show up`

@@ -1,5 +1,5 @@
 #!/bin/bash
 
-MININDN_DIR="/home/osboxes/mini-ndn"
+MININDN_DIR="/home/vagrant/mini-ndn"
 
-cd $MININDN_DIR/ndn-cxx/; sudo ./waf
+cd $MININDN_DIR/ndn-src/ndn-cxx/; sudo ./waf
