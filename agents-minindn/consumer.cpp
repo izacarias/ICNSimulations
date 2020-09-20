@@ -75,17 +75,18 @@ void Consumer::run(std::string strInterest, std::string strNode)
    interest.setMustBeFresh(true);
    interest.setInterestLifetime(6_s); // The default is 4 seconds
 
-   dtBegin   = std::chrono::steady_clock::now();
-   m_face.expressInterest(interest, bind(&Consumer::onData, this,   _1, _2), 
+   // dtBegin   = std::chrono::steady_clock::now();
+   m_dtBegin = std::chrono::steady_clock::now();
+   m_face.expressInterest(interest, bind(&Consumer::onData, this,   _1, _2),
       bind(&Consumer::onNack, this, _1, _2), bind(&Consumer::onTimeout, this, _1));
 
    std::cout << "[Consumer::run] Sending Interest=" << interest << std::endl;
    // processEvents will block until the requested data is received or a timeout occurs
    m_face.processEvents();
 
-   dtEnd       = std::chrono::steady_clock::now();
-   m_sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - dtBegin).count();
-   logResult(m_sTimeDiff, "DATA");
+   // dtEnd       = std::chrono::steady_clock::now();
+   // m_sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - dtBegin).count();
+   // logResult(m_sTimeDiff, "DATA");
 
    std::cout << "[Consumer::run] Done" << std::endl;
 }
@@ -103,9 +104,9 @@ void Consumer::onData(const Interest&, const Data& data) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   // logResult(m_sTimeDiff, "DATA");
+   logResult(m_sTimeDiff, "DATA");
 
-   std::cout << "[Consumer::onData] Received Data=" << data << "Delay=" << sTimeDiff << 
+   std::cout << "[Consumer::onData] Received Data=" << data << "Delay=" << sTimeDiff <<
       std::endl;
 }
 
@@ -124,7 +125,7 @@ void Consumer::onNack(const Interest&, const lp::Nack& nack) const
 
    logResult(m_sTimeDiff, "NACK");
 
-   std::cout << "[Consumer::onNack] Received Nack interest=" << m_strInterest << 
+   std::cout << "[Consumer::onNack] Received Nack interest=" << m_strInterest <<
       ";Reason=" << nack.getReason() << "Delay=" << sTimeDiff << std::endl;
 }
 
@@ -145,7 +146,7 @@ void Consumer::onTimeout(const Interest& interest) const
 
    logResult(m_sTimeDiff, "TIMEOUT");
 
-   std::cout << "[Consumer::onTimeout] Timeout for interest=" << m_strInterest << "Delay=" 
+   std::cout << "[Consumer::onTimeout] Timeout for interest=" << m_strInterest << "Delay="
       << sTimeDiff << std::endl;
 }
 
@@ -186,11 +187,11 @@ void Consumer::renameExistingLogFile(){
    bool bFileExists;
    char strDate[60], strNewName[60], strOldName[60];
 
-   // Check if a previous log file should be moved   
+   // Check if a previous log file should be moved
    pFile = fopen(m_strLogPath.c_str(), "r");
    bFileExists = (pFile != NULL);
 
-   if(bFileExists){  
+   if(bFileExists){
       // Generate new filename based on time
       printf("FILE EXISTS\n");
       ctime(&rawtime);
