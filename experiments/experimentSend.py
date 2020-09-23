@@ -30,7 +30,7 @@ class RandomTalks():
       Constructor. Meh
       """
       self.logFile         = None
-      self.DataManager     = DataManager()
+      self.pDataManager     = DataManager()
       self.nMissionMinutes = 1
       self.lstHosts        = lstHosts
 
@@ -45,17 +45,14 @@ class RandomTalks():
       for node in self.lstHosts:
          self.log('setup', 'Node: ' + str(node))
          lstHostNames.append(str(node))
-      self.lstDataQueue = self.DataManager.generateDataQueue(lstHostNames, self.nMissionMinutes)
+      self.lstDataQueue = self.pDataManager.generateDataQueue(lstHostNames, self.nMissionMinutes)
 
       # Get TTLs from data manager
-      strTTLValues = self.DataManager.getTTLValuesParam()
+      strTTLValues = self.pDataManager.getTTLValuesParam()
 
       # Instantiate all producers
       for pHost in self.lstHosts:
-         strFilter = self.getFilterByHostname(str(pHost))
-         pHost.cmd('producer ' + strFilter + ' ' + strTTLValues + ' &')
-         self.log('setup', 'instantiating new producer ' + str(pHost) + ' ' + strFilter + ' &')
-         self.log('setup', 'cmd: ' + 'producer strFiler=' + strFilter + ' ' + strTTLValues + ' &')
+         self.instantiateProducer(pHost, strTTLValues)
 
       # Log resulting data queue
       for nIndex, node in enumerate(self.lstDataQueue):
@@ -87,7 +84,7 @@ class RandomTalks():
             # Send data
             self.log('run', 'about to send data nDataIndex=%s; pDataBuff[0]=%s; sElapsedTimeMs=%s' %
                (nDataIndex, pDataBuff[0], sElapsedTimeMs))
-            self.send(pDataBuff[1])
+            self.instantiateConsumer(pDataBuff[1])
             nDataIndex += 1
          else:
             # Wait before sending next data
@@ -104,25 +101,33 @@ class RandomTalks():
       # Close log file
       self.log('run', 'experiment done in %s seconds log written to %s' % (sElapsedTimeMs/1000, c_strLogFile))
 
-   def send(self, pDataPackage):
+   def instantiateConsumer(self, pDataPackage):
       """
-      Issues MiniNDN commands for sender and receiver of a data package
-      @param pDataPackage: DataPackage
+      Issues MiniNDN commands to set up a consumer for a data package
       """
       # Find consumer associated to the package
-      nConsumer = self.findHostByName(pDataPackage.strDest)
+      nConsumer = self.findHostIndexByName(pDataPackage.strDest)
 
       if(nConsumer >= 0):
           # Valid consumer and producer
          pConsumer = self.lstHosts[nConsumer]
          strInterest = pDataPackage.getInterest()
-         self.log('send', 'instantiating new consumer ' + str(pConsumer) + ' ' + strInterest + ' &')
+         self.log('instantiateConsumer', 'instantiating new consumer ' + str(pConsumer) + ' ' + strInterest + ' &')
          pConsumer.cmd('consumer %s %s &' % (strInterest, str(pConsumer)))
-         self.log('send', 'cmd: ' + 'consumer %s %s &' % (strInterest, str(pConsumer)))
+         self.log('instantiateConsumer', 'cmd: ' + 'consumer %s %s &' % (strInterest, str(pConsumer)))
       else:
-         raise Exception('[send] ERROR, invalid origin host in data package=%s' % pDataPackage)
+         raise Exception('[instantiateConsumer] ERROR, invalid origin host in data package=%s' % pDataPackage)
 
-   def findHostByName(self, strName):
+   def instantiateProducer(self, pHost, strTTLValues):
+      """
+      Issues MiniNDN commands to instantiate a producer
+      """
+      strFilter = self.getFilterByHostname(str(pHost))
+      pHost.cmd('producer ' + strFilter + ' ' + strTTLValues + ' &')
+      self.log('instantiateProducer', 'instantiating new producer ' + str(pHost) + ' ' + strFilter + ' &')
+      self.log('instantiateProducer', 'cmd: ' + 'producer strFiler=' + strFilter + ' ' + strTTLValues)
+
+   def findHostIndexByName(self, strName):
       """
       Finds a host in MiniNDN self.lstHosts by name
       """
@@ -177,16 +182,16 @@ def runExperiment():
    ndn = Minindn()
    ndn.start()
 
-   # Set up experiment
-   Experiment = RandomTalks(ndn.net.hosts)
-   Experiment.setup()
-
    info('Starting NFD on nodes\n')
    nfds = AppManager(ndn, ndn.net.hosts, Nfd)
    info('Starting NLSR on nodes\n')
    nlsrs = AppManager(ndn, ndn.net.hosts, Nlsr)
 
+   # Set up experiment
+   Experiment = RandomTalks(ndn.net.hosts)
+   Experiment.setup()
    Experiment.run()
+
    MiniNDNCLI(ndn.net)
    ndn.stop()
 

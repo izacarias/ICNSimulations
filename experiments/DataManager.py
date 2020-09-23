@@ -184,7 +184,6 @@ class C2DataType:
 
         return lstResult
 
-
 class DataPackage:
 
     def __init__(self, nType, nID, nPayloadSize, strHost, strDest):
