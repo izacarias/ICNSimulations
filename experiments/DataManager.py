@@ -1,6 +1,9 @@
 import logging
 import random
 
+# ---------------------------------------- Constants
+c_strAppName = 'C2Data'
+
 # logging.basicConfig(filename="DataManager.log", format='%(asctime)s %(message)s', level=logging.DEBUG)
 
 def main():
@@ -38,7 +41,8 @@ class DataManager:
         lstDataQueue = []
         for strHost in lstHosts:
             # Generate data from each host
-            if(strHost[0] == 'd' and strHost[1] == '1'):
+            # if(strHost[0] == 'd' and strHost[1] == '1'):
+            if(strHost[0] == 'a'):
                 # Drone
                 logging.info('[generateDataQueue] Node type drone')
                 # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
@@ -206,7 +210,7 @@ class DataPackage:
         """
         Returns the string representation of the interest filter
         """
-        strInterest = '/C2Data/' + self.strOrig + '/C2Data-'
+        strInterest = '/'+ c_strAppName + '/' + self.strOrig + '/C2Data-'
         strInterest = strInterest + str(self.nID) + '-Type' + str(self.nType)
         return strInterest
 

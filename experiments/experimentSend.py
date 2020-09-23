@@ -4,19 +4,19 @@ import logging
 from DataManager import *
 from random      import randint
 from datetime    import datetime, timedelta
-# from mininet.log import setLogLevel, info
-# from minindn.minindn import Minindn
-# from minindn.util import MiniNDNCLI
-# from minindn.apps.app_manager import AppManager
-# from minindn.apps.nfd import Nfd
-# from minindn.apps.nlsr import Nlsr
+from mininet.log import setLogLevel, info
+from minindn.minindn import Minindn
+from minindn.util import MiniNDNCLI
+from minindn.apps.app_manager import AppManager
+from minindn.apps.nfd import Nfd
+from minindn.apps.nlsr import Nlsr
 
 # ---------------------------------------- Constants
 c_strEportCmd        = 'export HOME=/home/osboxes/ && '
 c_strAppName         = 'C2Data'
 c_strLogFile         = './random_talks.log'
 c_nSleepThresholdMs  = 100
-c_bIsMockExperiment  = True
+c_bIsMockExperiment  = False
 c_sExperimentTimeSec = 10
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
@@ -30,7 +30,7 @@ class RandomTalks():
       Constructor. Meh
       """
       self.logFile         = None
-      self.pDataManager     = DataManager()
+      self.pDataManager    = DataManager()
       self.nMissionMinutes = 1
       self.lstHosts        = lstHosts
 
@@ -96,7 +96,7 @@ class RandomTalks():
             nNextStopMs = self.lstDataQueue[nDataIndex][0] - sElapsedTimeMs
             if (nNextStopMs > c_nSleepThresholdMs):
                self.log('run', 'sleeping until next data nNextStopMs=%s; c_nSleepThresholdMs=%s' % (nNextStopMs, c_nSleepThresholdMs))
-               time.sleep(nNextStopMs/1000)
+               time.sleep(nNextStopMs/1000.0)
 
       # Close log file
       self.log('run', 'experiment done in %s seconds log written to %s' % (sElapsedTimeMs/1000, c_strLogFile))
@@ -110,11 +110,12 @@ class RandomTalks():
 
       if(nConsumer >= 0):
           # Valid consumer and producer
-         pConsumer = self.lstHosts[nConsumer]
-         strInterest = pDataPackage.getInterest()
+         pConsumer      = self.lstHosts[nConsumer]
+         strInterest    = pDataPackage.getInterest()
+         strCmdConsumer = 'consumer %s %s &' % (strInterest, str(pConsumer)) 
          self.log('instantiateConsumer', 'instantiating new consumer ' + str(pConsumer) + ' ' + strInterest + ' &')
-         pConsumer.cmd('consumer %s %s &' % (strInterest, str(pConsumer)))
-         self.log('instantiateConsumer', 'cmd: ' + 'consumer %s %s &' % (strInterest, str(pConsumer)))
+         pConsumer.cmd(strCmdConsumer)
+         self.log('instantiateConsumer', 'ConsumerCmd: ' + strCmdConsumer)
       else:
          raise Exception('[instantiateConsumer] ERROR, invalid origin host in data package=%s' % pDataPackage)
 
@@ -122,10 +123,14 @@ class RandomTalks():
       """
       Issues MiniNDN commands to instantiate a producer
       """
-      strFilter = self.getFilterByHostname(str(pHost))
-      pHost.cmd('producer ' + strFilter + ' ' + strTTLValues + ' &')
+      strFilter       = self.getFilterByHostname(str(pHost))
+      strCmdAdvertise = 'nlsrc advertise %s' % strFilter
+      strCmdProducer  = 'producer %s %s &' % (strFilter, strTTLValues)
+      pHost.cmd(strCmdAdvertise)
+      pHost.cmd(strCmdProducer)
       self.log('instantiateProducer', 'instantiating new producer ' + str(pHost) + ' ' + strFilter + ' &')
-      self.log('instantiateProducer', 'cmd: ' + 'producer strFiler=' + strFilter + ' ' + strTTLValues)
+      self.log('instantiateProducer', 'AdvertiseCmd: ' + strCmdAdvertise)
+      self.log('instantiateProducer', 'ProducerCmd: ' + strCmdProducer)
 
    def findHostIndexByName(self, strName):
       """
