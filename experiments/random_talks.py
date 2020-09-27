@@ -1,3 +1,6 @@
+"""
+Deprecated
+"""
 import sys
 import time
 import logging
@@ -120,7 +123,7 @@ class RandomTalks(Experiment):
          strInterest = pDataPackage.getInterest()
          self.log('send', 'instantiating new consumer ' + str(pConsumer) + ' ' + strInterest + ' &')
          pConsumer.cmd('consumer %s %s &' % (strInterest, str(pConsumer)))
-         self.log('send', 'cmd: ' + 'consumer %s %s &' % (strInterest, str(pConsumer))) 
+         self.log('send', 'cmd: ' + 'consumer %s %s &' % (strInterest, str(pConsumer)))
       else:
          raise Exception('[send] ERROR, invalid origin host in data package=%s' % pDataPackage)
 
@@ -151,7 +154,7 @@ class MockHost():
    def __init__(self, strName):
       # Shit
       self.strName = strName
-   
+
    def __repr__(self):
       return self.strName
 

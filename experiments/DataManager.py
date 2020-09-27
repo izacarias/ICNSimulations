@@ -2,7 +2,7 @@
 Creates and manages Command And Control (C2) package types and
 package queues.
 
-Created 25/09/2020 by André Dexheimer Carneiro
+Created 25/09/2020 by Andre Dexheimer Carneiro
 """
 import logging
 import random
