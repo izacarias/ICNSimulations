@@ -1,3 +1,9 @@
+"""
+This MiniNDN experiment instantiates consumers and producers based on the
+packages and their timestamps created and queued by DataManager.
+
+Created 25/09/2020 by André Dexheimer Carneiro
+"""
 import sys
 import time
 import logging
@@ -112,7 +118,7 @@ class RandomTalks():
           # Valid consumer and producer
          pConsumer      = self.lstHosts[nConsumer]
          strInterest    = pDataPackage.getInterest()
-         strCmdConsumer = 'consumer %s %s &' % (strInterest, str(pConsumer)) 
+         strCmdConsumer = 'consumer %s %s &' % (strInterest, str(pConsumer))
          self.log('instantiateConsumer', 'instantiating new consumer ' + str(pConsumer) + ' ' + strInterest + ' &')
          pConsumer.cmd(strCmdConsumer)
          self.log('instantiateConsumer', 'ConsumerCmd: ' + strCmdConsumer)

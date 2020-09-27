@@ -1,14 +1,10 @@
-############################################################
-#
-#
-#  This is a test script which instantiates consumers and
-#  producers in their most basic form. The idea is to test
-#  the simplest components used in a MiniNDN testl.
-#
-#  Created 25/09/2020 by André Dexheimer Carneiro
-#
-#
-############################################################
+"""
+This is a test script which instantiates consumers and producers in
+their most basic form. The idea is to test the simplest components used
+in a MiniNDN testl.
+
+Created 25/09/2020 by André Dexheimer Carneiro
+"""
 import sys
 import time
 import logging
