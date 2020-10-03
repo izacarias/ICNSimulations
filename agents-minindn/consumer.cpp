@@ -6,7 +6,7 @@
 #include <ndn-cxx/face.hpp>
 #include <iostream>
 #include <chrono>
-#include <time.h>
+#include <ctime>
 #include <libgen.h>
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
@@ -17,7 +17,7 @@ namespace examples {
 class Consumer
 {
    public:
-      void run(std::string strInterest, std::string strNode);
+      void run(std::string strInterest, std::string strNode, int nSeqNum);
 
    private:
       void onData(const Interest&, const Data& data)       const;
@@ -28,12 +28,11 @@ class Consumer
 
    private:
       Face m_face;
-      float m_sTimeDiff;
       std::string m_strNode;
       std::string m_strInterest;
       std::string m_strLogPath;
       std::chrono::steady_clock::time_point m_dtBegin;
-
+      int m_nSeqNum;
 };
 
 // --------------------------------------------------------------------------------
@@ -41,7 +40,7 @@ class Consumer
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::run(std::string strInterest, std::string strNode)
+void Consumer::run(std::string strInterest, std::string strNode, int nSeqNum)
 {
    Name        interestName;
    Interest    interest;
@@ -54,8 +53,9 @@ void Consumer::run(std::string strInterest, std::string strNode)
       strInterest = "/example/testApp/randomDataAndre";
    }
 
-   m_strNode         = strNode;
-   m_strInterest     = strInterest;
+   m_strNode     = strNode;
+   m_strInterest = strInterest;
+   m_nSeqNum     = nSeqNum; 
 
    // Get current time for log file
    // time(&dtNow);
@@ -84,10 +84,6 @@ void Consumer::run(std::string strInterest, std::string strNode)
    // processEvents will block until the requested data is received or a timeout occurs
    m_face.processEvents();
 
-   // dtEnd       = std::chrono::steady_clock::now();
-   // m_sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - dtBegin).count();
-   // logResult(m_sTimeDiff, "DATA");
-
    std::cout << "[Consumer::run] Done" << std::endl;
 }
 
@@ -100,14 +96,14 @@ void Consumer::onData(const Interest&, const Data& data) const
 {
    float sTimeDiff;
    std::chrono::steady_clock::time_point dtEnd;
-
+   
+   // Get current time and calculate difference
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(m_sTimeDiff, "DATA");
+   logResult(sTimeDiff, "DATA");
 
-   std::cout << "[Consumer::onData] Received Data=" << data << "Delay=" << sTimeDiff <<
-      std::endl;
+   std::cout << "[Consumer::onData] Received Data=" << data << "Delay=" << sTimeDiff << std::endl;
 }
 
 // --------------------------------------------------------------------------------
@@ -123,7 +119,7 @@ void Consumer::onNack(const Interest&, const lp::Nack& nack) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(m_sTimeDiff, "NACK");
+   logResult(sTimeDiff, "NACK");
 
    std::cout << "[Consumer::onNack] Received Nack interest=" << m_strInterest <<
       ";Reason=" << nack.getReason() << "Delay=" << sTimeDiff << std::endl;
@@ -136,15 +132,15 @@ void Consumer::onNack(const Interest&, const lp::Nack& nack) const
 // --------------------------------------------------------------------------------
 void Consumer::onTimeout(const Interest& interest) const
 {
-   std::cout << "[Consumer::onTimeout] Timeout for " << interest << std::endl;
-
    float sTimeDiff;
    std::chrono::steady_clock::time_point dtEnd;
+
+   std::cout << "[Consumer::onTimeout] Timeout for " << interest << std::endl;
 
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(m_sTimeDiff, "TIMEOUT");
+   logResult(sTimeDiff, "TIMEOUT");
 
    std::cout << "[Consumer::onTimeout] Timeout for interest=" << m_strInterest << "Delay="
       << sTimeDiff << std::endl;
@@ -217,21 +213,29 @@ void Consumer::renameExistingLogFile(){
 int main(int argc, char** argv)
 {
    std::string strInterest;
-   std::string strNode;
+   std::string strNodeName;
+   int nSeqNum;
 
-   if (argc > 2){
-      // Use explicit interest and node name
+   // Assign default values
+   strInterest = "";
+   strNodeName = "";
+   nSeqNum     = -1;
+
+   // Command line parameters
+   if (argc > 1)
       strInterest = argv[1];
-      strNode     = argv[2];
-   }
-   else{
-      strInterest = "";
-      strNode       = "";
-   }
+
+   if (argc > 2)
+      strNodeName = argv[2];
+
+   if (argc > 3)
+      nSeqNum = atoi(argv[3]);
+   
+   printf("Instantiating producer Interest=%s; NodeName=%s; SeqNum=%d\n", strInterest.c_str(), strNodeName.c_str(), nSeqNum);
 
    try {
       ndn::examples::Consumer consumer;
-      consumer.run(strInterest, strNode);
+      consumer.run(strInterest, strNodeName, nSeqNum);
       return 0;
    }
    catch (const std::exception& e) {
