@@ -2,7 +2,7 @@
 This MiniNDN experiment instantiates consumers and producers based on the
 packages and their timestamps created and queued by DataManager.
 
-Created 25/09/2020 by André Dexheimer Carneiro
+Created 25/09/2020 by Andrï¿½ Dexheimer Carneiro
 """
 import sys
 import time
@@ -197,6 +197,10 @@ def runExperiment():
    nfds = AppManager(ndn, ndn.net.hosts, Nfd)
    info('Starting NLSR on nodes\n')
    nlsrs = AppManager(ndn, ndn.net.hosts, Nlsr)
+
+   #############################################################
+   # Wait for NLSR initialization, 30 seconds to be on the safe side
+   time.sleep(30);
 
    # Set up experiment
    Experiment = RandomTalks(ndn.net.hosts)

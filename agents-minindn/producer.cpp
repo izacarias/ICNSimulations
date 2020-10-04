@@ -104,7 +104,7 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   // TODO: Switch between freshness values depending on C2Data type
   // data->setFreshnessPeriod(Sec);   // 60s is the default for control data
   data->setFreshnessPeriod(boost::chrono::milliseconds(Sec));   // 60s is the default for control data
-  
+
 
   // data->setContent(reinterpret_cast<const uint8_t*>(strContent.data()), strContent.size());
   data->setContent(reinterpret_cast<const uint8_t*>(pMyData), 100);
@@ -142,16 +142,15 @@ int main(int argc, char** argv)
   std::vector<int> lstTTLValues;
   int nIndex;
 
-  if (argc >= 2){
-    // Filter and TTLs as command line parameters
+  strFilter = "";
+
+  if (argc > 1)
     strFilter = argv[1];
+
+  if (argc > 2){
     for (nIndex = 2; nIndex < argc; nIndex++){
       lstTTLValues.push_back(atoi(argv[nIndex]));
     }
-  }
-  else{
-    // No data name
-    strFilter = "";
   }
 
   try {

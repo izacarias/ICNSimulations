@@ -42,46 +42,41 @@ class Consumer
 // --------------------------------------------------------------------------------
 void Consumer::run(std::string strInterest, std::string strNode, int nSeqNum)
 {
-   Name        interestName;
-   Interest    interest;
+   Name     interestName;
+   Interest interest;
    std::chrono::steady_clock::time_point dtEnd, dtBegin;
-   // time_t      dtNow;
-   // struct tm*  pTimeInfo;
 
-   if (strInterest.length() == 0){
-      // No specific interest given as parameter
-      strInterest = "/example/testApp/randomDataAndre";
-   }
-
+   // Read input parameters
    m_strNode     = strNode;
-   m_strInterest = strInterest;
-   m_nSeqNum     = nSeqNum; 
+   m_nSeqNum     = nSeqNum;
 
-   // Get current time for log file
-   // time(&dtNow);
-   // pTimeInfo = localtime(&dtNow);
-   // strNow = ctime(&dtNow);
-   // strftime (buffer, 80 ,"Now it's %I:%M%p.",timeinfo);
-   // m_strLogPath  = "/tmp/minindn/" + m_strNode + "/consumerLog" + ctime(&ctime) + ".log";
-   m_strLogPath  = "/tmp/minindn/" + m_strNode + "/consumerLog.log";
+   if (strInterest.length() > 0)
+      m_strInterest = strInterest;
+   else
+      m_strInterest = "/example/testApp/randomDataAndre";
 
-   std::cout << "[Consumer::run] Consuming interest=" << m_strInterest << "; node=" << m_strNode << std::endl;
+   if (m_strNode.length() > 0)
+      m_strLogPath = "/tmp/minindn/" + m_strNode + "/consumerLog.log";
+   else
+      m_strLogPath = "/tmp/minindn/default_consumerLog.log";
+
+   std::cout << "[Consumer::run] Started with Interest=" << m_strInterest << "; Node=" << m_strNode << "; SeqNum=" << m_nSeqNum << std::endl;
 
    interestName = Name(m_strInterest);
-   // interestName.appendVersion();
-
-   interest = Interest(interestName);
+   interest     = Interest(interestName);
    interest.setCanBePrefix(false);
    interest.setMustBeFresh(true);
    interest.setInterestLifetime(6_s); // The default is 4 seconds
 
-   // dtBegin   = std::chrono::steady_clock::now();
+   std::cout << "[Consumer::run] Sending Interest=" << interest << std::endl;
+
+   ///////////////////////////////////////////////////////////////////
+   // Get start time before expressInterest, end time will be captured by onData/onNack/onTimeout callback
    m_dtBegin = std::chrono::steady_clock::now();
    m_face.expressInterest(interest, bind(&Consumer::onData, this,   _1, _2),
       bind(&Consumer::onNack, this, _1, _2), bind(&Consumer::onTimeout, this, _1));
 
-   std::cout << "[Consumer::run] Sending Interest=" << interest << std::endl;
-   // processEvents will block until the requested data is received or a timeout occurs
+   // pocessEvents will block until the requested data is received or a timeout occurs
    m_face.processEvents();
 
    std::cout << "[Consumer::run] Done" << std::endl;
@@ -96,8 +91,7 @@ void Consumer::onData(const Interest&, const Data& data) const
 {
    float sTimeDiff;
    std::chrono::steady_clock::time_point dtEnd;
-   
-   // Get current time and calculate difference
+
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
@@ -230,8 +224,6 @@ int main(int argc, char** argv)
 
    if (argc > 3)
       nSeqNum = atoi(argv[3]);
-   
-   printf("Instantiating producer Interest=%s; NodeName=%s; SeqNum=%d\n", strInterest.c_str(), strNodeName.c_str(), nSeqNum);
 
    try {
       ndn::examples::Consumer consumer;
