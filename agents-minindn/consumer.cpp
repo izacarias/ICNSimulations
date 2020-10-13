@@ -17,7 +17,7 @@ namespace examples {
 class Consumer
 {
    public:
-      void run(std::string strInterest, std::string strNode, int nSeqNum);
+      void run(std::string strInterest, std::string strNode, int nSeqNum, float sTimeSinceEpoch);
 
    private:
       void onData(const Interest&, const Data& data)       const;
@@ -33,6 +33,7 @@ class Consumer
       std::string m_strLogPath;
       std::chrono::steady_clock::time_point m_dtBegin;
       int m_nSeqNum;
+      float m_sTimeEpoch;
 };
 
 // --------------------------------------------------------------------------------
@@ -40,7 +41,7 @@ class Consumer
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::run(std::string strInterest, std::string strNode, int nSeqNum)
+void Consumer::run(std::string strInterest, std::string strNode, int nSeqNum, float sTimeSinceEpoch)
 {
    Name     interestName;
    Interest interest;
@@ -49,6 +50,7 @@ void Consumer::run(std::string strInterest, std::string strNode, int nSeqNum)
    // Read input parameters
    m_strNode     = strNode;
    m_nSeqNum     = nSeqNum;
+   m_sTimeEpoch  = sTimeSinceEpoch;
 
    if (strInterest.length() > 0)
       m_strInterest = strInterest;
@@ -60,7 +62,8 @@ void Consumer::run(std::string strInterest, std::string strNode, int nSeqNum)
    else
       m_strLogPath = "/tmp/minindn/default_consumerLog.log";
 
-   std::cout << "[Consumer::run] Started with Interest=" << m_strInterest << "; Node=" << m_strNode << "; SeqNum=" << m_nSeqNum << std::endl;
+   std::cout << "[Consumer::run] Started with Interest=" << m_strInterest << "; Node=" << m_strNode
+      << "; SeqNum=" << m_nSeqNum << "; TimeEpoch=" << m_sTimeEpoch << std::endl;
 
    interestName = Name(m_strInterest);
    interest     = Interest(interestName);
@@ -208,12 +211,14 @@ int main(int argc, char** argv)
 {
    std::string strInterest;
    std::string strNodeName;
+   float sTimeSinceEpoch;
    int nSeqNum;
 
    // Assign default values
-   strInterest = "";
-   strNodeName = "";
-   nSeqNum     = -1;
+   strInterest     = "";
+   strNodeName     = "";
+   nSeqNum         = -1;
+   sTimeSinceEpoch = 0;
 
    // Command line parameters
    if (argc > 1)
@@ -225,9 +230,12 @@ int main(int argc, char** argv)
    if (argc > 3)
       nSeqNum = atoi(argv[3]);
 
+   if (argc > 4)
+      sTimeSinceEpoch = atof(argv[4]);
+
    try {
       ndn::examples::Consumer consumer;
-      consumer.run(strInterest, strNodeName, nSeqNum);
+      consumer.run(strInterest, strNodeName, nSeqNum, sTimeSinceEpoch);
       return 0;
    }
    catch (const std::exception& e) {

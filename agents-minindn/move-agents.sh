@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# MININDN_DIR="/home/osboxes/mini-ndn"
-MININDN_DIR="/home/vagrant/mini-ndn"
+MININDN_DIR="/home/acarneiro/github/mini-ndn"
 PARENT_PATH=$(dirname "${BASH_SOURCE[0]}")
 
 # Consumer and producer
@@ -15,12 +14,12 @@ cd $PARENT_PATH; cd ..; ./build.sh
 echo "Done"
 
 
-# #Filename: success_test.sh 
-# # Evaluate the arguments on the command line - ie success_test.sh 'ls | grep txt' 
-# eval $@ 
-# if [ $? -eq 0 ]; 
-# then 
-#     echo "$CMD executed successfully" 
-# else 
-#     echo "$CMD terminated unsuccessfully" 
+# #Filename: success_test.sh
+# # Evaluate the arguments on the command line - ie success_test.sh 'ls | grep txt'
+# eval $@
+# if [ $? -eq 0 ];
+# then
+#     echo "$CMD executed successfully"
+# else
+#     echo "$CMD terminated unsuccessfully"
 # fi

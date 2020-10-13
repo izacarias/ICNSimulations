@@ -7,22 +7,23 @@ Created 25/09/2020 by Andr� Dexheimer Carneiro
 import sys
 import time
 import logging
+import generics
 from DataManager import *
 from random      import randint
 from datetime    import datetime, timedelta
-from mininet.log import setLogLevel, info
-from minindn.minindn import Minindn
-from minindn.util import MiniNDNCLI
-from minindn.apps.app_manager import AppManager
-from minindn.apps.nfd import Nfd
-from minindn.apps.nlsr import Nlsr
+# from mininet.log import setLogLevel, info
+# from minindn.minindn import Minindn
+# from minindn.util import MiniNDNCLI
+# from minindn.apps.app_manager import AppManager
+# from minindn.apps.nfd import Nfd
+# from minindn.apps.nlsr import Nlsr
 
 # ---------------------------------------- Constants
 c_strEportCmd        = 'export HOME=/home/osboxes/ && '
 c_strAppName         = 'C2Data'
 c_strLogFile         = './random_talks.log'
 c_nSleepThresholdMs  = 100
-c_bIsMockExperiment  = False
+c_bIsMockExperiment  = True
 c_sExperimentTimeSec = 10
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
@@ -37,7 +38,7 @@ class RandomTalks():
       """
       self.logFile         = None
       self.pDataManager    = DataManager()
-      self.nMissionMinutes = 1
+      self.nMissionMinutes = 5
       self.lstHosts        = lstHosts
 
    def setup(self):
@@ -118,8 +119,8 @@ class RandomTalks():
           # Valid consumer and producer
          pConsumer      = self.lstHosts[nConsumer]
          strInterest    = pDataPackage.getInterest()
-         strCmdConsumer = 'consumer %s %s &' % (strInterest, str(pConsumer))
-         self.log('instantiateConsumer', 'instantiating new consumer ' + str(pConsumer) + ' ' + strInterest + ' &')
+         strTime        = generics.getTimeSinceEpoch()
+         strCmdConsumer = 'consumer %s %s %s' % (strInterest, str(pConsumer), strTime)
          pConsumer.cmd(strCmdConsumer)
          self.log('instantiateConsumer', 'ConsumerCmd: ' + strCmdConsumer)
       else:
