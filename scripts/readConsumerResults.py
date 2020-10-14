@@ -9,20 +9,19 @@ import sys
 # Constants
 c_strFileName = 'consumerLog.log'
 
-
 def readResultFile(File):
     """
     Reads the content of a result file
     """
     lstLines  = []
     for strLine in File:
-        # Lines are in the format "%s;%.4f;%s", interest, timeDiff, result
+        # Lines are in the format "%s;%.4f;%s;%.4%", interest, timeDiff, result
         strLine = strLine.replace('\n', '')
         lstContents = strLine.split(';')
-        if (len(lstContents) != 3):
-            print('[readResultFile] line with more than 3 fields line=' + strLine)
+        if (len(lstContents) != 4):
+            print('[readResultFile] line with more or less than 4 fields line=' + strLine)
         else:
-            print('[readResultFile] (' + lstContents[0] + ', ' + lstContents[1] + ', ' + lstContents[2] + ')')
+            print('[readResultFile] (%s, %s, %s, %s)') % (lstContents[0], lstContents[1], lstContents[2], lstContents[3])
             lstLines.append(lstContents)
 
     return lstLines

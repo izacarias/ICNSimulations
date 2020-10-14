@@ -23,7 +23,7 @@ class Consumer
       void onData(const Interest&, const Data& data)       const;
       void onNack(const Interest&, const lp::Nack& nack)   const;
       void onTimeout(const Interest& interest)             const;
-      void logResult(float sTimeDiff, const char* pResult) const;
+      void logResult(float sTimeDiff, const char* pResult, float sTimeSince) const;
       void renameExistingLogFile();
 
    private:
@@ -98,7 +98,7 @@ void Consumer::onData(const Interest&, const Data& data) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "DATA");
+   logResult(sTimeDiff, "DATA", m_sTimeEpoch);
 
    std::cout << "[Consumer::onData] Received Data=" << data << "Delay=" << sTimeDiff << std::endl;
 }
@@ -116,7 +116,7 @@ void Consumer::onNack(const Interest&, const lp::Nack& nack) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "NACK");
+   logResult(sTimeDiff, "NACK", m_sTimeEpoch);
 
    std::cout << "[Consumer::onNack] Received Nack interest=" << m_strInterest <<
       ";Reason=" << nack.getReason() << "Delay=" << sTimeDiff << std::endl;
@@ -137,7 +137,7 @@ void Consumer::onTimeout(const Interest& interest) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "TIMEOUT");
+   logResult(sTimeDiff, "TIMEOUT", m_sTimeEpoch);
 
    std::cout << "[Consumer::onTimeout] Timeout for interest=" << m_strInterest << "Delay="
       << sTimeDiff << std::endl;
@@ -148,7 +148,7 @@ void Consumer::onTimeout(const Interest& interest) const
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::logResult(float sTimeDiff, const char* pResult) const
+void Consumer::logResult(float sTimeDiff, const char* pResult, float sTimeSince) const
 {
    FILE* pFile;
 
@@ -157,7 +157,7 @@ void Consumer::logResult(float sTimeDiff, const char* pResult) const
       pFile = fopen(m_strLogPath.c_str(), "a");
 
       if (pFile){
-         fprintf(pFile, "%s;%.4f;%s\n", m_strInterest.c_str(), sTimeDiff, pResult);
+         fprintf(pFile, "%s;%.4f;%s;%.4f\n", m_strInterest.c_str(), sTimeDiff, pResult, sTimeSince);
          fclose(pFile);
       }
       else{
