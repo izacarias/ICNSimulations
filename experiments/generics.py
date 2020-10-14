@@ -7,10 +7,16 @@ Created 12/10/2020 by Andre Dexheimer Carneiro
 import logging
 from datetime import datetime
 
-def getTimeSinceEpoch():
+def curDatetimeToFloat():
     """
-    Returns time since epoch in ms as float
+    Returns datetime as a float value
     """
     dtEpoch = datetime.utcfromtimestamp(0)
     dtNow   = datetime.now()
-    return (dtNow - dtEpoch).total_seconds()*1000.0
+    return (dtNow - dtEpoch).total_seconds()
+
+def floatToDatetime(sTime):
+    """
+    Return a datetime from a float time
+    """ 
+    return datetime.utcfromtimestamp(sTime)

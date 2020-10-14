@@ -47,8 +47,8 @@ class DataManager:
         lstDataQueue = []
         for strHost in lstHosts:
             # Generate data from each host
-            if(strHost[0] == 'd' and strHost[1] == '1'):
-            # if(strHost[0] == 'a'):
+            # if(strHost[0] == 'd' and strHost[1] == '1'):
+            if(strHost[0] == 'a'):
                 # Drone
                 logging.info('[generateDataQueue] Node type drone')
                 # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)

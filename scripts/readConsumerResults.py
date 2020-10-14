@@ -5,26 +5,47 @@ Andre Dexheimer Carneiro        04/07/2020
 """
 import os
 import sys
+from datetime import datetime
+
+def floatToDatetime(sTime):
+    """
+    Return a datetime from a float time
+    """ 
+    return datetime.utcfromtimestamp(sTime)
 
 # Constants
 c_strFileName = 'consumerLog.log'
+
+class Transmission:
+
+    def __init__(self, interest, timeDiff, info, timeSinceEpoch):
+        self.strInterest     = interest
+        self.sTimeDiff       = float(timeDiff)
+        self.strInfo         = info
+        self.strDate         = timeSinceEpoch
+        self.dtDate          = floatToDatetime(float(timeSinceEpoch))
+    
+    def __repr__(self):
+        return '<Transmission> interest=%s, timeDiff=%f, info=%s, timeSinceEpoch=%s' % (self.strInterest, 
+            self.sTimeDiff, self.strInfo, self.strDate)
 
 def readResultFile(File):
     """
     Reads the content of a result file
     """
-    lstLines  = []
+    lstTransmissions  = []
     for strLine in File:
-        # Lines are in the format "%s;%.4f;%s;%.4%", interest, timeDiff, result
+        # Lines are in the format "%s;%.4f;%s;%.4%", interest, timeDiff, result, timeSinceEpoch
         strLine = strLine.replace('\n', '')
         lstContents = strLine.split(';')
         if (len(lstContents) != 4):
             print('[readResultFile] line with more or less than 4 fields line=' + strLine)
         else:
-            print('[readResultFile] (%s, %s, %s, %s)') % (lstContents[0], lstContents[1], lstContents[2], lstContents[3])
-            lstLines.append(lstContents)
+            newTrans = Transmission(lstContents[0], lstContents[1], lstContents[2], lstContents[3])
+            print('[readResultFile] New Transmission=%s' % (newTrans))
+            lstTransmissions.append(newTrans)
 
-    return lstLines
+    return lstTransmissions
 
 # Log file location
 if (len(sys.argv) > 1):

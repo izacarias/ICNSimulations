@@ -17,7 +17,7 @@ namespace examples {
 class Consumer
 {
    public:
-      void run(std::string strInterest, std::string strNode, int nSeqNum, float sTimeSinceEpoch);
+      void run(std::string strInterest, std::string strNode, float sTimeSinceEpoch);
 
    private:
       void onData(const Interest&, const Data& data)       const;
@@ -32,7 +32,6 @@ class Consumer
       std::string m_strInterest;
       std::string m_strLogPath;
       std::chrono::steady_clock::time_point m_dtBegin;
-      int m_nSeqNum;
       float m_sTimeEpoch;
 };
 
@@ -41,7 +40,7 @@ class Consumer
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::run(std::string strInterest, std::string strNode, int nSeqNum, float sTimeSinceEpoch)
+void Consumer::run(std::string strInterest, std::string strNode, float sTimeSinceEpoch)
 {
    Name     interestName;
    Interest interest;
@@ -49,7 +48,6 @@ void Consumer::run(std::string strInterest, std::string strNode, int nSeqNum, fl
 
    // Read input parameters
    m_strNode     = strNode;
-   m_nSeqNum     = nSeqNum;
    m_sTimeEpoch  = sTimeSinceEpoch;
 
    if (strInterest.length() > 0)
@@ -63,7 +61,7 @@ void Consumer::run(std::string strInterest, std::string strNode, int nSeqNum, fl
       m_strLogPath = "/tmp/minindn/default_consumerLog.log";
 
    std::cout << "[Consumer::run] Started with Interest=" << m_strInterest << "; Node=" << m_strNode
-      << "; SeqNum=" << m_nSeqNum << "; TimeEpoch=" << m_sTimeEpoch << std::endl;
+      << "; TimeEpoch=" << m_sTimeEpoch << std::endl;
 
    interestName = Name(m_strInterest);
    interest     = Interest(interestName);
@@ -157,9 +155,9 @@ void Consumer::logResult(float sTimeDiff, const char* pResult, float sTimeSince)
       pFile = fopen(m_strLogPath.c_str(), "a");
 
       if (pFile){
-         fprintf(pFile, "%s;%.4f;%s;%.4f\n", m_strInterest.c_str(), sTimeDiff, pResult, sTimeSince);
+         fprintf(pFile, "%s;%.4f;%s;%f\n", m_strInterest.c_str(), sTimeDiff, pResult, sTimeSince);
          fclose(pFile);
-      }
+      }1
       else{
          std::cout << "[Consumer::log] ERROR opening output file for pResult=" << pResult
              << std::endl;
@@ -212,12 +210,10 @@ int main(int argc, char** argv)
    std::string strInterest;
    std::string strNodeName;
    float sTimeSinceEpoch;
-   int nSeqNum;
 
    // Assign default values
    strInterest     = "";
    strNodeName     = "";
-   nSeqNum         = -1;
    sTimeSinceEpoch = 0;
 
    // Command line parameters
@@ -228,14 +224,11 @@ int main(int argc, char** argv)
       strNodeName = argv[2];
 
    if (argc > 3)
-      nSeqNum = atoi(argv[3]);
-
-   if (argc > 4)
-      sTimeSinceEpoch = atof(argv[4]);
+      sTimeSinceEpoch = atof(argv[3]);
 
    try {
       ndn::examples::Consumer consumer;
-      consumer.run(strInterest, strNodeName, nSeqNum, sTimeSinceEpoch);
+      consumer.run(strInterest, strNodeName, sTimeSinceEpoch);
       return 0;
    }
    catch (const std::exception& e) {

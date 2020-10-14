@@ -53,7 +53,7 @@ if __name__ == '__main__':
     producer = ndn.net.hosts[0]
     strInterestFilter = '/myApp/' + producer.name
     strCmdAdvertise = 'nlsrc advertise ' + strInterestFilter
-    strCmdProducer  = 'producer ' + strInterestFilter + ' > /home/vagrant/tests/prod.log &'
+    strCmdProducer  = 'producer ' + strInterestFilter + ' &'
     print('CmdProducer: ' + strCmdAdvertise)
     print('CmdProducer: ' + strCmdProducer)
     producer.cmd(strCmdAdvertise)
@@ -64,9 +64,8 @@ if __name__ == '__main__':
     nPings = 5
     for host in ndn.net.hosts:
         strCmdConsumer = 'consumer ' + strInterestFilter + ' ' + host.name
-        strLog = ' > /home/vagrant/tests/' + host.name + '.log'
-        print('CmdConsumer: ' + strCmdConsumer + strLog)
-        host.cmd(strCmdConsumer + strLog)
+        print('CmdConsumer: ' + strCmdConsumer)
+        host.cmd(strCmdConsumer)
 
         if (host != producer):
             res = NDNPingClient.ping(host, producer, nPings)
