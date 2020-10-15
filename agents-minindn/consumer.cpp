@@ -17,13 +17,13 @@ namespace examples {
 class Consumer
 {
    public:
-      void run(std::string strInterest, std::string strNode, float sTimeSinceEpoch);
+      void run(std::string strInterest, std::string strNode, std::string strTimestamp);
 
    private:
       void onData(const Interest&, const Data& data)       const;
       void onNack(const Interest&, const lp::Nack& nack)   const;
       void onTimeout(const Interest& interest)             const;
-      void logResult(float sTimeDiff, const char* pResult, float sTimeSince) const;
+      void logResult(float sTimeDiff, const char* pResult, std::string strTimestamp) const;
       void renameExistingLogFile();
 
    private:
@@ -31,8 +31,8 @@ class Consumer
       std::string m_strNode;
       std::string m_strInterest;
       std::string m_strLogPath;
+      std::string m_strTimestamp;
       std::chrono::steady_clock::time_point m_dtBegin;
-      float m_sTimeEpoch;
 };
 
 // --------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ class Consumer
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::run(std::string strInterest, std::string strNode, float sTimeSinceEpoch)
+void Consumer::run(std::string strInterest, std::string strNode, std::string strTimestamp)
 {
    Name     interestName;
    Interest interest;
@@ -48,7 +48,7 @@ void Consumer::run(std::string strInterest, std::string strNode, float sTimeSinc
 
    // Read input parameters
    m_strNode     = strNode;
-   m_sTimeEpoch  = sTimeSinceEpoch;
+   m_strTimestamp = strTimestamp;
 
    if (strInterest.length() > 0)
       m_strInterest = strInterest;
@@ -61,7 +61,7 @@ void Consumer::run(std::string strInterest, std::string strNode, float sTimeSinc
       m_strLogPath = "/tmp/minindn/default_consumerLog.log";
 
    std::cout << "[Consumer::run] Started with Interest=" << m_strInterest << "; Node=" << m_strNode
-      << "; TimeEpoch=" << m_sTimeEpoch << std::endl;
+      << "; TimeEpoch=" << m_strTimestamp << std::endl;
 
    interestName = Name(m_strInterest);
    interest     = Interest(interestName);
@@ -96,7 +96,7 @@ void Consumer::onData(const Interest&, const Data& data) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "DATA", m_sTimeEpoch);
+   logResult(sTimeDiff, "DATA", m_strTimestamp);
 
    std::cout << "[Consumer::onData] Received Data=" << data << "Delay=" << sTimeDiff << std::endl;
 }
@@ -114,7 +114,7 @@ void Consumer::onNack(const Interest&, const lp::Nack& nack) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "NACK", m_sTimeEpoch);
+   logResult(sTimeDiff, "NACK", m_strTimestamp);
 
    std::cout << "[Consumer::onNack] Received Nack interest=" << m_strInterest <<
       ";Reason=" << nack.getReason() << "Delay=" << sTimeDiff << std::endl;
@@ -135,7 +135,7 @@ void Consumer::onTimeout(const Interest& interest) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "TIMEOUT", m_sTimeEpoch);
+   logResult(sTimeDiff, "TIMEOUT", m_strTimestamp);
 
    std::cout << "[Consumer::onTimeout] Timeout for interest=" << m_strInterest << "Delay="
       << sTimeDiff << std::endl;
@@ -146,18 +146,18 @@ void Consumer::onTimeout(const Interest& interest) const
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::logResult(float sTimeDiff, const char* pResult, float sTimeSince) const
+void Consumer::logResult(float sTimeDiff, const char* pResult, std::string strTimestamp) const
 {
    FILE* pFile;
 
    if (m_strNode.length() > 0){
-      // Write results to file
+      // Write results to files
       pFile = fopen(m_strLogPath.c_str(), "a");
 
       if (pFile){
-         fprintf(pFile, "%s;%.4f;%s;%f\n", m_strInterest.c_str(), sTimeDiff, pResult, sTimeSince);
+         fprintf(pFile, "%s;%.4f;%s;%s\n", m_strInterest.c_str(), sTimeDiff, pResult, strTimestamp.c_str());
          fclose(pFile);
-      }1
+      }
       else{
          std::cout << "[Consumer::log] ERROR opening output file for pResult=" << pResult
              << std::endl;
@@ -209,12 +209,12 @@ int main(int argc, char** argv)
 {
    std::string strInterest;
    std::string strNodeName;
-   float sTimeSinceEpoch;
+   std::string strTimestamp;
 
    // Assign default values
    strInterest     = "";
    strNodeName     = "";
-   sTimeSinceEpoch = 0;
+   strTimestamp    = "";
 
    // Command line parameters
    if (argc > 1)
@@ -224,11 +224,11 @@ int main(int argc, char** argv)
       strNodeName = argv[2];
 
    if (argc > 3)
-      sTimeSinceEpoch = atof(argv[3]);
+      strTimestamp = argv[3];
 
    try {
       ndn::examples::Consumer consumer;
-      consumer.run(strInterest, strNodeName, sTimeSinceEpoch);
+      consumer.run(strInterest, strNodeName, strTimestamp);
       return 0;
    }
    catch (const std::exception& e) {

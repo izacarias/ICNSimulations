@@ -117,10 +117,10 @@ class RandomTalks():
 
       if(nConsumer >= 0):
           # Valid consumer and producer
-         pConsumer      = self.lstHosts[nConsumer]
-         strInterest    = pDataPackage.getInterest()
-         strTime        = generics.curDatetimeToFloat()
-         strCmdConsumer = 'consumer %s %s %s' % (strInterest, str(pConsumer), strTime)
+         pConsumer   = self.lstHosts[nConsumer]
+         strInterest = pDataPackage.getInterest()
+         sTimestamp  = generics.curDatetimeToFloat()
+         strCmdConsumer = 'consumer %s %s %f' % (strInterest, str(pConsumer), sTimestamp)
          pConsumer.cmd(strCmdConsumer)
          self.log('instantiateConsumer', 'ConsumerCmd: ' + strCmdConsumer)
       else:
