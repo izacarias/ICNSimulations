@@ -6,14 +6,9 @@ Andre Dexheimer Carneiro        04/07/2020
 import os
 import sys
 from datetime import datetime
+from src.data_generation.generics import floatToDatetime
 
-def floatToDatetime(sTime):
-    """
-    Return a datetime from a float time
-    """ 
-    return datetime.utcfromtimestamp(sTime)
-
-# Constants
+# Constants ----------------------------------------------------
 c_strFileName = 'consumerLog.log'
 
 class Transmission:
@@ -22,12 +17,11 @@ class Transmission:
         self.strInterest     = interest
         self.sTimeDiff       = float(timeDiff)
         self.strInfo         = info
-        self.strDate         = timeSinceEpoch
         self.dtDate          = floatToDatetime(float(timeSinceEpoch))
     
     def __repr__(self):
         return '<Transmission> interest=%s, timeDiff=%f, info=%s, timeSinceEpoch=%s' % (self.strInterest, 
-            self.sTimeDiff, self.strInfo, self.strDate)
+            self.sTimeDiff, self.strInfo, self.dtDate)
 
 def readResultFile(File):
     """

@@ -4,7 +4,6 @@ producer/consumer experiments.
 
 Created 12/10/2020 by Andre Dexheimer Carneiro
 """
-import logging
 from datetime import datetime
 
 def curDatetimeToFloat():

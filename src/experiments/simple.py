@@ -8,10 +8,10 @@ Created 25/09/2020 by Andre Dexheimer Carneiro
 import sys
 import time
 import logging
-from DataManager import *
-from random      import randint
-from datetime    import datetime, timedelta
-from mininet.log import setLogLevel, info
+from src.data_generation.data_manager import DataManager
+from random       import randint
+from datetime     import datetime, timedelta
+from mininet.log  import setLogLevel, info
 from minindn.minindn import Minindn
 from minindn.util import MiniNDNCLI
 from minindn.apps.app_manager import AppManager

@@ -4,13 +4,13 @@ packages and their timestamps created and queued by DataManager.
 
 Created 25/09/2020 by Andre Dexheimer Carneiro
 """
+from src.data_generation.generics import curDatetimeToFloat
+from src.data_generation.data_manager import DataManager
 import sys
 import time
 import logging
-import generics
-from DataManager import *
-from random      import randint
-from datetime    import datetime, timedelta
+from random import randint
+from datetime import datetime, timedelta
 from mininet.log import setLogLevel, info
 from minindn.minindn import Minindn
 from minindn.util import MiniNDNCLI
@@ -23,7 +23,7 @@ c_strEportCmd        = 'export HOME=/home/osboxes/ && '
 c_strAppName         = 'C2Data'
 c_strLogFile         = './random_talks.log'
 c_nSleepThresholdMs  = 100
-c_bIsMockExperiment  = False
+c_bIsMockExperiment  = True
 c_sExperimentTimeSec = 10
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
@@ -52,7 +52,7 @@ class RandomTalks():
       for node in self.lstHosts:
          self.log('setup', 'Node: ' + str(node))
          lstHostNames.append(str(node))
-      self.lstDataQueue = self.pDataManager.generateDataQueue(lstHostNames, self.nMissionMinutes)
+      self.lstDataQueue = self.pDataManager.generateSpreadDataQueue(lstHostNames, self.nMissionMinutes)
 
       # Get TTLs from data manager
       strTTLValues = self.pDataManager.getTTLValuesParam()
@@ -119,7 +119,7 @@ class RandomTalks():
           # Valid consumer and producer
          pConsumer   = self.lstHosts[nConsumer]
          strInterest = pDataPackage.getInterest()
-         sTimestamp  = generics.curDatetimeToFloat()
+         sTimestamp  = curDatetimeToFloat()
          strCmdConsumer = 'consumer %s %s %f' % (strInterest, str(pConsumer), sTimestamp)
          pConsumer.cmd(strCmdConsumer)
          self.log('instantiateConsumer', 'ConsumerCmd: ' + strCmdConsumer)

@@ -4,9 +4,9 @@ Deprecated
 import sys
 import time
 import logging
-from DataManager import *
-from random      import randint
-from datetime    import datetime, timedelta
+from src.data_generation.data_manager import DataManager
+from random  import randint
+from datetime import datetime, timedelta
 from ndn.experiments.experiment import Experiment
 
 # ---------------------------------------- Constants

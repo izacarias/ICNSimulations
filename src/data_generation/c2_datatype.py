@@ -1,87 +1,11 @@
 """
-Creates and manages Command And Control (C2) package types and
-package queues.
+Command And Control (C2) package types.
 
-Created 25/09/2020 by Andre Dexheimer Carneiro
+Created 14/10/2020 by Andre Dexheimer Carneiro
 """
-import logging
 import random
-
-# ---------------------------------------- Constants
-c_strAppName = 'C2Data'
-
-# logging.basicConfig(filename="DataManager.log", format='%(asctime)s %(message)s', level=logging.DEBUG)
-
-def main():
-
-    logging.info('STARTING------------------------------------------')
-    DataMgr = DataManager()
-
-    lstHosts        = ['d1', 'd2', 'd3', 'h1']
-    nMissionMinutes = 1
-    lstDataQueue    = DataMgr.generateDataQueue(lstHosts, nMissionMinutes)
-
-    nCount = 0
-    for pNode in lstDataQueue:
-        logging.info('%s ms, %s' % (pNode[0], pNode[1]))
-        print('%s ms, %s' % (pNode[0], pNode[1]))
-        nCount += 1
-    print('Total data queue size: %s' %(nCount))
-
-
-class DataManager:
-
-    def __init__(self):
-        """
-        Constructor
-        """
-        self.lstDataTypes = []
-        # Initialize known dataTypes
-        self.lstDataTypes.append(C2DataType(nTTL=5000, nPeriod=20, nType=1, nSize=5000,
-            lstAllowedHostTypes=['d', 'h', 'v', 's'], sRatioMaxReceivers=100, sPeriodWiggleRoom=0.2))   # INTEREST 1
-
-    def generateDataQueue(self, lstHosts, nMissionMinutes):
-        """
-        Generates an unordered queue with packages and send time
-        """
-        lstDataQueue = []
-        for strHost in lstHosts:
-            # Generate data from each host
-            # if(strHost[0] == 'd' and strHost[1] == '1'):
-            if(strHost[0] == 'a'):
-                # Drone
-                logging.info('[generateDataQueue] Node type drone')
-                # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
-                self.lstDataTypes[0].generateSpreadDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
-            elif(strHost[0] == 'h'):
-                # Human
-                logging.info('[generateDataQueue] Node type human')
-                # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
-            elif(strHost[0] == 's'):
-                # Sensor
-                logging.info('[generateDataQueue] Node type sensor')
-                # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
-            elif(strHost[0] == 'v'):
-                # Vehicle
-                logging.info('[generateDataQueue] Node type vehicle')
-                # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
-            else:
-                # Unrecognized host type
-                logging.error('[generateDataQueue] Unrecognized host type ' + strHost)
-
-        lstDataQueue.sort(key=lambda x: x[0])
-        return lstDataQueue
-
-    def getTTLValuesParam(self):
-        """
-        Returns a string listing the TTL values for all available data types
-        """
-        strTTLValues = ''
-        for DataType in self.lstDataTypes:
-            strTTLValues += str(DataType.nTTL/1000) + ' '
-        # Remove last whitespace
-        strTTLValues = strTTLValues[:-1]
-        return strTTLValues
+import logging
+from data_package import DataPackage
 
 class C2DataType:
 
@@ -128,8 +52,9 @@ class C2DataType:
         return nCount
 
     def generateSpreadDataQueue(self, strHost, nMissionMinutes, lstDataQueue, lstHosts):
-
-        # lstDataQueue    = []
+        """
+        Creates a a data queue of a single package to be sent to all hosts.
+        """
         nReceiverIndex  = 0
         nSecondsElapsed = 0
         for nIndex in range(0, 100):
@@ -194,31 +119,3 @@ class C2DataType:
 
         return lstResult
 
-class DataPackage:
-
-    def __init__(self, nType, nID, nPayloadSize, strHost, strDest):
-        """
-        Constructor
-        """
-        self.nID          = nID
-        self.nPayloadSize = nPayloadSize
-        self.nType        = nType
-        self.strOrig      = strHost
-        self.strDest      = strDest
-
-    def __repr__(self):
-        """
-        Repr
-        """
-        return '<DataPackage_Type%s_ID%s (%s -> %s)>' %(self.nType, self.nID, self.strOrig, self.strDest)
-
-    def getInterest(self):
-        """
-        Returns the string representation of the interest filter
-        """
-        strInterest = '/'+ c_strAppName + '/' + self.strOrig + '/C2Data-'
-        strInterest = strInterest + str(self.nID) + '-Type' + str(self.nType)
-        return strInterest
-
-if (__name__ == '__main__'):
-    main()
