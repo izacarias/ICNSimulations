@@ -5,28 +5,47 @@
 
 #define STR_CONFIGFILE_PATH "/home/andre/Source/icnsimulations/agents-minindn/readTypeConfig/c2_types.conf"
 #define STR_VALID_LINE_START "Type"
+#define N_DEFAULT_PAYLOAD 10
+#define N_DEFAULT_TTL      5
 
-int readTypesConfig(const char* pConfigPath);
+int readTypesConfig(const char* pConfigPath, std::vector<int>* vecTTLs, std::vector<int>* vecPayloads);
 
 int main(){
 
-    int nResult;
-    // std::vector<int> vecTTL;
-    // std::vector<int> vecPayload;
-    nResult = readTypesConfig(STR_CONFIGFILE_PATH);
+    std::vector<int> vecTTLs, vecPayloads;
+    int nTypes, i;
 
-    return 0;
+    nTypes = readTypesConfig(STR_CONFIGFILE_PATH, &vecTTLs, &vecPayloads);
+
+    printf("main: Read config types=%d, TTLsize=%ld, PayloadSize=%ld\n", nTypes, vecTTLs.size(), vecPayloads.size());
+
+    // Print config read
+
+    if (vecTTLs.size() == vecPayloads.size()){
+        for (i = 0; i < vecTTLs.size(); i++){
+            printf("Type %d, TTL %d, Payload %d\n", i+1, vecTTLs[i], vecPayloads[i]);
+        }
+    }
+    else{
+        printf("Sizes are not the same\n");
+    }
+
+    return nTypes;
 }
 
-int readTypesConfig(const char* pConfigPath){
+int readTypesConfig(const char* pConfigPath, std::vector<int>* vecTTLs, std::vector<int>* vecPayloads){
 
-    FILE *pConfigFile;
-    char *pLine;
+    FILE *pConfigFile = NULL;
+    char *pLine = NULL;
     size_t nLength;
-    int nRead, nType, nTTL, nPayload, nTypes;
+    int nRead, nType, nTTL, nPayload, nReadTypes, nExpectedType;
 
-    nTypes = 0;
+    printf("[readTypesConfig] Reading types config from %s\n", pConfigPath);
 
+    nReadTypes = 0;
+    nExpectedType = 1;  // Types start at value 1 (not 0)
+    vecTTLs->clear();
+    vecPayloads->clear();
     pConfigFile = fopen(pConfigPath, "r");
 
     if (pConfigFile){
@@ -38,11 +57,22 @@ int readTypesConfig(const char* pConfigPath){
 
             if (nRead >= 3){
                 // Valid line
-                printf("Read valid line, type=%d, TTL=%d, Payload=%d\n", nType, nTTL, nPayload);
-            }
-            else{
-                // Invalid (ignored) line
-                printf("Read ignored line: %s", pLine);
+                printf("[readTypesConfig] Read valid line, type=%d, TTL=%d, Payload=%d\n", nType, nTTL, nPayload);
+
+                while((nType > 0) && (nType > nExpectedType)){
+                    // Fill in type values that were skipped in config
+                    vecPayloads->push_back(N_DEFAULT_PAYLOAD);
+                    vecTTLs->push_back(N_DEFAULT_TTL);
+                    nExpectedType++;
+                }
+
+                if (nType == nExpectedType){
+                    // Type was in the expected order
+                    vecTTLs->push_back(nTTL);
+                    vecPayloads->push_back(nPayload);
+                    nExpectedType++;
+                    nReadTypes++;
+                }
             }
         }
         fclose(pConfigFile);
@@ -51,5 +81,5 @@ int readTypesConfig(const char* pConfigPath){
         printf("File %s not found", pConfigPath);
     }
 
-    return nTypes;
+    return nReadTypes;
 }
