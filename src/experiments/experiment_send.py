@@ -56,10 +56,11 @@ class RandomTalks():
 
       # Get TTLs from data manager
       strTTLValues = self.pDataManager.getTTLValuesParam()
+      strPayloadValues = self.pDataManager.getPayloadValuesParam()
 
       # Instantiate all producers
       for pHost in self.lstHosts:
-         self.instantiateProducer(pHost, strTTLValues)
+         self.instantiateProducer(pHost, strTTLValues, strPayloadValues)
 
       # Log resulting data queue
       for nIndex, node in enumerate(self.lstDataQueue):
@@ -126,13 +127,13 @@ class RandomTalks():
       else:
          raise Exception('[instantiateConsumer] ERROR, invalid origin host in data package=%s' % pDataPackage)
 
-   def instantiateProducer(self, pHost, strTTLValues):
+   def instantiateProducer(self, pHost, strTTLValues, strPayloadValues):
       """
       Issues MiniNDN commands to instantiate a producer
       """
       strFilter       = self.getFilterByHostname(str(pHost))
       strCmdAdvertise = 'nlsrc advertise %s' % strFilter
-      strCmdProducer  = 'producer %s %s &' % (strFilter, strTTLValues)
+      strCmdProducer  = 'producer %s %s %s &' % (strFilter, strTTLValues, strPayloadValues)
       pHost.cmd(strCmdAdvertise)
       pHost.cmd(strCmdProducer)
       self.log('instantiateProducer', 'instantiating new producer ' + str(pHost) + ' ' + strFilter + ' &')

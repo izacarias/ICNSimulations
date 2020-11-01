@@ -72,6 +72,18 @@ class DataManager:
         strTTLValues = strTTLValues[:-1]
         return strTTLValues
 
+    def getPayloadValuesParam(self):
+        """
+        Returns a string listing the payload values for all available data types
+        """
+        strPayloadValues = ''
+        for DataType in self.lstDataTypes:
+            strPayloadValues += str(DataType.nPayloadSize) + ' '
+        # Remove last whitespace
+        strPayloadValues = strPayloadValues[:-1]
+        return strPayloadValues
+
+
 
 if (__name__ == '__main__'):
     main()

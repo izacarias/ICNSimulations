@@ -21,7 +21,7 @@ namespace examples {
 class Producer
 {
   public:
-    void run(std::string strFilter, std::vector<int> lstTTLValues);
+    void run(std::string strFilter, std::vector<int> lstTTLs, std::vector<int> lstPayloads);
 
   private:
     void onInterest(const InterestFilter&, const Interest& interest);
@@ -30,7 +30,7 @@ class Producer
   private:
     Face           m_face;
     KeyChain       m_keyChain;
-    std::vector<int> m_lstTTLValues;
+    std::vector<int> m_lstTTLs, m_lstPayloads;
 };
 
 // --------------------------------------------------------------------------------
@@ -38,21 +38,21 @@ class Producer
 //
 //
 // --------------------------------------------------------------------------------
-void Producer::run(std::string strFilter, std::vector<int> lstTTLValues)
+void Producer::run(std::string strFilter, std::vector<int> lstTTLs, std::vector<int> lstPayloads)
 {
   if (strFilter.length() == 0){
     // No specific filter set
     strFilter = "/exampleApp/blup";
   }
-  m_lstTTLValues = lstTTLValues;
 
-  fprintf(stderr, "[Producer::run] Producer for filter=%s with nTypes=%d\n", strFilter.c_str(), m_lstTTLValues.size());
+  m_lstTTLs     = lstTTLs;
+  m_lstPayloads = lstPayloads
+
+  fprintf(stderr, "[Producer::run] Producer for filter=%s with TTLs=%d and Payloads=%d\n", strFilter.c_str(), m_lstTTLs.size(), m_lstPayloads.size());
 
   // strInterest = '/' + c_strAppName + '/' + str(producer) + '/' + strInterest
-  m_face.setInterestFilter(strFilter,
-                           bind(&Producer::onInterest, this, _1, _2),
-                           nullptr, // RegisterPrefixSuccessCallback is optional
-                           bind(&Producer::onRegisterFailed, this, _1, _2));
+  // nullptr is because RegisterPrefixSuccessCallback is optional
+  m_face.setInterestFilter(strFilter, bind(&Producer::onInterest, this, _1, _2), nullptr, bind(&Producer::onRegisterFailed, this, _1, _2));
   m_face.processEvents();
 }
 
@@ -81,10 +81,10 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
     static const std::string strContent = "C2Data";
     printf("[Producer::onInterest] C2Data id=%d; type=%d\n", nID, nType);
 
-    // Check m_lstTTLValues for the data`s type
-    if (nType <= m_lstTTLValues.size()){
-      printf("[Producer::onInterest] Using TTL from list %d", m_lstTTLValues[nType]);
-      Sec = boost::chrono::seconds(m_lstTTLValues[nType-1]);
+    // Check m_lstTTLs for the data`s type
+    if (nType <= m_lstTTLs.size()){
+      printf("[Producer::onInterest] Using TTL from list %d", m_lstTTLs[nType]);
+      Sec = boost::chrono::seconds(m_lstTTLs[nType-1]);
     }
     else{
       printf("[Producer::onInterest] Not using TTL value from list for nType=%d", nType);
@@ -139,8 +139,8 @@ void Producer::onRegisterFailed(const Name& prefix, const std::string& reason)
 int main(int argc, char** argv)
 {
   std::string      strFilter;
-  std::vector<int> lstTTLValues;
-  int nIndex;
+  std::vector<int> lstTTLs, lstPayloads, lstParameters;
+  int i, nListSize;
 
   strFilter = "";
 
@@ -148,14 +148,29 @@ int main(int argc, char** argv)
     strFilter = argv[1];
 
   if (argc > 2){
-    for (nIndex = 2; nIndex < argc; nIndex++){
-      lstTTLValues.push_back(atoi(argv[nIndex]));
+    for (i = 2; i < argc; i++){
+      lstParameters.push_back(atoi(argv[i]));
+    }
+  }
+
+  // Create TTL and Payload lists from the parameters
+  if (lstParameters.size() % 2 == 0){
+    // Even size, divide parameters into two lists: TTL and payload values
+    for (i=0; i < lstParameters.size()/2; i++){
+      lstTTLs.push_back(lstParameters[i]);
+      lstPayloads.push_back(lstParameters[i + lstParameters.size()/2]);
+    }
+  }
+  else{
+    // Odd size, use parameters as TTL values only
+    for (i = 0; i < lstParameters; i++){
+      lstTTLs.push_back(lstParameters[i]);
     }
   }
 
   try {
     ndn::examples::Producer producer;
-    producer.run(strFilter, lstTTLValues);
+    producer.run(strFilter, lstTTLs, lstPayloads);
     return 0;
   }
   catch (const std::exception& e) {
