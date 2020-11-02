@@ -1,7 +1,7 @@
 /*
-*   Vanilla producer for MiniNDN
+*   Based on vanilla producer for MiniNDN
 *
-*
+*   André Dexheimer Carneiro 02/11/2020
 */
 
 #include <ndn-cxx/face.hpp>
@@ -11,7 +11,9 @@
 #include <iostream>
 #include <boost/chrono/duration.hpp>
 
-#define STR_APPNAME "C2Data"
+#define STR_APPNAME             "C2Data"
+#define N_DEFAULT_TTL_MS        10000
+#define N_DEFALUT_PAYLOAD_BYTES 100
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
@@ -26,6 +28,10 @@ class Producer
   private:
     void onInterest(const InterestFilter&, const Interest& interest);
     void onRegisterFailed(const Name& prefix, const std::string& reason);
+    void printTypesConfig();
+  
+    int getTTLMsFromType(int nType);
+    int getPayloadBytesFromType(int nType);
 
   private:
     Face           m_face;
@@ -48,7 +54,8 @@ void Producer::run(std::string strFilter, std::vector<int> lstTTLs, std::vector<
   m_lstTTLs     = lstTTLs;
   m_lstPayloads = lstPayloads;
 
-  fprintf(stderr, "[Producer::run] Producer for filter=%s with TTLs=%d and Payloads=%d\n", strFilter.c_str(), m_lstTTLs.size(), m_lstPayloads.size());
+  fprintf(stderr, "[Producer::run] Producer for filter=%s with TTLs=%ld and Payloads=%ld\n", strFilter.c_str(), m_lstTTLs.size(), m_lstPayloads.size());
+  printTypesConfig();
 
   // strInterest = '/' + c_strAppName + '/' + str(producer) + '/' + strInterest
   // nullptr is because RegisterPrefixSuccessCallback is optional
@@ -63,62 +70,98 @@ void Producer::run(std::string strFilter, std::vector<int> lstTTLs, std::vector<
 // --------------------------------------------------------------------------------
 void Producer::onInterest(const InterestFilter&, const Interest& interest)
 {
-  int nType, nID, nRead;
+  int nType, nID, nPayloadSize, nTTLMs;
   std::string strPacket;
-  std::string strTTL;
-  boost::chrono::seconds Sec;
+  const char *pPayload;
 
   std::cout << "[Producer::onInterest] >> I: " << interest << std::endl;
-  // interest.toUri() results in the same thing
-  // Format: /drone/%FD%00...AF?MustBeFresh&Nonce=43a724&Lifetime=6000
 
   strPacket = interest.getName().toUri();
-  nRead     = sscanf(basename((char*) strPacket.c_str()), "C2Data-%d-Type%d", &nID, &nType);
-  printf("[Producer::onInterest] Interest for packet=%s", strPacket.c_str());
+  nType     = 0;
+  nID       = -1;
+  sscanf(basename((char*) strPacket.c_str()), "C2Data-%d-Type%d", &nID, &nType);
+  printf("[Producer::onInterest] Interest for packet=%s\n", strPacket.c_str());
 
-  if (nRead > 0){
-    // Use C2 data
-    static const std::string strContent = "C2Data";
-    printf("[Producer::onInterest] C2Data id=%d; type=%d\n", nID, nType);
+  // Determine TTL
+  nTTLMs      = getTTLMsFromType(nType);
+  // Determine Payload
+  nPayloadSize = getPayloadBytesFromType(nType);
 
-    // Check m_lstTTLs for the data`s type
-    if (nType <= m_lstTTLs.size()){
-      printf("[Producer::onInterest] Using TTL from list %d", m_lstTTLs[nType]);
-      Sec = boost::chrono::seconds(m_lstTTLs[nType-1]);
-    }
-    else{
-      printf("[Producer::onInterest] Not using TTL value from list for nType=%d", nType);
-      Sec = boost::chrono::seconds(60);
-    }
-  }
-  else{
-    // Use random data to keep retro-compatibility
-    static const std::string strContent = "Hello, world!";
-    printf("[Producer::onInterest] Normal data\n");
-  }
+  printf("[Producer::onInterest] nType=%d; nID=%d; TTLms=%d; PayloadSize=%d\n", nType, nID, nTTLMs, nPayloadSize);  
 
-  // Create Data packet
-  const char *pMyData = (char*) malloc(100);
+  // Create packet for interest
+  pPayload = (char*) malloc(nPayloadSize);
   auto data = make_shared<Data>(interest.getName());
-
-  // TODO: Switch between freshness values depending on C2Data type
-  // data->setFreshnessPeriod(Sec);   // 60s is the default for control data
-  data->setFreshnessPeriod(boost::chrono::milliseconds(Sec));   // 60s is the default for control data
-
-
-  // data->setContent(reinterpret_cast<const uint8_t*>(strContent.data()), strContent.size());
-  data->setContent(reinterpret_cast<const uint8_t*>(pMyData), 100);
-
-  // Sign Data packet with default identity
+  data->setFreshnessPeriod(boost::chrono::milliseconds(nTTLMs));
+  data->setContent(reinterpret_cast<const uint8_t*>(pPayload), nPayloadSize);
   m_keyChain.sign(*data);
+
+  /////////////////////////////////////////////////////////////////////////////
+  // interest.toUri() results in the same thing
+  // Format: /drone/%FD%00...AF?MustBeFresh&Nonce=43a724&Lifetime=6000
+  //
+  // with Sec as boost::chrono::seconds
+  // data->setFreshnessPeriod(Sec);   // 60s is the default for control data
+  //
+  // for a static const std::string strContent
+  // data->setContent(reinterpret_cast<const uint8_t*>(strContent.data()), strContent.size());
+  //
+  // Sign Data packet with default identity
   // m_keyChain.sign(*data, signingByIdentity(<identityName>));
   // m_keyChain.sign(*data, signingByKey(<keyName>));
   // m_keyChain.sign(*data, signingByCertificate(<certName>));
   // m_keyChain.sign(*data, signingWithSha256());
+  //////////////////////////////////////////////////////////////////////////////
 
   // Return Data packet to the requester
-  std::cout << "<< D: " << *data << std::endl;
+  std::cout << "[Producer::onInterest] << D: " << *data << std::endl;
   m_face.put(*data);
+}
+
+// --------------------------------------------------------------------------------
+//  getTTLMsFromType
+//
+//
+// --------------------------------------------------------------------------------
+int Producer::getTTLMsFromType(int nType)
+{
+  int nTTL = N_DEFAULT_TTL_MS;
+  if ((nType > 0) && ((uint) nType <= m_lstTTLs.size())){
+    // The starting value for nType is 1
+    nTTL = m_lstTTLs[nType-1];
+  }
+  return nTTL;
+}
+
+// --------------------------------------------------------------------------------
+//  getPayloadBytesFromType
+//
+//
+// --------------------------------------------------------------------------------
+int Producer::getPayloadBytesFromType(int nType)
+{
+  int nPayload = N_DEFALUT_PAYLOAD_BYTES;
+  if ((nType > 0) && ((uint) nType <= m_lstPayloads.size())){
+    // The starting value for nType is 1
+    nPayload = m_lstPayloads[nType-1];
+  }
+  return nPayload;
+}
+
+// --------------------------------------------------------------------------------
+//  printTypesConfig
+//
+//
+// --------------------------------------------------------------------------------
+void Producer::printTypesConfig()
+{
+  unsigned int i;
+  int nPayload, nTTL;
+  for (i = 1; i <= m_lstTTLs.size(); i++){
+    nTTL = getTTLMsFromType(i);
+    nPayload = getPayloadBytesFromType(i);
+    printf("[Producer::printTypesConfig] Type %d - TTL %d - PayloadSize %d\n", i, nTTL, nPayload);
+  }
 }
 
 // --------------------------------------------------------------------------------
@@ -133,8 +176,6 @@ void Producer::onRegisterFailed(const Name& prefix, const std::string& reason)
   m_face.shutdown();
 }
 
-}
-
 } // namespace examples
 } // namespace ndn
 
@@ -142,17 +183,19 @@ int main(int argc, char** argv)
 {
   std::string      strFilter;
   std::vector<int> lstTTLs, lstPayloads, lstParameters;
-  int nListSize;
   unsigned int i;
+  int j;
 
   strFilter = "";
 
+  // Parameter [1] interest filter
   if (argc > 1)
     strFilter = argv[1];
 
+  // Parameter [2..] list of TTLs and payloads
   if (argc > 2){
-    for (i = 2; i < argc; i++){
-      lstParameters.push_back(atoi(argv[i]));
+    for (j = 2; j < argc; j++){
+      lstParameters.push_back(atoi(argv[j]));
     }
   }
 

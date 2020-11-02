@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MININDN_DIR="/home/acarneiro/github/mini-ndn"
+MININDN_DIR="/home/vagrant/mini-ndn"
 PARENT_PATH=$(dirname "${BASH_SOURCE[0]}")
 
 # Consumer and producer

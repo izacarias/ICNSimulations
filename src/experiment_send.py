@@ -24,7 +24,8 @@ c_strAppName         = 'C2Data'
 c_strLogFile         = './random_talks.log'
 c_nSleepThresholdMs  = 100
 c_bIsMockExperiment  = False
-c_sExperimentTimeSec = 10
+c_sExperimentTimeSec = 30
+c_nMissionMinutes    = 5
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -38,7 +39,6 @@ class RandomTalks():
       """
       self.logFile         = None
       self.pDataManager    = DataManager()
-      self.nMissionMinutes = 5
       self.lstHosts        = lstHosts
 
    def setup(self):
@@ -52,7 +52,7 @@ class RandomTalks():
       for node in self.lstHosts:
          self.log('setup', 'Node: ' + str(node))
          lstHostNames.append(str(node))
-      self.lstDataQueue = self.pDataManager.generateSpreadDataQueue(lstHostNames, self.nMissionMinutes)
+      self.lstDataQueue = self.pDataManager.generateSpreadDataQueue(lstHostNames, c_nMissionMinutes)
 
       # Get TTLs from data manager
       strTTLValues = self.pDataManager.getTTLValuesParam()

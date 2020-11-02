@@ -1,7 +1,7 @@
 /*
 *    Based on Vanilla consumer for MiniNDN
 *
-*
+*    André Dexheimer Carneiro 02/11/2020
 */
 #include <ndn-cxx/face.hpp>
 #include <iostream>
@@ -217,12 +217,13 @@ int main(int argc, char** argv)
    strTimestamp    = "";
 
    // Command line parameters
+   // Parameter [1] interest filter
    if (argc > 1)
       strInterest = argv[1];
-
+   // Parameter [2] host name
    if (argc > 2)
       strNodeName = argv[2];
-
+   // Parameter [3] timestamp of start time
    if (argc > 3)
       strTimestamp = argv[3];
 

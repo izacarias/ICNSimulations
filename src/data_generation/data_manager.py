@@ -63,11 +63,11 @@ class DataManager:
 
     def getTTLValuesParam(self):
         """
-        Returns a string listing the TTL values for all available data types
+        Returns a string listing the TTL values in ms for all available data types
         """
         strTTLValues = ''
         for DataType in self.lstDataTypes:
-            strTTLValues += str(DataType.nTTL/1000) + ' '
+            strTTLValues += str(DataType.nTTL) + ' '
         # Remove last whitespace
         strTTLValues = strTTLValues[:-1]
         return strTTLValues
