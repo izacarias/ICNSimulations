@@ -4,8 +4,8 @@ packages and their timestamps created and queued by DataManager.
 
 Created 25/09/2020 by Andre Dexheimer Carneiro
 """
-from src.data_generation.generics import curDatetimeToFloat
-from src.data_generation.data_manager import DataManager
+from data_generation.generics import curDatetimeToFloat
+from data_generation.data_manager import DataManager
 import sys
 import time
 import logging
@@ -23,7 +23,7 @@ c_strEportCmd        = 'export HOME=/home/osboxes/ && '
 c_strAppName         = 'C2Data'
 c_strLogFile         = './random_talks.log'
 c_nSleepThresholdMs  = 100
-c_bIsMockExperiment  = True
+c_bIsMockExperiment  = False
 c_sExperimentTimeSec = 10
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)

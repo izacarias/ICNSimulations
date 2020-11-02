@@ -46,7 +46,7 @@ void Producer::run(std::string strFilter, std::vector<int> lstTTLs, std::vector<
   }
 
   m_lstTTLs     = lstTTLs;
-  m_lstPayloads = lstPayloads
+  m_lstPayloads = lstPayloads;
 
   fprintf(stderr, "[Producer::run] Producer for filter=%s with TTLs=%d and Payloads=%d\n", strFilter.c_str(), m_lstTTLs.size(), m_lstPayloads.size());
 
@@ -133,6 +133,8 @@ void Producer::onRegisterFailed(const Name& prefix, const std::string& reason)
   m_face.shutdown();
 }
 
+}
+
 } // namespace examples
 } // namespace ndn
 
@@ -140,7 +142,8 @@ int main(int argc, char** argv)
 {
   std::string      strFilter;
   std::vector<int> lstTTLs, lstPayloads, lstParameters;
-  int i, nListSize;
+  int nListSize;
+  unsigned int i;
 
   strFilter = "";
 
@@ -163,7 +166,7 @@ int main(int argc, char** argv)
   }
   else{
     // Odd size, use parameters as TTL values only
-    for (i = 0; i < lstParameters; i++){
+    for (i = 0; i < lstParameters.size(); i++){
       lstTTLs.push_back(lstParameters[i]);
     }
   }

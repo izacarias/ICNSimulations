@@ -6,7 +6,7 @@ Andre Dexheimer Carneiro        04/07/2020
 import os
 import sys
 from datetime import datetime
-from src.data_generation.generics import floatToDatetime
+from data_generation.generics import floatToDatetime
 
 # Constants ----------------------------------------------------
 c_strFileName = 'consumerLog.log'
@@ -21,7 +21,7 @@ class Transmission:
     
     def __repr__(self):
         return '<Transmission> interest=%s, timeDiff=%f, info=%s, timeSinceEpoch=%s' % (self.strInterest, 
-            self.sTimeDiff, self.strInfo, self.dtDate)
+            self.sTimeDiff, self.strInfo, self.dtDate.strftime('%d/%m/%Y %H:%M:%S.%f'))
 
 def readResultFile(File):
     """
@@ -36,7 +36,7 @@ def readResultFile(File):
             print('[readResultFile] line with more or less than 4 fields line=' + strLine)
         else:
             newTrans = Transmission(lstContents[0], lstContents[1], lstContents[2], lstContents[3])
-            print('[readResultFile] New Transmission=%s' % (newTrans))
+            print('[readResultFile] %s' % (newTrans))
             lstTransmissions.append(newTrans)
 
     return lstTransmissions
