@@ -192,7 +192,7 @@ def runExperiment():
    setLogLevel('info')
    Minindn.cleanUp()
    Minindn.verifyDependencies()
-   ndn = Minindn()
+   ndn = Minindn(topoFile='/home/vagrant/icnsimulations/topologies/default-topology.conf')
    ndn.start()
 
    info('Starting NFD on nodes\n')
