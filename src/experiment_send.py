@@ -197,13 +197,35 @@ def runExperiment():
    ndn.start()
 
    info('Starting NFD on nodes\n')
-   nfds = AppManager(ndn, ndn.net.hosts, Nfd)
+   # nfds = AppManager(ndn, ndn.net.hosts, Nfd, csSize=0)
+   nHosts = len(ndn.net.hosts)
+
+   lstHosts = ndn.net.hosts[0:min(2,nHosts)]
+   nfds1 = AppManager(ndn, lstHosts, Nfd, csSize=0)
+   for x in lstHosts:
+      print('Cache 0: %s' % str(x))
+
+   lstHosts = ndn.net.hosts[2:min(4,nHosts)]
+   nfds2 = AppManager(ndn, lstHosts, Nfd, csSize=100)
+   for x in lstHosts:
+      print('Cache 100: %s' % str(x))
+
+   lstHosts = ndn.net.hosts[4:min(6,nHosts)]
+   nfds3 = AppManager(ndn, lstHosts, Nfd, csSize=1000)
+   for x in lstHosts:
+      print('Cache 1000: %s' % str(x))
+
+   lstHosts = ndn.net.hosts[6:nHosts]
+   nfds4 = AppManager(ndn, lstHosts, Nfd, csSize=10000)
+   for x in lstHosts:
+      print('Cache 10000: %s' % str(x))
+
    info('Starting NLSR on nodes\n')
    nlsrs = AppManager(ndn, ndn.net.hosts, Nlsr)
 
    #############################################################
    # Wait for NLSR initialization, 30 seconds to be on the safe side
-   time.sleep(30);
+   time.sleep(30)
 
    # Set up experiment
    Experiment = RandomTalks(ndn.net.hosts)
