@@ -22,6 +22,7 @@ from minindn.apps.nlsr import Nlsr
 c_strEportCmd        = 'export HOME=/home/osboxes/ && '
 c_strAppName         = 'C2Data'
 c_strLogFile         = './random_talks.log'
+c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
 c_nSleepThresholdMs  = 100
 c_bIsMockExperiment  = False
 c_sExperimentTimeSec = 30
@@ -192,7 +193,7 @@ def runExperiment():
    setLogLevel('info')
    Minindn.cleanUp()
    Minindn.verifyDependencies()
-   ndn = Minindn(topoFile='/home/vagrant/icnsimulations/topologies/default-topology.conf')
+   ndn = Minindn(topoFile=c_strTopologyFile)
    ndn.start()
 
    info('Starting NFD on nodes\n')
