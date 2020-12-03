@@ -17,6 +17,7 @@ from minindn.util import MiniNDNCLI
 from minindn.apps.app_manager import AppManager
 from minindn.apps.nfd import Nfd
 from minindn.apps.nlsr import Nlsr
+from mininet.node import Ryu
 
 # ---------------------------------------- Constants
 c_strEportCmd        = 'export HOME=/home/osboxes/ && '
@@ -24,9 +25,10 @@ c_strAppName         = 'C2Data'
 c_strLogFile         = './random_talks.log'
 c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
 c_nSleepThresholdMs  = 100
-c_bIsMockExperiment  = False
-c_sExperimentTimeSec = 30
+c_sExperimentTimeSec = 60
 c_nMissionMinutes    = 5
+c_bIsMockExperiment  = False
+c_bSDNEnabled        = False
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -193,32 +195,37 @@ def runExperiment():
    setLogLevel('info')
    Minindn.cleanUp()
    Minindn.verifyDependencies()
-   ndn = Minindn(topoFile=c_strTopologyFile)
+
+   if (c_bSDNEnabled):
+      ndn = Minindn(topoFile=c_strTopologyFile, controller=Ryu)
+   else:
+      ndn = Minindn(topoFile=c_strTopologyFile)
    ndn.start()
 
    info('Starting NFD on nodes\n')
-   # nfds = AppManager(ndn, ndn.net.hosts, Nfd, csSize=0)
+   nfds = AppManager(ndn, ndn.net.hosts, Nfd)
    nHosts = len(ndn.net.hosts)
 
-   lstHosts = ndn.net.hosts[0:min(2,nHosts)]
-   nfds1 = AppManager(ndn, lstHosts, Nfd, csSize=0)
-   for x in lstHosts:
-      print('Cache 0: %s' % str(x))
+   # lstHosts = ndn.net.hosts[0:min(2,nHosts)]
+   # nfds1 = AppManager(ndn, lstHosts, Nfd, csSize=0)
+   # for x in lstHosts:
+   #    print('Cache 0: %s' % str(x))
 
-   lstHosts = ndn.net.hosts[2:min(4,nHosts)]
-   nfds2 = AppManager(ndn, lstHosts, Nfd, csSize=100)
-   for x in lstHosts:
-      print('Cache 100: %s' % str(x))
+   # lstHosts = ndn.net.hosts[2:min(4,nHosts)]
+   # nfds2 = AppManager(ndn, lstHosts, Nfd, csSize=100)
+   # for x in lstHosts:
+   #    print('Cache 100: %s' % str(x))
 
-   lstHosts = ndn.net.hosts[4:min(6,nHosts)]
-   nfds3 = AppManager(ndn, lstHosts, Nfd, csSize=1000)
-   for x in lstHosts:
-      print('Cache 1000: %s' % str(x))
+   # lstHosts = ndn.net.hosts[4:min(6,nHosts)]
+   # nfds3 = AppManager(ndn, lstHosts, Nfd, csSize=1000)
+   # for x in lstHosts:
+   #    print('Cache 1000: %s' % str(x))
 
-   lstHosts = ndn.net.hosts[6:nHosts]
-   nfds4 = AppManager(ndn, lstHosts, Nfd, csSize=10000)
-   for x in lstHosts:
-      print('Cache 10000: %s' % str(x))
+   # lstHosts = ndn.net.hosts[6:nHosts]
+   # nfds4 = AppManager(ndn, lstHosts, Nfd, csSize=10000)
+   # for x in lstHosts:
+   #    print('Cache 10000: %s' % str(x))
+      
 
    info('Starting NLSR on nodes\n')
    nlsrs = AppManager(ndn, ndn.net.hosts, Nlsr)
