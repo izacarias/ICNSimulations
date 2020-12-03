@@ -1,5 +1,5 @@
 27/05/2020 (Quarta)
- 
+
 1)
 Gabriel não incluiu os arquivos usados nos experimentos. Não é um impeditivo, mas vou ter que refazer partes do trabalho que ele já fez e testou. Facilitaria minha vida, principalmente pq tem a parte do teste com redes IP que quase não vai ser alterado a nível de experimento.
 
@@ -86,3 +86,10 @@ o que ficou na minha cabeça
 4. After compiling the `ndn-cxx/examples` experiments folder, create symbolic links to the generated consumer and producer files located in `mini-ndn/ndn-src/ndn-cxx/build/exmaples`
 
 5. When running xterms inside MiniNDN, run `export HOME=/tmp/minindn/<hostname>; cd` for each host. Whithout this an error for `no such file or directory will show up`
+
+
+Reunião 03/12
+
+- Descobrir como funciona o MiniNDN com SDN, especialmente ao que se deve a switches, para atualizar a figura 7. A figura 7 apresenta aquelas gambiarras do nomes/faces/oftsoftswitch.
+- Gerar topologia aleatória e mudar aos poucos com alguns parâmetros mais realistas talvez.
+- Colocar taxa de perda nos enlaces
