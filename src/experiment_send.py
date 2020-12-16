@@ -11,23 +11,22 @@ import time
 import logging
 from random import randint
 from datetime import datetime, timedelta
-from mininet.log import setLogLevel, info
-from minindn.minindn import Minindn
-from minindn.util import MiniNDNCLI
-from minindn.apps.app_manager import AppManager
-from minindn.apps.nfd import Nfd
-from minindn.apps.nlsr import Nlsr
-from mininet.node import Ryu
+# from mininet.log import setLogLevel, info
+# from minindn.minindn import Minindn
+# from minindn.util import MiniNDNCLI
+# from minindn.apps.app_manager import AppManager
+# from minindn.apps.nfd import Nfd
+# from minindn.apps.nlsr import Nlsr
+# from mininet.node import Ryu
 
 # ---------------------------------------- Constants
-c_strEportCmd        = 'export HOME=/home/osboxes/ && '
 c_strAppName         = 'C2Data'
-c_strLogFile         = './random_talks.log'
+c_strLogFile         = './experiment_send.log'
 c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
 c_nSleepThresholdMs  = 100
 c_sExperimentTimeSec = 60
 c_nMissionMinutes    = 5
-c_bIsMockExperiment  = False
+c_bIsMockExperiment  = True
 c_bSDNEnabled        = False
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
@@ -76,7 +75,6 @@ class RandomTalks():
       self.log('run', 'Running')
 
       # Internal parameters
-      nHosts             = len(self.lstHosts)
       dtInitialTime      = datetime.now()
       dtCurTime          = None
       dtDelta            = timedelta()
@@ -225,7 +223,7 @@ def runExperiment():
    # nfds4 = AppManager(ndn, lstHosts, Nfd, csSize=10000)
    # for x in lstHosts:
    #    print('Cache 10000: %s' % str(x))
-      
+
 
    info('Starting NLSR on nodes\n')
    nlsrs = AppManager(ndn, ndn.net.hosts, Nlsr)
