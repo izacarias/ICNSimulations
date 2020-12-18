@@ -5,7 +5,8 @@ Created 14/10/2020 by Andre Dexheimer Carneiro
 """
 import random
 import logging
-from data_package import DataPackage
+
+from .data_package import DataPackage
 
 class C2DataType:
 

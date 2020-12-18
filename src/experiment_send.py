@@ -4,13 +4,12 @@ packages and their timestamps created and queued by DataManager.
 
 Created 25/09/2020 by Andre Dexheimer Carneiro
 """
-from data_generation.generics import curDatetimeToFloat
-from data_generation.data_manager import DataManager
 import sys
 import time
 import logging
-from random import randint
+from random   import randint
 from datetime import datetime, timedelta
+
 # from mininet.log import setLogLevel, info
 # from minindn.minindn import Minindn
 # from minindn.util import MiniNDNCLI
@@ -19,13 +18,14 @@ from datetime import datetime, timedelta
 # from minindn.apps.nlsr import Nlsr
 # from mininet.node import Ryu
 
+from data_generation import DataManager, curDatetimeToFloat
+
 # ---------------------------------------- Constants
 c_strAppName         = 'C2Data'
 c_strLogFile         = './experiment_send.log'
-c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
+c_strTopologyFile    = 'E:/Source/icnsimulations/topologies/default-topology.conf'
 c_nSleepThresholdMs  = 100
 c_sExperimentTimeSec = 60
-c_nMissionMinutes    = 5
 c_bIsMockExperiment  = True
 c_bSDNEnabled        = False
 
@@ -49,12 +49,8 @@ class RandomTalks():
       """
       self.log('setup', 'Setting up new experiment')
 
-      # Generate data queue
-      lstHostNames = []
-      for node in self.lstHosts:
-         self.log('setup', 'Node: ' + str(node))
-         lstHostNames.append(str(node))
-      self.lstDataQueue = self.pDataManager.generateSpreadDataQueue(lstHostNames, c_nMissionMinutes)
+      # Load data queue
+      self.lstDataQueue = DataManager.loadDataQueueFromFile(c_strTopologyFile)
 
       # Get TTLs from data manager
       strTTLValues = self.pDataManager.getTTLValuesParam()
@@ -118,7 +114,7 @@ class RandomTalks():
       nConsumer = self.findHostIndexByName(pDataPackage.strDest)
 
       if(nConsumer >= 0):
-          # Valid consumer and producer
+         # Valid consumer and producer
          pConsumer   = self.lstHosts[nConsumer]
          strInterest = pDataPackage.getInterest()
          sTimestamp  = curDatetimeToFloat()
@@ -184,6 +180,7 @@ def runMock():
    lstHosts = [MockHost('d1'), MockHost('s1'), MockHost('h1'), MockHost('v1'), MockHost('h2'), MockHost('s2'), MockHost('d2')]
    Experiment = RandomTalks(lstHosts)
    Experiment.setup()
+   return
    Experiment.run()
 
 def runExperiment():

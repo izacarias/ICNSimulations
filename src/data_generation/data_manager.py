@@ -5,9 +5,14 @@ package queues.
 Created 25/09/2020 by Andre Dexheimer Carneiro
 """
 import logging
-from c2_datatype import C2DataType
+import pickle
+from os.path import dirname, basename
 
-# logging.basicConfig(filename="DataManager.log", format='%(asctime)s %(message)s', level=logging.DEBUG)
+from .c2_datatype import C2DataType
+
+# Constants --------------------------------
+c_strTopoFileSuffix = '.conf'
+
 
 class DataManager:
 
@@ -83,7 +88,33 @@ class DataManager:
         strPayloadValues = strPayloadValues[:-1]
         return strPayloadValues
 
+    @staticmethod
+    def saveDataQueueToFile(lstQueue, strTopoFilePath):
+        """
+        Stores a data queue using pickle
+        """
+        strPath = DataManager.queueFileNameForFromTopo(strTopoFilePath)
+        bResult = False
+        with open(strPath, 'wb') as pFile:
+            pickle.dump(lstQueue, pFile)
+            bResult = True
+        return bResult
 
+    @staticmethod
+    def loadDataQueueFromFile(strTopoFilePath):
+        """
+        Loads a data queue using pickle
+        """
+        strPath  = DataManager.queueFileNameForFromTopo(strTopoFilePath)
+        lstQueue = None
+        with open(strPath, 'rb') as pFile:
+            lstQueue = pickle.load(pFile)
+        return lstQueue
 
-if (__name__ == '__main__'):
-    main()
+    @staticmethod
+    def queueFileNameForFromTopo(strTopoFilePath):
+        """
+        Returns the designated pickle file path
+        """
+        strPath = dirname(strTopoFilePath) + '/queue_' + basename(strTopoFilePath).strip(c_strTopoFileSuffix) + '.pkl'
+        return strPath
