@@ -8,7 +8,7 @@ Custom topology generator. Returns MiniNDN readable .conf file for different top
 import logging
 import sys
 from random import randint
-from math   import sqrt
+from math   import sqrt, atan
 
 c_strLogFile = 'E:/Source/icnsimulations/generate_topology.log'
 
@@ -40,6 +40,8 @@ class Node:
         else:
             self.nX = randint(0, nMaxX)
             self.nY = randint(0, nMaxY)
+            self.sRadius = sqrt(self.nX**2 + self.nY**2)
+            self.sAngle  = atan(self.nY/self.nX)
 
     def distanceTo(self, pNode):
         """
@@ -55,7 +57,7 @@ class Node:
         Returns Link string in MiniNDN topology file format
         ex. d1: _ radius=1 angle=4.71238898038
         """
-        strLine = '%s: _' % (self.strName)
+        strLine = '%s: _ radius=%f angle=%f' % (self.strName, self.sRadius, self.sAngle)
         return strLine
 
     def Name(self):
