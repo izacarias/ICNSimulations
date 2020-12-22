@@ -10,7 +10,7 @@ import sys
 from random import randint
 from math   import sqrt, atan
 
-c_strLogFile = 'E:/Source/icnsimulations/generate_topology.log'
+c_strLogFile = '/home/vagrant/icnsimulations/log/generate_topology.log'
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))

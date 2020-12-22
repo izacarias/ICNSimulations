@@ -22,8 +22,8 @@ from data_generation import DataManager, curDatetimeToFloat
 
 # ---------------------------------------- Constants
 c_strAppName         = 'C2Data'
-c_strLogFile         = './experiment_send.log'
-c_strTopologyFile    = 'E:/Source/icnsimulations/topologies/default-topology.conf'
+c_strLogFile         = '/home/vagrant/icnsimulations/log/experiment_send.log'
+c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
 c_nSleepThresholdMs  = 100
 c_sExperimentTimeSec = 60
 c_bIsMockExperiment  = True

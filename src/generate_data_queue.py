@@ -10,7 +10,7 @@ import logging
 from data_generation import DataManager, readHostNamesFromTopoFile
 
 # ---------------------------------------- Constants
-c_strLogFile         = './generate_data_queue.log'
+c_strLogFile         = '/home/vagrant/icnsimulations/log/generate_data_queue.log'
 c_strTopologyFile    = 'E:/Source/icnsimulations/topologies/default-topology.conf'
 c_nMissionMinutes    = 5
 
