@@ -98,6 +98,7 @@ class DataManager:
         with open(strPath, 'wb') as pFile:
             pickle.dump(lstQueue, pFile)
             bResult = True
+            logging.info('[DataManager.saveDataQueueToFile] Data queue saved to path=%s' % strPath)
         return bResult
 
     @staticmethod

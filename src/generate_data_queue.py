@@ -11,7 +11,7 @@ from data_generation import DataManager, readHostNamesFromTopoFile
 
 # ---------------------------------------- Constants
 c_strLogFile         = '/home/vagrant/icnsimulations/log/generate_data_queue.log'
-c_strTopologyFile    = 'E:/Source/icnsimulations/topologies/default-topology.conf'
+c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
 c_nMissionMinutes    = 5
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
@@ -24,9 +24,18 @@ def main():
     """
     Manager = DataManager()
 
+    # Read command line parameter
+    if (len(sys.argv) == 1):
+        logging.error('[main] no topology file specified. To use the default topology, use \'default\' as the first parameter')
+        exit()
+    elif (sys.argv[1] == 'default'):
+        strTopologyPath = c_strTopologyFile
+    else:
+        strTopologyPath = sys.argv[1]
+
     # Read hostnames from the topology file and generate queue
-    lstHostNames = readHostNamesFromTopoFile(c_strTopologyFile)
-    logging.info('[main] Generating queue, missionMinutes= %d; hostnames=%s' % (c_nMissionMinutes, str(lstHostNames)))
+    lstHostNames = readHostNamesFromTopoFile(strTopologyPath)
+    logging.info('[main] Generating queue, missionMinutes= %d; hostnames=%s; topoFile=%s' % (c_nMissionMinutes, str(lstHostNames), strTopologyPath))
     lstDataQueue = Manager.generateSpreadDataQueue(lstHostNames, c_nMissionMinutes)
 
     # Log resulting data queue
@@ -34,10 +43,10 @@ def main():
         logging.debug('[main] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
 
     # Store the resulting data queue using pickle
-    bStatus = DataManager.saveDataQueueToFile(lstDataQueue, c_strTopologyFile)
+    bStatus = DataManager.saveDataQueueToFile(lstDataQueue, strTopologyPath)
 
     if (not bStatus):
-        logging.error('[main] Could not save data queue for topo file=' + c_strTopologyFile)
+        logging.error('[main] Could not save data queue for topo file=' + strTopologyPath)
 
     logging.info('[main] Done!')
 
