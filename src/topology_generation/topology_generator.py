@@ -92,9 +92,10 @@ class TopologyGenerator:
     @staticmethod
     def readTopoFile(strPath):
         """
-        Returns a list containing the hostnames read from a MiniNDN topology file
+        Reads a MiniNDN formated topology .conf file. Returns nodes list and link list
         """
-        lstHosts = []
+        lstNodes = []
+        lstLinks = []
         with open(strPath) as pFile:
             lstLines = pFile.readlines()
             bNodeSection = False
@@ -105,28 +106,24 @@ class TopologyGenerator:
                     bNodeSection = True
                     bLinkSection = False
                     continue
-
                 # Begin links session, end of the hosts session
                 if (strLine.strip() == c_strLinksTag):
                     bNodeSection = False
                     bLinkSection = True
                     continue
-
                 # Attempt to read hostnames in the following standard
                 # b1: _ cache=0 radius=0.6 angle=3.64159265359
                 if (bNodeSection):
-                    Node.fromString(strLine)
-                    # lstFields = strLine.split(':')
-                    # if (len(lstFields) > 0):
-                    #     lstHosts.append(lstFields[0])
-
+                    newNode = Node.fromString(strLine)
+                    lstNodes.append(newNode)
                 # Attempt to read link information in the following standard
                 # h0:h2 delay=10ms bw=1000 loss=12
                 if (bLinkSection):
+                    newLink = Link.fromString(strLine, lstNodes)
+                    lstLinks.append(newLink)
                     continue
-                   
 
-        return lstHosts
+        return (lstNodes, lstLinks)
 
     @staticmethod
     def checkForIslands(lstNodes, lstLinks):

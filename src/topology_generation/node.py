@@ -64,6 +64,24 @@ class Node:
     def Name(self):
         return self.strName
 
+    def getType(self):
+        cType = self.strName[0]
+        if (cType == 'h'):
+            strType = 'human'
+        elif (cType == 'd'):
+            strType = 'drone'
+        elif (cType == 's'):
+            strType = 'sensor'
+        elif (cType == 'v'):
+            strType = 'vehicle'
+        else:
+            strType = 'other'
+
+        return strType
+
+    def getCoord(self):
+        return (self.nX, self.nY)
+
     @staticmethod
     def fromString(strNode):
         """
@@ -78,7 +96,7 @@ class Node:
         lstContent = strNode.split(':')
         if (len(lstContent) > 0):
             strName = lstContent[0]
-        # Read radius 
+        # Read radius
         strRadiusRegex = r'.*radius=([0-9\.]+).*'
         pMatch = re.match(strRadiusRegex, strNode, re.M|re.I)
         if (pMatch):
@@ -90,11 +108,11 @@ class Node:
             sAngle = float(pMatch.group(1))
 
         logging.debug('[Node.fromString] name=%s, radius=%s, angle=%s' % (strName, sRadius, sAngle))
-                    
+
         if (strName != '') and (sRadius != -1) and (sAngle != -1):
             newNode = Node(strName, sRadius=sRadius, sAngle=sAngle)
             logging.debug('[Node.fromString] name=%s, nX=%d, nY=%d' % (newNode.Name(), newNode.nX, newNode.nY))
-        
+
         return newNode
 
 

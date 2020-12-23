@@ -1,0 +1,2 @@
+2020-12-22 21:12:15,429 createRandomTopo: begin maxX=100, maxY=100, NodeLinks=4
+2020-12-22 21:12:15,431 [main] topology file written to path=../topologies/test-topo.conf
