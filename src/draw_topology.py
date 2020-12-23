@@ -12,13 +12,23 @@ from topology_generation import TopologyGenerator
 
 c_strLogFile = '/home/andre/Source/icnsimulations/log/draw_topology.log'
 
-logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 def main():
 
-    (lstNodes, lstLinks) = TopologyGenerator.readTopoFile('/home/andre/Source/icnsimulations/topologies/test-topo.conf')
+    # Read input param
+    if (len(sys.argv) == 1):
+        logging.error('[main] No topology specified as first parameter!')
+        exit()
+    else:
+        strTopoPath = sys.argv[1]
 
+    logging.info('[main] Reading topology from path=%s' % strTopoPath)
+    (lstNodes, lstLinks) = TopologyGenerator.readTopoFile(strTopoPath)
+
+    #################################################
+    # Draw individual nodes
     lstHumanCoord   = []
     lstSensorCoord  = []
     lstDroneCoord   = []
@@ -33,33 +43,23 @@ def main():
         elif (pNode.getType() == 'vehicle'):
             lstVehicleCoord.append(pNode.getCoord())
 
-    plt.scatter([x[0] for x in lstHumanCoord], [x[1] for x in lstHumanCoord], marker='*')
-    plt.scatter([x[0] for x in lstSensorCoord], [x[1] for x in lstSensorCoord], marker='x')
-    plt.scatter([x[0] for x in lstDroneCoord], [x[1] for x in lstDroneCoord], marker='^')
-    plt.scatter([x[0] for x in lstVehicleCoord], [x[1] for x in lstVehicleCoord], marker='s')
+    humanScatter = plt.scatter([x[0] for x in lstHumanCoord], [x[1] for x in lstHumanCoord], marker='*', s=120)
+    sensorScatter = plt.scatter([x[0] for x in lstSensorCoord], [x[1] for x in lstSensorCoord], marker='x', s=120)
+    droneScatter = plt.scatter([x[0] for x in lstDroneCoord], [x[1] for x in lstDroneCoord], marker='^', s=120)
+    vehicleScatter = plt.scatter([x[0] for x in lstVehicleCoord], [x[1] for x in lstVehicleCoord], marker='s', s=120)
+    plt.legend([humanScatter, sensorScatter, droneScatter, vehicleScatter], ['Soldado', 'Sensor', 'Drone', 'Veículo'], loc='upper right')
+
+    #################################################
+    # Draw links between nodes
+    lstLinkCoords = []
+    for pLink in lstLinks:
+        lstLinkCoords = []
+        lstLinkCoords.append(pLink.origHost.getCoord())
+        lstLinkCoords.append(pLink.destHost.getCoord())
+        plt.plot([x[0] for x in lstLinkCoords], [x[1] for x in lstLinkCoords], linewidth=1.5, zorder=-1)
+
     plt.show()
-
-    '''
-    point1 = [1, 2]
-    point2 = [3, 4]
-    x_values = [point1[0], point2[0]]
-    # gather x-values
-    y_values = [point1[1], point2[1]]
-    # gather y-values
-    plt.plot(x_values, y_values)
-
-    # Fixing random state for reproducibility
-    np.random.seed(19680801)
-
-    x = np.random.rand(20)
-    y = 1e7*np.random.rand(20)
-
-    fig, ax = plt.subplots()
-    ax.fmt_ydata = millions
-    plt.plot(x, y, 'o')
-    plt.show()
-    '''
-
+    logging.info('[main] Done! Log written to %s' % (c_strLogFile))
 
 if __name__ == '__main__':
     main()

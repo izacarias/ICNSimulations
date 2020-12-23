@@ -115,29 +115,12 @@ class Node:
 
         return newNode
 
-
-'''
-strRegex = r'EventReplaySimulator2Replay_([0-9]+)_20200926\.log:(.*) : TPriceBookSimBrokerDaemon\.OnPendingOrdersTimerProc: \[SimulatorMercuryTimeout\] ClOrdID=(.*); Ticker=(.*); Bolsa=(.*); Account=(.*)'
-
-  lstTimeouts = []
-  lstTickers  = []
-  for strLine in lstTimeoutFile:
-    pMatch = re.match(strRegex, strLine, re.M|re.I)
-    if pMatch:
-      hshTimeout = {}
-      hshTimeout['thread']    = pMatch.group(1)
-      hshTimeout['timestamp'] = datetime.datetime.strptime(pMatch.group(2), '%d/%m/%Y %H:%M:%S.%f')
-      hshTimeout['ClOrdID']   = pMatch.group(3)
-      hshTimeout['ticker']    = pMatch.group(4)
-      hshTimeout['exchange']  = pMatch.group(5)
-      hshTimeout['account']   = pMatch.group(6)
-
-      lstTimeouts.append(hshTimeout)
-      if (hshTimeout['ticker'] not in lstTickers):
-        lstTickers.append(hshTimeout['ticker'])
-
-    else:
-      raise Exception('Line does not match strLine=%s' % strLine)
-
-
-'''
+    @staticmethod
+    def findByName(strName, lstNodes):
+        """
+        Returns a node with corresponding name from list
+        """
+        for pNode in lstNodes:
+            if (pNode.strName == strName):
+                return pNode
+        return Noe
