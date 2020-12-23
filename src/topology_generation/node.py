@@ -42,7 +42,7 @@ class Node:
             self.nX = randint(1, nMaxX)
             self.nY = randint(1, nMaxY)
             self.sRadius = sqrt(self.nX**2 + self.nY**2)
-            self.sAngle  = atan(self.nY/self.nX)
+            self.sAngle  = atan(float(self.nY)/float(self.nX))
 
     def distanceTo(self, pNode):
         """

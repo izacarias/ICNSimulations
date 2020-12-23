@@ -27,7 +27,7 @@ class TopologyGenerator:
         """
         c_nX = 100
         c_nY = 100
-        logging.info('createRandomTopo: begin maxX=%d, maxY=%d, NodeLinks=%d' % (c_nX, c_nY, nNodeLinks))
+        logging.info('[createRandomTopo] Begin maxX=%d, maxY=%d, NodeLinks=%d' % (c_nX, c_nY, nNodeLinks))
 
         # Place all nodes at random x,y coordinates
         lstNodes = []
@@ -47,7 +47,7 @@ class TopologyGenerator:
                 # Elements are added to the list as a tuple (index, distance)
                 if (j != i):
                     lstDistances.append((j, pNode.distanceTo(lstNodes[j])))
-                    logging.debug('createRandomTopo: distance from %s to %s = %f' % (pNode.Name(), lstNodes[j].Name(), lstDistances[-1][1]))
+                    logging.debug('[createRandomTopo] Distance from %s to %s = %f' % (pNode.Name(), lstNodes[j].Name(), lstDistances[-1][1]))
 
             # Order the list by distance (tuple field 1)
             lstDistances.sort(key=lambda x: x[1])
@@ -56,7 +56,7 @@ class TopologyGenerator:
                 # Create the links
                 newLink = Link(pNode, lstNodes[tupleNode[0]])
                 lstLinks.append(newLink)
-                logging.debug('createRandomTopo: Node %s links to %s' % (newLink.origHost.Name(), newLink.destHost.Name()))
+                logging.debug('[createRandomTopo] Node %s links to %s' % (newLink.origHost.Name(), newLink.destHost.Name()))
 
         return lstNodes, lstLinks
 
