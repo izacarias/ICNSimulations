@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 draw_topology.py
 
@@ -24,7 +25,7 @@ def main():
     else:
         strTopoPath = sys.argv[1]
 
-    logging.info('[main] Reading topology from path=%s' % strTopoPath)
+    logging.info('[main] Drawing topology from path=%s' % strTopoPath)
     (lstNodes, lstLinks) = TopologyGenerator.readTopoFile(strTopoPath)
 
     #################################################
@@ -43,10 +44,17 @@ def main():
         elif (pNode.getType() == 'vehicle'):
             lstVehicleCoord.append(pNode.getCoord())
 
+    # Draw points
     humanScatter = plt.scatter([x[0] for x in lstHumanCoord], [x[1] for x in lstHumanCoord], marker='*', s=120)
     sensorScatter = plt.scatter([x[0] for x in lstSensorCoord], [x[1] for x in lstSensorCoord], marker='x', s=120)
     droneScatter = plt.scatter([x[0] for x in lstDroneCoord], [x[1] for x in lstDroneCoord], marker='^', s=120)
     vehicleScatter = plt.scatter([x[0] for x in lstVehicleCoord], [x[1] for x in lstVehicleCoord], marker='s', s=120)
+
+    # Draw hostnames
+    for pNode in lstNodes:
+        plt.annotate(pNode.Name(), (pNode.nX, pNode.nY), xytext=(pNode.nX+0.5, pNode.nY+0.5))
+
+    # Draw legend
     plt.legend([humanScatter, sensorScatter, droneScatter, vehicleScatter], ['Soldado', 'Sensor', 'Drone', 'Veículo'], loc='upper right')
 
     #################################################

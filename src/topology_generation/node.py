@@ -19,6 +19,8 @@ class Node:
 
     def __init__(self, strName, sRadius=-1, sAngle=-1):
         self.strName = strName
+        self.sRadius = sRadius
+        self.sAngle  = sAngle
         if (sRadius != -1) and (sAngle != -1):
             self.nX = int(round(cos(sAngle) * sRadius))
             self.nY = int(round(sin(sAngle) * sRadius))
@@ -43,6 +45,7 @@ class Node:
             self.nY = randint(1, nMaxY)
             self.sRadius = sqrt(self.nX**2 + self.nY**2)
             self.sAngle  = atan(float(self.nY)/float(self.nX))
+            logging.debug('[Node.placeAtRandom] host %s placed at x=%d; y=%d; r=%f; angle=%f' % (self.strName, self.nX, self.nY, self.sRadius, self.sAngle))
 
     def distanceTo(self, pNode):
         """
@@ -107,11 +110,9 @@ class Node:
         if (pMatch):
             sAngle = float(pMatch.group(1))
 
-        logging.debug('[Node.fromString] name=%s, radius=%s, angle=%s' % (strName, sRadius, sAngle))
-
         if (strName != '') and (sRadius != -1) and (sAngle != -1):
             newNode = Node(strName, sRadius=sRadius, sAngle=sAngle)
-            logging.debug('[Node.fromString] name=%s, nX=%d, nY=%d' % (newNode.Name(), newNode.nX, newNode.nY))
+            logging.debug('[Node.fromString] new Node name=%s, x=%d; y=%d; r=%f; angle=%s' % (newNode.Name(), newNode.nX, newNode.nY, newNode.sRadius, newNode.sAngle))
 
         return newNode
 
@@ -123,4 +124,4 @@ class Node:
         for pNode in lstNodes:
             if (pNode.strName == strName):
                 return pNode
-        return Noe
+        return None

@@ -14,6 +14,8 @@ from .node import Node
 c_nDefaultNodeLinks = 5
 c_strNodesTag       = '[nodes]'
 c_strLinksTag       = '[links]'
+c_nDefaultX         = 100
+c_nDefaultY         = 100
 
 class TopologyGenerator:
     """
@@ -21,20 +23,18 @@ class TopologyGenerator:
     """
 
     @staticmethod
-    def createRandomTopo(lstHosts, nNodeLinks=c_nDefaultNodeLinks):
+    def createRandomTopo(lstHosts, nNodeLinks=c_nDefaultNodeLinks, nMaxX=c_nDefaultX, nMaxY=c_nDefaultY):
         """
         Places all hosts randomly in a X,Y space and stabilishes connections with the N hosts closest to each one.
         """
-        c_nX = 100
-        c_nY = 100
-        logging.info('[createRandomTopo] Begin maxX=%d, maxY=%d, NodeLinks=%d' % (c_nX, c_nY, nNodeLinks))
+        logging.info('[createRandomTopo] Begin maxX=%d, maxY=%d, NodeLinks=%d' % (nMaxX, nMaxY, nNodeLinks))
 
         # Place all nodes at random x,y coordinates
         lstNodes = []
         lstLinks = []
         for strHost in lstHosts:
             newNode = Node(strHost)
-            newNode.placeAtRandom(c_nX, c_nY)
+            newNode.placeAtRandom(nMaxX, nMaxY)
             lstNodes.append(newNode)
 
         # Create links for each node
@@ -45,18 +45,20 @@ class TopologyGenerator:
             # Calculate all distances
             for j in range(len(lstNodes)):
                 # Elements are added to the list as a tuple (index, distance)
+                # Where index is the relative to lstNodes
                 if (j != i):
                     lstDistances.append((j, pNode.distanceTo(lstNodes[j])))
-                    logging.debug('[createRandomTopo] Distance from %s to %s = %f' % (pNode.Name(), lstNodes[j].Name(), lstDistances[-1][1]))
 
             # Order the list by distance (tuple field 1)
             lstDistances.sort(key=lambda x: x[1])
             # Select the N closest nodes and create the links
             for tupleNode in lstDistances[0:min(len(lstDistances), nNodeLinks)]:
                 # Create the links
-                newLink = Link(pNode, lstNodes[tupleNode[0]])
-                lstLinks.append(newLink)
-                logging.debug('[createRandomTopo] Node %s links to %s' % (newLink.origHost.Name(), newLink.destHost.Name()))
+                destNode = lstNodes[tupleNode[0]]
+                if (not TopologyGenerator.isLinkDuplicate(pNode, destNode, lstLinks)):
+                    newLink = Link(pNode, lstNodes[tupleNode[0]])
+                    lstLinks.append(newLink)
+                    logging.debug('[createRandomTopo] New link orig=%s; dest=%s' % (newLink.origHost.Name(), newLink.destHost.Name()))
 
         return lstNodes, lstLinks
 
@@ -126,8 +128,75 @@ class TopologyGenerator:
         return (lstNodes, lstLinks)
 
     @staticmethod
-    def checkForIslands(lstNodes, lstLinks):
+    def allNodesConnected(lstNodes, lstLinks):
         """
         Checks the given topology for islands of nodes that are not connected to all other nodes.
         """
-        raise NotImplementedError('opa')
+        bDone             = False
+        lstLinksCopy      = lstLinks.copy()
+        curLink           = lstLinksCopy[0]
+        lstConnectedNodes = [curLink.origHost, curLink.destHost]
+        i                 = 0
+        lstLinksCopy.remove(curLink)
+        while(not bDone):
+
+            # Find the first link connected to the connected nodes
+            curLink = None
+            for pLink in lstLinksCopy:
+                if (pLink.origHost in lstConnectedNodes) or (pLink.destHost in lstConnectedNodes):
+                    curLink = pLink
+
+            if (curLink is not None):
+                # Found a link, continue
+                lstLinksCopy.remove(curLink)
+
+                if (curLink.origHost not in lstConnectedNodes):
+                    lstConnectedNodes.append(curLink.origHost)
+                elif (curLink.destHost not in lstConnectedNodes):
+                    lstConnectedNodes.append(curLink.destHost)
+
+                # Increment index to rotate around the list
+                i = i+1 if (i < len(lstLinksCopy)-1) else 0
+            else:
+                # There is no link left that connects to the nodes connected so far
+                bDone = True
+
+        # DEBUG - UNCONNECTED NODES LIST
+        lstUnconnectedNodes = []
+        for pNode in lstNodes:
+            if (pNode not in lstConnectedNodes):
+                lstUnconnectedNodes.append(pNode)
+
+        # There is no link left to visit
+        if (len(lstConnectedNodes) == len(lstNodes)):
+            # All nodes have already been connected
+            logging.info('[TopologyGenerator.allNodesConnected] All nodes are connected!')
+            return True
+        elif (len(lstLinksCopy) == 0):
+            logging.error('[TopologyGenerator.allNodesConnected] Visited all links but could not reach all nodes, lstConnectedNodes=%s' % str(lstConnectedNodes))
+            logging.error('[TopologyGenerator.allNodesConnected] Unconnected nodes=%s' % str(lstUnconnectedNodes))
+            return False
+        else:
+            logging.error('[TopologyGenerator.allNodesConnected] Could not reach all nodes, lstConnectedNodes=%s' % str(lstConnectedNodes))
+            logging.error('[TopologyGenerator.allNodesConnected] Unconnected nodes=%s' % str(lstUnconnectedNodes))
+            return False
+
+    @staticmethod
+    def isLinkDuplicate(node1, node2, lstLinks):
+        """
+        Checks if a link with the same origin, destination nodes is already on the list. Links are bidirectional.
+        """
+        for pLink in lstLinks:
+            if ((pLink.origHost == node1) and (pLink.destHost == node2)) or ((pLink.origHost == node2) and (pLink.destHost == node1)):
+                return True
+        return False
+
+    @staticmethod
+    def findLinkByNode(pNode, lstLinks):
+        """
+        Find link in lstLinks whose origin is pNode.
+        """
+        for pLink in lstLinks:
+            if (pLink.origNode == pNode) or (pLink.destNode == pNode):
+                return pLink
+        return None

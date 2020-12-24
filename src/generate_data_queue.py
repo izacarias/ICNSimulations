@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 This script generates the data queue use by ICN simulations.
 

@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 generate_topology
 
@@ -11,12 +12,14 @@ from topology_generation import TopologyGenerator
 
 # ---------------------------------------------------------------------- Constants
 c_strDefaultTopoPath = '/home/vagrant/icnsimulations/topologies/default-test-topo.conf'
-c_strLogFile     = '/home/vagrant/icnsimulations/log/generate_topology.log'
-c_nNodeLinks     = 4
+c_strLogFile     = '/home/andre/Source/icnsimulations/log/generate_topology.log'
+c_nNodeLinks     = 3
 c_nHumans        = 10
-c_nSensors       = 10 
+c_nSensors       = 10
 c_nDrones        = 10
 c_nVehicles      = 10
+c_nMaxX          = 100
+c_nMaxY          = 100
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -32,9 +35,14 @@ def main():
     else:
         strTopologyPath = sys.argv[1]
 
+    logging.info('[main] Generating topology for nHumans=%d, nSensors=%s, nDrones=%d, nVehicles=%d' % (c_nHumans, c_nSensors, c_nDrones, c_nVehicles))
+
     # Create topology
     lstHosts = TopologyGenerator.createHostList(c_nHumans, c_nDrones, c_nSensors, c_nVehicles)
-    (lstNodes, lstLinks) = TopologyGenerator.createRandomTopo(lstHosts, c_nNodeLinks)
+    (lstNodes, lstLinks) = TopologyGenerator.createRandomTopo(lstHosts, nNodeLinks=c_nNodeLinks, nMaxX=c_nMaxX, nMaxY=c_nMaxY)
+    if (not TopologyGenerator.allNodesConnected(lstNodes, lstLinks)):
+        logging.critical('[main] ATTENTION, NOT ALL NODES ARE CONNECTED!')
+
     TopologyGenerator.writeTopoFile(lstNodes, lstLinks, strTopologyPath)
 
     logging.info('[main] topology file written to path=%s' % strTopologyPath)
