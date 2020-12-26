@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 Reads the raw results written by MiniNDN consumers.
 
