@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 This MiniNDN experiment instantiates consumers and producers based on the
 packages and their timestamps created and queued by DataManager.
@@ -231,11 +232,11 @@ def runExperiment(strTopoPath):
    ndn.stop()
 
 # ---------------------------------------- Main
-if __name__ == '__main__':
+def main():
 
-   # Read input param
+   # Read input param for topology
    if (len(sys.argv) == 1):
-      logging.error('[setup] no topology file specified. To use default, use \'default\' as the first parameter')         
+      logging.error('[setup] no topology file specified. To use default, use \'default\' as the first parameter')
       exit()
    elif (sys.argv[1] == 'default'):
       strTopologyPath = c_strTopologyFile
@@ -246,3 +247,6 @@ if __name__ == '__main__':
       runMock(strTopologyPath)
    else:
       runExperiment(strTopologyPath)
+
+if __name__ == '__main__':
+   main()

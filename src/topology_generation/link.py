@@ -17,7 +17,7 @@ class Link:
     """
 
     c_nDefaultDelay     = 10
-    c_nDefaultBandWidth = 1000
+    c_nDefaultBandWidth = 10
     c_nDefaultLoss      = 0
 
     def __init__(self, origHost, destHost, nDelay=c_nDefaultDelay, nBandwidth=c_nDefaultBandWidth, nLoss=c_nDefaultLoss):

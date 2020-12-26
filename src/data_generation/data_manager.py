@@ -22,8 +22,16 @@ class DataManager:
         """
         self.lstDataTypes = []
         # Initialize known dataTypes
-        self.lstDataTypes.append(C2DataType(nTTL=10000, nPeriod=20, nType=1, nSize=5000,
-            lstAllowedHostTypes=['d', 'h', 'v', 's'], sRatioMaxReceivers=100, sPeriodWiggleRoom=0.2))   # INTEREST 1
+        ################################################
+        # Control data
+        self.lstDataTypes.append(C2DataType(nTTL=1*60*1000, nPeriodSec=60, nType=1, nSize=5000, sRatioMaxReceivers=0.2))   # INTEREST 1
+        self.lstDataTypes.append(C2DataType(nTTL=1*60*1000, nPeriodSec=60, nType=2, nSize=5000, sRatioMaxReceivers=0.2))   # INTEREST 2
+        ################################################
+        # Operational data
+        self.lstDataTypes.append(C2DataType(nTTL=2*60*1000,  nPeriodSec=2*60,  nType=3, nSize=5000, sRatioMaxReceivers=0.2))   # INTEREST 3
+        self.lstDataTypes.append(C2DataType(nTTL=5*60*1000,  nPeriodSec=5*60,  nType=4, nSize=5000, sRatioMaxReceivers=0.2))   # INTEREST 4
+        self.lstDataTypes.append(C2DataType(nTTL=10*60*1000, nPeriodSec=10*60, nType=5, nSize=5000, sRatioMaxReceivers=0.2))   # INTEREST 5
+        self.lstDataTypes.append(C2DataType(nTTL=20*60*1000, nPeriodSec=20*60, nType=6, nSize=5000, sRatioMaxReceivers=0.2))   # INTEREST 6
 
     def generateSpreadDataQueue(self, lstHosts, nMissionMinutes):
         """
@@ -50,15 +58,15 @@ class DataManager:
             elif(strHost[0] == 'h'):
                 # Human
                 logging.info('[generateDataQueue] Node type human, strHost=%s' % (strHost))
-                # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+                self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
             elif(strHost[0] == 's'):
                 # Sensor
                 logging.info('[generateDataQueue] Node type sensor, strHost=%s' % (strHost))
-                # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+                self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
             elif(strHost[0] == 'v'):
                 # Vehicle
                 logging.info('[generateDataQueue] Node type vehicle, strHost=%s' % (strHost))
-                # self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+                self.lstDataTypes[0].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
             else:
                 # Unrecognized host type
                 logging.error('[generateDataQueue] Unrecognized host type ' + strHost)

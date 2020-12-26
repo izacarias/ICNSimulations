@@ -10,20 +10,21 @@ from .data_package import DataPackage
 
 class C2DataType:
 
-    def __init__(self, nTTL, nPeriod, nType, nSize, lstAllowedHostTypes, sRatioMaxReceivers, sPeriodWiggleRoom):
+    def __init__(self, nTTL, nPeriodSec, nType, nSize, sRatioMaxReceivers, sPeriodWiggleRoom=0.2, lstAllowedHostTypes=['d', 'h', 'v']):
         """
         Constructor
         """
-        self.nTTL         = nTTL     # Time To Live in ms
-        self.nPeriodSec   = nPeriod  # Creation period in s
-        self.nType        = nType    # Type number
-        self.nPayloadSize = nSize    # Package payload size
-        self.nCurID       = 0        # Used for generating new packages
+        self.nTTL         = nTTL        # Time To Live in ms
+        self.nPeriodSec   = nPeriodSec  # Creation period in s
+        self.nType        = nType       # Type number
+        self.nPayloadSize = nSize       # Package payload size
+        self.nCurID       = 0           # Used for generating new packages
 
         self.sRatioMaxReceivers = sRatioMaxReceivers    # Ratio of possible receivers out of the receivers specified in the lstPossibleReceivers
         self.sPeriodWiggleRoom  = sPeriodWiggleRoom     # Ratio of acceptable period variation amongs sent packages
 
         self.lstAllowedHostTypes = lstAllowedHostTypes # Host types that can receive this data
+        # By default, drones, humans and vehicles, sensors are left out because they are meant to only produce data and not consume it
 
     def generateDataQueue(self, strHost, nMissionMinutes, lstDataQueue, lstHosts):
         """
