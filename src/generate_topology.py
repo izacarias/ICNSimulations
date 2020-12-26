@@ -12,12 +12,12 @@ from topology_generation import TopologyGenerator
 
 # ---------------------------------------------------------------------- Constants
 c_strDefaultTopoPath = '/home/vagrant/icnsimulations/topologies/default-test-topo.conf'
-c_strLogFile     = '/home/andre/Source/icnsimulations/log/generate_topology.log'
+c_strLogFile     = '/home/vagrant/icnsimulations/log/generate_topology.log'
 c_nNodeLinks     = 3
-c_nHumans        = 10
-c_nSensors       = 10
-c_nDrones        = 10
-c_nVehicles      = 10
+c_nHumans        = 4
+c_nSensors       = 4
+c_nDrones        = 4
+c_nVehicles      = 4
 c_nMaxX          = 100
 c_nMaxY          = 100
 

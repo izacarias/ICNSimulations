@@ -11,7 +11,7 @@ import logging
 import matplotlib.pyplot as plt
 from topology_generation import TopologyGenerator
 
-c_strLogFile = '/home/andre/Source/icnsimulations/log/draw_topology.log'
+c_strLogFile = '/home/vagrant/icnsimulations/log/draw_topology.log'
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
