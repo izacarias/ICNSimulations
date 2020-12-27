@@ -37,6 +37,7 @@ def main():
     # Read hostnames from the topology file and generate queue
     lstHostNames = readHostNamesFromTopoFile(strTopologyPath)
     logging.info('[main] Generating queue, missionMinutes= %d; hostnames=%s; topoFile=%s' % (c_nMissionMinutes, str(lstHostNames), strTopologyPath))
+    # lstDataQueue = Manager.generateSpreadDataQueue(lstHostNames, c_nMissionMinutes)
     lstDataQueue = Manager.generateDataQueue(lstHostNames, c_nMissionMinutes)
 
     # Log resulting data queue

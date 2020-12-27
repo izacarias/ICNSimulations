@@ -25,12 +25,19 @@ from data_generation import DataManager, curDatetimeToFloat, readHostNamesFromTo
 c_strAppName         = 'C2Data'
 c_strLogFile         = '/home/vagrant/icnsimulations/log/experiment_send.log'
 c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
-c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 100
-c_bIsMockExperiment  = False
-c_bSDNEnabled        = False
 
-logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
+c_bIsMockExperiment  = False
+c_nSleepThresholdMs  = 100
+c_sExperimentTimeSec = 400
+
+c_bSDNEnabled       = False
+c_nCacheSizeDefault = 65536
+c_nHumanCacheSize   = c_nCacheSizeDefault 
+c_nDroneCacheSize   = c_nCacheSizeDefault
+c_nSensorCacheSize  = c_nCacheSizeDefault 
+c_nVehicleCacheSize = c_nCacheSizeDefault
+
+logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 # ---------------------------------------- RandomTalks
@@ -72,36 +79,39 @@ class RandomTalks():
       logging.info('[RandomTalks.run] Begin, maxExperimentTimeSec=%f' % c_sExperimentTimeSec)
 
       # Internal parameters
-      dtInitialTime      = datetime.now()
-      dtCurTime          = None
-      dtDelta            = timedelta()
-      nDataIndex         = 0
-      sElapsedTimeMs     = 0
+      dtInitialTime  = datetime.now()
+      dtCurTime      = None
+      dtDelta        = timedelta()
+      nDataIndex     = 0
+      sElapsedTimeMs = 0
+      nIteration     = 0
       while (((sElapsedTimeMs/1000) < c_sExperimentTimeSec) and (nDataIndex < len(self.lstDataQueue))):
          # Send data until the end of the experiment time
          # Sweep queue and send data according to the elapsed time
-         dtCurTime       = datetime.now()
-         dtDelta         = dtCurTime - dtInitialTime
-         sElapsedTimeMs  = dtDelta.microseconds/1000 + dtDelta.seconds*1000
-         pDataBuff       = self.lstDataQueue[nDataIndex]
+         dtCurTime      = datetime.now()
+         dtDelta        = dtCurTime - dtInitialTime
+         sElapsedTimeMs = dtDelta.microseconds/1000 + dtDelta.seconds*1000
+         nIteration    += 1
          logging.debug('[RandomTalks.run] New iteration with sElapsedTimeMs=%s; dtDelta=%s' % (sElapsedTimeMs, str(dtDelta)))
 
-         if (pDataBuff[0] <= sElapsedTimeMs):
+         while (nDataIndex < len(self.lstDataQueue)) and (self.lstDataQueue[nDataIndex][0] <= sElapsedTimeMs):
             # Send data
-            logging.debug('[RandomTalks.run] About to send data nDataIndex=%s; pDataBuff[0]=%s; sElapsedTimeMs=%s' %
-               (nDataIndex, pDataBuff[0], sElapsedTimeMs))
+            pDataBuff = self.lstDataQueue[nDataIndex]
+            logging.info('[RandomTalks.run] About to send data nIteration=%d; nDataIndex=%s; pDataBuff[0]=%s; sElapsedTimeMs=%s' % (nIteration, nDataIndex, pDataBuff[0], sElapsedTimeMs))
             self.instantiateConsumer(pDataBuff[1])
             nDataIndex += 1
-         else:
-            # Wait before sending next data
+         
+         if (nDataIndex < len(self.lstDataQueue)):
             logging.debug('[RandomTalks.run] Waiting to send next data package nDataIndex=%s; pDataBuff[0]=%s; sElapsedTimeMs=%s' %
-               (nDataIndex, pDataBuff[0], sElapsedTimeMs))
+               (nDataIndex, self.lstDataQueue[nDataIndex][0], sElapsedTimeMs))
+         else:
+            logging.info('[RandomTalks.run] No more data to send')
 
          # Wait until next data is ready, if past threshold
          if (nDataIndex < len(self.lstDataQueue)):
             nNextStopMs = self.lstDataQueue[nDataIndex][0] - sElapsedTimeMs
             if (nNextStopMs > c_nSleepThresholdMs):
-               logging.debug('[RandomTalks.run] Sleeping until next data nNextStopMs=%s; c_nSleepThresholdMs=%s' % (nNextStopMs, c_nSleepThresholdMs))
+               logging.info('[RandomTalks.run] Sleeping until next data nNextStopMs=%s; c_nSleepThresholdMs=%s' % (nNextStopMs, c_nSleepThresholdMs))
                time.sleep(nNextStopMs/1000.0)
 
       # Close log file
@@ -185,45 +195,53 @@ def runExperiment(strTopoPath):
    Minindn.cleanUp()
    Minindn.verifyDependencies()
 
+   ######################################################
+   # Start MiniNDN and set controller, if any
    if (c_bSDNEnabled):
       ndn = Minindn(topoFile=strTopoPath, controller=Ryu)
    else:
       ndn = Minindn(topoFile=strTopoPath)
    ndn.start()
 
+   #######################################################
+   # Initialize NFD and set cache size based on host type
    info('Starting NFD on nodes\n')
-   nfds = AppManager(ndn, ndn.net.hosts, Nfd)
-   nHosts = len(ndn.net.hosts)
+   lstHumanHosts   = []
+   lstDroneHosts   = []
+   lstSensorHosts  = []
+   lstVehicleHosts = []
+   for pHost in ndn.net.hosts:
+      if (pHost.name[0] == 'h'):
+         lstHumanHosts.append(pHost)
+      elif (pHost.name[0] == 'd'):
+         lstDroneHosts.append(pHost)
+      elif (pHost.name[0] == 's'):
+         lstSensorHosts.append(pHost)
+      elif (pHost.name[0] == 'v'):
+         lstVehicleHosts.append(pHost)
+      else:
+         raise Exception('[runExperiment] Hostname=%s not recognized as human, drone, sensor or vehicle' % pHost.name)
 
-   # lstHosts = ndn.net.hosts[0:min(2,nHosts)]
-   # nfds1 = AppManager(ndn, lstHosts, Nfd, csSize=0)
-   # for x in lstHosts:
-   #    print('Cache 0: %s' % str(x))
+   nfdsHuman = AppManager(ndn, lstHumanHosts, Nfd, csSize=c_nHumanCacheSize)
+   info('[runExperiment] Cache set for humans=%d, size=%d\n' % (len(lstHumanHosts), c_nHumanCacheSize))
+   nfdsDrone = AppManager(ndn, lstDroneHosts, Nfd, csSize=c_nDroneCacheSize)
+   info('[runExperiment] Cache set for drones=%d, size=%d\n' % (len(lstDroneHosts), c_nDroneCacheSize))
+   nfdsSensor = AppManager(ndn, lstSensorHosts, Nfd, csSize=c_nSensorCacheSize)
+   info('[runExperiment] Cache set for sensors=%d, size=%d\n' % (len(lstSensorHosts), c_nSensorCacheSize))
+   nfdsVehicle = AppManager(ndn, lstVehicleHosts, Nfd, csSize=c_nVehicleCacheSize)
+   info('[runExperiment] Cache set for vehicles=%d, size=%d\n' % (len(lstVehicleHosts), c_nVehicleCacheSize))
 
-   # lstHosts = ndn.net.hosts[2:min(4,nHosts)]
-   # nfds2 = AppManager(ndn, lstHosts, Nfd, csSize=100)
-   # for x in lstHosts:
-   #    print('Cache 100: %s' % str(x))
-
-   # lstHosts = ndn.net.hosts[4:min(6,nHosts)]
-   # nfds3 = AppManager(ndn, lstHosts, Nfd, csSize=1000)
-   # for x in lstHosts:
-   #    print('Cache 1000: %s' % str(x))
-
-   # lstHosts = ndn.net.hosts[6:nHosts]
-   # nfds4 = AppManager(ndn, lstHosts, Nfd, csSize=10000)
-   # for x in lstHosts:
-   #    print('Cache 10000: %s' % str(x))
-
-
+   ##########################################################
+   # Initialize NFD
    info('Starting NLSR on nodes\n')
    nlsrs = AppManager(ndn, ndn.net.hosts, Nlsr)
 
-   #############################################################
-   # Wait for NLSR initialization, 30 seconds to be on the safe side
-   time.sleep(120)
+   ##########################################################
+   # Wait for NLSR initialization, at least 30 seconds to be on the safe side
+   time.sleep(60)
 
-   # Set up experiment
+   ##########################################################
+   # Set up and run experiment
    Experiment = RandomTalks(ndn.net.hosts)
    Experiment.setup(strTopoPath)
    Experiment.run()
