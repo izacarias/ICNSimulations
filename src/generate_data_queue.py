@@ -8,12 +8,12 @@ import sys
 import pickle
 import logging
 
-from data_generation import DataManager, readHostNamesFromTopoFile
+from icnexperiment.data_generation import DataManager, readHostNamesFromTopoFile
 
 # ---------------------------------------- Constants
 c_strLogFile         = '/home/vagrant/icnsimulations/log/generate_data_queue.log'
 c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
-c_nMissionMinutes    = 5
+c_nMissionMinutes    = 20
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))

@@ -8,7 +8,7 @@ Custom topology generator. Returns MiniNDN readable .conf file for different top
 """
 import logging
 import sys
-from topology_generation import TopologyGenerator
+from icnexperiment.topology_generation import TopologyGenerator
 
 # ---------------------------------------------------------------------- Constants
 c_strDefaultTopoPath = '/home/vagrant/icnsimulations/topologies/default-test-topo.conf'

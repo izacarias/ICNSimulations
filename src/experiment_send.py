@@ -19,18 +19,18 @@ from minindn.apps.nfd import Nfd
 from minindn.apps.nlsr import Nlsr
 from mininet.node import Ryu
 
-from data_generation import DataManager, curDatetimeToFloat, readHostNamesFromTopoFile
+from icnexperiment.data_generation import DataManager, curDatetimeToFloat, readHostNamesFromTopoFile
 
 # ---------------------------------------- Constants  
 c_strAppName         = 'C2Data'
 c_strLogFile         = '/home/vagrant/icnsimulations/log/experiment_send.log'
 c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
 
-c_bIsMockExperiment  = False
+c_bIsMockExperiment  = True
 c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 400
+c_sExperimentTimeSec = 10*60
 
-c_bSDNEnabled       = False
+c_bSDNEnabled       = True
 c_nCacheSizeDefault = 65536
 c_nHumanCacheSize   = c_nCacheSizeDefault 
 c_nDroneCacheSize   = c_nCacheSizeDefault
@@ -97,7 +97,7 @@ class RandomTalks():
          while (nDataIndex < len(self.lstDataQueue)) and (self.lstDataQueue[nDataIndex][0] <= sElapsedTimeMs):
             # Send data
             pDataBuff = self.lstDataQueue[nDataIndex]
-            logging.info('[RandomTalks.run] About to send data nIteration=%d; nDataIndex=%s; pDataBuff[0]=%s; sElapsedTimeMs=%s' % (nIteration, nDataIndex, pDataBuff[0], sElapsedTimeMs))
+            logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; pDataBuff[0]=%s; sElapsedTimeMs=%s' % (nDataIndex, len(self.lstDataQueue)-1, pDataBuff[0], sElapsedTimeMs))
             self.instantiateConsumer(pDataBuff[1])
             nDataIndex += 1
          
@@ -238,7 +238,7 @@ def runExperiment(strTopoPath):
 
    ##########################################################
    # Wait for NLSR initialization, at least 30 seconds to be on the safe side
-   time.sleep(60)
+   time.sleep(40)
 
    ##########################################################
    # Set up and run experiment
