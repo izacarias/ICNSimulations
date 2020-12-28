@@ -8,18 +8,20 @@ Custom topology generator. Returns MiniNDN readable .conf file for different top
 """
 import logging
 import sys
+
 from icnexperiment.topology_generation import TopologyGenerator
+from icnexperiment.log_dir import c_strLogDir
 
 # ---------------------------------------------------------------------- Constants
 c_strDefaultTopoPath = '/home/vagrant/icnsimulations/topologies/default-test-topo.conf'
-c_strLogFile     = '/home/vagrant/icnsimulations/log/generate_topology.log'
-c_nNodeLinks     = 3
-c_nHumans        = 4
-c_nSensors       = 4
-c_nDrones        = 4
-c_nVehicles      = 4
-c_nMaxX          = 100
-c_nMaxY          = 100
+c_strLogFile         = c_strLogDir + 'generate_topology.log'
+c_nNodeLinks         = 3
+c_nHumans            = 4
+c_nSensors           = 4
+c_nDrones            = 4
+c_nVehicles          = 4
+c_nMaxX              = 100
+c_nMaxY              = 100
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))

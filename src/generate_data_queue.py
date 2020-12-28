@@ -9,9 +9,10 @@ import pickle
 import logging
 
 from icnexperiment.data_generation import DataManager, readHostNamesFromTopoFile
+from icnexperiment.log_dir import c_strLogDir
 
 # ---------------------------------------- Constants
-c_strLogFile         = '/home/vagrant/icnsimulations/log/generate_data_queue.log'
+c_strLogFile         = c_strLogDir + 'generate_data_queue.log'
 c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
 c_nMissionMinutes    = 20
 

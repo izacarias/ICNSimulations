@@ -11,9 +11,10 @@ import re
 from datetime import datetime
 
 from icnexperiment.result_analysis import readConsumerLogs
+from icnexperiment.log_dir import c_strLogDir
 
 # Constants ----------------------------------------------------
-c_strLogFile     = '/home/vagrant/icnsimulations/log/read_consumer_results.log'
+c_strLogFile = c_strLogDir + 'read_consumer_results.log'
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))

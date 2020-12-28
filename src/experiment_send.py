@@ -20,10 +20,11 @@ from minindn.apps.nlsr import Nlsr
 from mininet.node import Ryu
 
 from icnexperiment.data_generation import DataManager, curDatetimeToFloat, readHostNamesFromTopoFile
+from icnexperiment.log_dir import c_strLogDir
 
 # ---------------------------------------- Constants  
 c_strAppName         = 'C2Data'
-c_strLogFile         = '/home/vagrant/icnsimulations/log/experiment_send.log'
+c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
 
 c_bIsMockExperiment  = True

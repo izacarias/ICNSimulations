@@ -9,9 +9,11 @@ Draws a topology read in the MiniNDN format.
 import sys
 import logging
 import matplotlib.pyplot as plt
-from icnexperiment.topology_generation import TopologyGenerator
 
-c_strLogFile = '/home/vagrant/icnsimulations/log/draw_topology.log'
+from icnexperiment.topology_generation import TopologyGenerator
+from icnexperiment.log_dir import c_strLogDir
+
+c_strLogFile = c_strLogDir + 'draw_topology.log'
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
