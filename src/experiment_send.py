@@ -27,16 +27,17 @@ c_strAppName         = 'C2Data'
 c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
 
-c_bIsMockExperiment  = True
+c_bIsMockExperiment  = False
 c_nSleepThresholdMs  = 100
 c_sExperimentTimeSec = 10*60
 
-c_bSDNEnabled       = True
-c_nCacheSizeDefault = 65536
+c_bSDNEnabled       = False
+c_nCacheSizeDefault = 0
 c_nHumanCacheSize   = c_nCacheSizeDefault 
 c_nDroneCacheSize   = c_nCacheSizeDefault
 c_nSensorCacheSize  = c_nCacheSizeDefault 
 c_nVehicleCacheSize = c_nCacheSizeDefault
+c_nNLSRSleepSec     = 120
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -239,7 +240,8 @@ def runExperiment(strTopoPath):
 
    ##########################################################
    # Wait for NLSR initialization, at least 30 seconds to be on the safe side
-   time.sleep(40)
+   logging.info('[runExperiment] NLSR sleep set to %d seconds' % c_nNLSRSleepSec)
+   time.sleep(c_nNLSRSleepSec)
 
    ##########################################################
    # Set up and run experiment

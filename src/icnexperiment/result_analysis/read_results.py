@@ -30,31 +30,83 @@ def readConsumerLogs(strPath):
         if (exists(strConsumerLog)):
             pFile = open(strConsumerLog, 'r')
             if (pFile):
-                logging.info('[readConsumerLogs] reading results for node=%s ------------------------------------------' % (strConsumer))
+                logging.debug('[readConsumerLogs] reading results for node=%s ------------------------------------------' % (strConsumer))
                 # Process each line for a transmission
                 lstTransmissions  = []
                 for strLine in pFile:
                     newTrans = Transmission.fromString(strLine, strConsumer)
                     lstTransmissions.append(newTrans)
                     logging.debug('[readConsumerLogs] Read new transmission=%s' % newTrans)
-
-                hshNodes[strConsumer] = lstTransmissions
+                
+                if (len(lstTransmissions) > 0):
+                    hshNodes[strConsumer] = lstTransmissions
                 pFile.close()
             else:
                 logging.error('[readConsumerLogs] Error reading information for node=' + strConsumer)
         else:
-            logging.info('[readConsumerLogs] could not find log=%s for node=%s' % (c_strConsumerLog, strConsumer))
+            logging.error('[readConsumerLogs] could not find log=%s for node=%s' % (c_strConsumerLog, strConsumer))
 
-# ---------------------------------------------------------------------- main
-def main():
-    # Read path from command line argument, if any
-    if (len(sys.argv) > 1):
-        strPath = dirname(sys.argv[1])
-    else:
-        strPath = '/tmp/minindn'
+    return hshNodes
+
+def avgTransTime(hshNodes):
+    """
+    Returns the average transmission time in ms for all transmissions. Does not consider timeouts or nacks.
+    """
+    sTotalTimeMs = 0.0
+    sAvgTime     = 0.0
+    nTotalTrans  = 0
+    for strNode in hshNodes:
+        for pTrans in hshNodes[strNode]:
+            if (pTrans.strStatus == 'DATA'):
+                nTotalTrans  += 1
+                sTotalTimeMs += pTrans.sDelayUs/1000.0
     
-    logging.info('[main] Reading results from path=%s; fileName=%s' % (strPath, c_strConsumerLog))
-    readConsumerLogs(strPath)
+    # Calculate average
+    sAvgTime = sTotalTimeMs/nTotalTrans
+    logging.info('[avgTransTime] average=%s, transmissions=%d' % (sAvgTime, nTotalTrans))
+    return sAvgTime
 
-if (__name__ == '__main__'):
-    main()
+def avgTransTimePerType(hshNodes):
+    """
+    Returns a dic of the average transmission time in ms for each data type.
+    """
+    hshOcurrances = {}
+    hshTimeSum    = {}
+    for strNode in hshNodes:
+        for pTrans in hshNodes[strNode]:
+            if (pTrans.strStatus == 'DATA'):
+                ########################################################################
+                # Information is stored in hshNodes as a tupe (numOcurrances, sSum)
+                if (pTrans.nDataType not in hshOcurrances):
+                    hshOcurrances[pTrans.nDataType] = 0
+                    hshTimeSum[pTrans.nDataType]    = 0.0
+
+                hshOcurrances[pTrans.nDataType] += 1
+                hshTimeSum[pTrans.nDataType]    += pTrans.sDelayUs/1000.0
+
+    # Calculate averages for each type
+    hshAverages = {}
+    for nType in hshOcurrances:
+        hshAverages[nType] = hshTimeSum[nType]/hshOcurrances[nType]
+        logging.info('[avgTransPerType] type=%d; average=%s; transmissions=%d' % (nType, hshAverages[nType], hshOcurrances[nType]))
+
+    return hshAverages
+
+def countStatus(hshNodes):
+    """
+    Returns the number of DATAs, NACKs and TIMEOUTs in the form of a tuple (nDatas, nNacks, nTimeouts).
+    """
+    nDatas    = 0
+    nNacks    = 0
+    nTimeouts = 0
+    for strNode in hshNodes:
+        for pTrans in hshNodes[strNode]:
+            if (pTrans.strStatus == 'DATA'):
+                nDatas += 1
+            elif (pTrans.strStatus == 'NACK'):
+                nNacks += 1
+            elif (pTrans.strStatus == 'TIMEOUT'):
+                nTimeouts += 1
+            else:
+                raise Exception('[countStatus] Unreconized status=%s' % (pTrans.strStatus))
+    return (nDatas, nNacks, nTimeouts)

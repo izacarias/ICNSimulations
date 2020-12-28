@@ -10,13 +10,13 @@ import logging
 import re
 from datetime import datetime
 
-from icnexperiment.result_analysis import readConsumerLogs
+from icnexperiment.result_analysis import readConsumerLogs, avgTransTime, avgTransTimePerType, countStatus
 from icnexperiment.log_dir import c_strLogDir
 
 # Constants ----------------------------------------------------
 c_strLogFile = c_strLogDir + 'read_consumer_results.log'
 
-logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 # ---------------------------------------------------------------------- main
@@ -27,9 +27,37 @@ def main():
     else:
         strPath = '/tmp/minindn'
     
-    print('strPath=%s' % (strPath))
+    logging.info('[main] Reading consumer logs from path=%s' % (strPath))
 
-    readConsumerLogs(strPath)
+    hshNodes = readConsumerLogs(strPath)
+
+    if (len(hshNodes) > 0):
+
+        lstNacks = []
+        for strNode in hshNodes:
+            for pTrans in hshNodes[strNode]:
+                if (pTrans.strStatus == 'NACK'):
+                    lstNacks.append(pTrans)
+
+        lstNacks.sort(key=lambda x: x.dtDate)
+
+        # for pTrans in lstNacks:
+        #     logging.info('[main] NACK dtDate=%s (%s -> %s) nType=%d' % (pTrans.dtDate.strftime('%H:%M:%S.%f'), pTrans.strProd, pTrans.strCons, pTrans.nDataType))
+
+        # Number of NACKs
+        (nDatas, nNacks, nTimeouts) = countStatus(hshNodes)
+        logging.info('[main] nDATA=%d; nNACK=%d; nTIMEOUT=%d' % (nDatas, nNacks, nTimeouts))
+
+        # Average transmission time
+        sAvgTransTime = avgTransTime(hshNodes)
+        logging.info('[main] Transmission time average=%f ms' % (sAvgTransTime))
+
+        # Average trasnmissiontime per type
+        hshTransTimes = avgTransTimePerType(hshNodes)
+        for nType in range(1, 6):
+            logging.info('[main] Transmission time for type=%d; average=%f ms' % (nType, hshTransTimes[nType]))
+    else:
+        logging.info('[main] No transmissions! lsn(hshNodes) = 0')
 
 if (__name__ == '__main__'):
     main()
