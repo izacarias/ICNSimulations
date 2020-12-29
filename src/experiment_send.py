@@ -31,13 +31,13 @@ c_bIsMockExperiment  = False
 c_nSleepThresholdMs  = 100
 c_sExperimentTimeSec = 10*60
 
-c_bSDNEnabled       = False
-c_nCacheSizeDefault = 0
+c_bSDNEnabled       = True
+c_nCacheSizeDefault = 65536
 c_nHumanCacheSize   = c_nCacheSizeDefault 
 c_nDroneCacheSize   = c_nCacheSizeDefault
 c_nSensorCacheSize  = c_nCacheSizeDefault 
 c_nVehicleCacheSize = c_nCacheSizeDefault
-c_nNLSRSleepSec     = 120
+c_nNLSRSleepSec     = 200
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
