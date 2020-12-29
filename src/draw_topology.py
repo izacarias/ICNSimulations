@@ -68,6 +68,10 @@ def main():
         lstLinkCoords.append(pLink.destHost.getCoord())
         plt.plot([x[0] for x in lstLinkCoords], [x[1] for x in lstLinkCoords], linewidth=1.5, zorder=-1)
 
+    ##################################################
+    # Topology info
+    logging.info('[main] Topology has links=%d; humans=%d; drones=%d; sensors=%d; vehicles=%d' % (len(lstLinks), len(lstHumanCoord), len(lstDroneCoord), len(lstSensorCoord), len(lstVehicleCoord)))
+
     plt.show()
     logging.info('[main] Done! Log written to %s' % (c_strLogFile))
 
