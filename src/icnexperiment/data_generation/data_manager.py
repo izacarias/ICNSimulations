@@ -136,6 +136,7 @@ class DataManager:
         lstQueue = None
         with open(strPath, 'rb') as pFile:
             lstQueue = pickle.load(pFile)
+            logging.info('[DataManager.loadDataQueueFromFile] Read data queue from path=%s' % strPath)
         return lstQueue
 
     @staticmethod

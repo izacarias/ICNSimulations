@@ -31,15 +31,18 @@ c_bIsMockExperiment  = False
 c_nSleepThresholdMs  = 100
 c_sExperimentTimeSec = 10*60
 
-c_bSDNEnabled       = True
+c_bSDNEnabled       = False
 c_nCacheSizeDefault = 65536
 c_nHumanCacheSize   = c_nCacheSizeDefault 
 c_nDroneCacheSize   = c_nCacheSizeDefault
 c_nSensorCacheSize  = c_nCacheSizeDefault 
 c_nVehicleCacheSize = c_nCacheSizeDefault
-c_nNLSRSleepSec     = 200
 
-logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
+c_nNLSRSleepSec     = 40
+c_strNLSRLogLevel   = 'DEBUG'
+c_strNFDLogLevel    = 'DEBUG'
+
+logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 # ---------------------------------------- RandomTalks
@@ -131,7 +134,7 @@ class RandomTalks():
          pConsumer   = self.lstHosts[nConsumer]
          strInterest = pDataPackage.getInterest()
          sTimestamp  = curDatetimeToFloat()
-         strCmdConsumer = 'consumer %s %s %f' % (strInterest, str(pConsumer), sTimestamp)
+         strCmdConsumer = 'consumer %s %s %f &' % (strInterest, str(pConsumer), sTimestamp)
          pConsumer.cmd(strCmdConsumer)
          logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
       else:
@@ -144,10 +147,10 @@ class RandomTalks():
       strFilter       = self.getFilterByHostname(str(pHost))
       strCmdAdvertise = 'nlsrc advertise %s' % strFilter
       strCmdProducer  = 'producer %s %s %s &' % (strFilter, strTTLValues, strPayloadValues)
-      pHost.cmd(strCmdAdvertise)
+      # pHost.cmd(strCmdAdvertise)
       pHost.cmd(strCmdProducer)
       logging.debug('[RandomTalks.instantiateProducer] Instantiating new producer ' + str(pHost) + ' ' + strFilter + ' &')
-      logging.debug('[RandomTalks.instantiateProducer] AdvertiseCmd: ' + strCmdAdvertise)
+      # logging.debug('[RandomTalks.instantiateProducer] AdvertiseCmd: ' + strCmdAdvertise)
       logging.debug('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmdProducer)
 
    def findHostIndexByName(self, strName):
@@ -163,7 +166,8 @@ class RandomTalks():
       """
       Creates interest filter base on the producer`s name
       """
-      return '/' + c_strAppName + '/' + strName + '/'
+      # return '/' + c_strAppName + '/' + strName + '/'
+      return '/ndn/%s-site/%s/' % (strName, strName)
 
 # ---------------------------------------- MockHost
 class MockHost():
@@ -224,19 +228,19 @@ def runExperiment(strTopoPath):
       else:
          raise Exception('[runExperiment] Hostname=%s not recognized as human, drone, sensor or vehicle' % pHost.name)
 
-   nfdsHuman = AppManager(ndn, lstHumanHosts, Nfd, csSize=c_nHumanCacheSize)
+   nfdsHuman = AppManager(ndn, lstHumanHosts, Nfd, csSize=c_nHumanCacheSize, logLevel=c_strNFDLogLevel)
    info('[runExperiment] Cache set for humans=%d, size=%d\n' % (len(lstHumanHosts), c_nHumanCacheSize))
-   nfdsDrone = AppManager(ndn, lstDroneHosts, Nfd, csSize=c_nDroneCacheSize)
+   nfdsDrone = AppManager(ndn, lstDroneHosts, Nfd, csSize=c_nDroneCacheSize, logLevel=c_strNFDLogLevel)
    info('[runExperiment] Cache set for drones=%d, size=%d\n' % (len(lstDroneHosts), c_nDroneCacheSize))
-   nfdsSensor = AppManager(ndn, lstSensorHosts, Nfd, csSize=c_nSensorCacheSize)
+   nfdsSensor = AppManager(ndn, lstSensorHosts, Nfd, csSize=c_nSensorCacheSize, logLevel=c_strNFDLogLevel)
    info('[runExperiment] Cache set for sensors=%d, size=%d\n' % (len(lstSensorHosts), c_nSensorCacheSize))
-   nfdsVehicle = AppManager(ndn, lstVehicleHosts, Nfd, csSize=c_nVehicleCacheSize)
+   nfdsVehicle = AppManager(ndn, lstVehicleHosts, Nfd, csSize=c_nVehicleCacheSize, logLevel=c_strNFDLogLevel)
    info('[runExperiment] Cache set for vehicles=%d, size=%d\n' % (len(lstVehicleHosts), c_nVehicleCacheSize))
 
    ##########################################################
    # Initialize NFD
    info('Starting NLSR on nodes\n')
-   nlsrs = AppManager(ndn, ndn.net.hosts, Nlsr)
+   nlsrs = AppManager(ndn, ndn.net.hosts, Nlsr, logLevel=c_strNLSRLogLevel)
 
    ##########################################################
    # Wait for NLSR initialization, at least 30 seconds to be on the safe side

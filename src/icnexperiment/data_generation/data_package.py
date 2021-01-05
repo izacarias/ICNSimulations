@@ -29,6 +29,11 @@ class DataPackage:
         """
         Returns the string representation of the interest filter
         """
-        strInterest = '/'+ c_strAppName + '/' + self.strOrig + '/C2Data-'
-        strInterest = strInterest + str(self.nID) + '-Type' + str(self.nType)
+        
+        # strInterest = '/'+ c_strAppName + '/' + self.strOrig + '/C2Data-'
+        # strInterest = strInterest + str(self.nID) + '-Type' + str(self.nType)
+
+        strInterest  = '/ndn/%s-site/%s' % (self.strOrig, self.strOrig)
+        strInterest += '/C2Data-%d-Type%d' % (self.nID, self.nType)
+
         return strInterest

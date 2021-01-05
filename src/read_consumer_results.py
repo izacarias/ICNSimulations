@@ -16,7 +16,7 @@ from icnexperiment.log_dir import c_strLogDir
 # Constants ----------------------------------------------------
 c_strLogFile = c_strLogDir + 'read_consumer_results.log'
 
-logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
+logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 # ---------------------------------------------------------------------- main
@@ -41,10 +41,10 @@ def main():
 
         lstNacks.sort(key=lambda x: x.dtDate)
 
-        # for pTrans in lstNacks:
-        #     logging.info('[main] NACK dtDate=%s (%s -> %s) nType=%d' % (pTrans.dtDate.strftime('%H:%M:%S.%f'), pTrans.strProd, pTrans.strCons, pTrans.nDataType))
+        for pTrans in lstNacks:
+            logging.debug('[main] NACK dtDate=%s (%s -> %s) nType=%d' % (pTrans.dtDate.strftime('%H:%M:%S.%f'), pTrans.strProd, pTrans.strCons, pTrans.nDataType))
 
-        # Number of NACKs
+        # Number of datas, nacks and timeouts
         (nDatas, nNacks, nTimeouts) = countStatus(hshNodes)
         logging.info('[main] nDATA=%d; nNACK=%d; nTIMEOUT=%d' % (nDatas, nNacks, nTimeouts))
 

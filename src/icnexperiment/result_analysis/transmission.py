@@ -24,7 +24,7 @@ class Transmission:
             raise Exception('[Transmission.__init__] Could not read data from interest=%s' % self.strInterest)
     
     def __repr__(self):
-        return '<Transmission> (%s -> %s) interest=%s, timeDiff=%f, status=%s, timeSinceEpoch=%s' % (self.strProd, self.strCons, self.strInterest, self.sDelayUs, self.strStatus, self.dtDate.strftime('%d/%m/%Y %H:%M:%S.%f'))
+        return '<Transmission> (%s to %s) interest=%s, timeDiff=%f, status=%s, timeSinceEpoch=%s' % (self.strProd, self.strCons, self.strInterest, self.sDelayUs, self.strStatus, self.dtDate.strftime('%d/%m/%Y %H:%M:%S.%f'))
     
     def processInterestFilter(self):
         """
@@ -32,7 +32,7 @@ class Transmission:
         Interest filter format /C2Data/<strOrig>/C2Data-<ID>-Type<Type>.
         Returns True if data was successfully read.
         """
-        strRegex = r'\/C2Data\/([a-zA-Z0-9]+)\/C2Data-([0-9]+)-Type([0-9]+)'
+        strRegex = r'.*\/([a-zA-Z0-9]+)\/C2Data-([0-9]+)-Type([0-9]+)'
         pMatch = re.match(strRegex, self.strInterest)
         if (pMatch):
             self.strProd   = pMatch.group(1)
