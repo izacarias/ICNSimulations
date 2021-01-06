@@ -8,6 +8,7 @@ flag_run_ip=0
 flag_run_sdn=0
 output_dir=""
 topology_path=""
+log_path="runSuite.log"
 
 show_help () {
 
@@ -27,6 +28,17 @@ show_help () {
       -t: Topology file 
       "
 }
+
+run_benchmark () {
+    # $1 -> experiment type (sdn, icn, ip)
+    # $2 -> experiment iteration
+    echo "Experiment iteration $1 $2" >> $log_path
+    sudo ./experiment_send.py -t $topology_path --$1
+    mkdir -p $output_dir/icn/run$2
+    sudo mv /tmp/minindn/* $output_dir/icn/run$2
+}
+
+echo "Starting" >> $log_path
 
 # Read commmand line parameters
 while getopts "h?n:?icn-:?sdn-:?ip-:?o:t:" opt; do
@@ -88,52 +100,25 @@ else
     exit 0
 fi
 
+echo "About to run experiments with iterations=$n_iterations" >> $log_path
+# Run experiments
 for i in $(seq 1 $n_iterations)
 do
-    # sudo ./experiment_send.py $topology_path --icn
-    mkdir -p $output_dir/icn/run$i
-    sudo mv /tmp/minindn/* $output_dir/icn/run$i
-
-    # sudo ./experiment_send.py $topology_path --sdn
-    # mkdir -p $output_dir/sdn/run$i
-    # sudo ./experiment_send.py $topology_path --ip
-    # mkdir -p $output_dir/ip/run$i
+    # SDN benchmark
+    if [ "$flag_run_sdn" = 1 ]
+    then
+        run_benchmark "sdn" "$i"
+    fi
+    # ICN benchmark
+    if [ "$flag_run_icn" = 1 ]
+    then
+        run_benchmark "icn" "$i"
+    fi
+    # IP benchmark
+    if [ "$flag_run_ip" = 1 ]
+    then
+        run_benchmark "ip" "$i"
+    fi
 done
 
-# sudo ./draw_topology.py $topology_path
-
-
-
-
-
-
-# # Show Galileo dirs containing the script
-# if [ $show_g_dirs -eq 1 ]
-# then
-#     ssh root@"$galileo_name" 'echo -e "\n\t~/init_scripts";
-#         ls -l ~/init_scripts;
-#         echo -e "\n\t/etc/init.d";
-#         ls -l /etc/init.d;
-#         echo -e "\n\t/etc/rc0.d";
-#         ls -l /etc/rc0.d'
-#     exit 1
-# fi
-
-# # Manage Galileo scripts
-# basename=$(basename "$script_path")
-
-# if [ $flag_remove -eq 0 ]
-# then
-#     # Add script
-#     if [ ! -f "$script_path" ]; then echo "Error, file '"$script_path"' does not exist!"; exit 0; fi;
-#     scp "$script_path" root@"$galileo_name":~/init_scripts
-#     ssh root@"$galileo_name" 'cd ~/init_scripts;
-#         cp '$basename' /etc/init.d;
-#         chmod +x /etc/init.d/'$basename';
-#         update-rc.d '$basename' defaults;
-#         reboot'
-# else
-#     # Remove script
-#     ssh root@"$galileo_name" 'cd /etc/init.d;
-#         update-rc.d -f '$basename' remove'
-# fi
+echo "Done!" >> $log_path

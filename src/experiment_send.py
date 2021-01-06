@@ -28,23 +28,23 @@ c_strAppName         = 'C2Data'
 c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
-c_bIsMockExperiment  = False
 c_nSleepThresholdMs  = 100
 c_sExperimentTimeSec = 2*60
 
-c_bSDNEnabled       = False
 c_nCacheSizeDefault = 65536
-c_nHumanCacheSize   = c_nCacheSizeDefault 
-c_nDroneCacheSize   = c_nCacheSizeDefault
-c_nSensorCacheSize  = c_nCacheSizeDefault 
-c_nVehicleCacheSize = c_nCacheSizeDefault
 
-c_nNLSRSleepSec     = 40
-c_strNLSRLogLevel   = 'DEBUG'
-c_strNFDLogLevel    = 'DEBUG'
+c_nNLSRSleepSec   = 40
+c_strNLSRLogLevel = 'DEBUG'
+c_strNFDLogLevel  = 'DEBUG'
+
+g_bIsMockExperiment  = False
+g_bExperimentModeSet = False
+g_bSDNEnabled        = False
+g_strNetworkType     = ''
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+
 
 # ---------------------------------------- RandomTalks
 class RandomTalks():
@@ -188,28 +188,31 @@ class MockHost():
    def cmd(self, strLine):
       return 0
 
-
+# ---------------------------------------- runMock 
 def runMock(strTopoPath):
    """
    Runs mock experiment. No cummunication with Mininet or MiniNDN
    """
+   logging.info('[runMock] Running mock experiment')
    lstHostNames = readHostNamesFromTopoFile(strTopoPath)
    lstHosts = [MockHost(strName) for strName in lstHostNames]
    Experiment = RandomTalks(lstHosts)
    Experiment.setup(strTopoPath)
    Experiment.run()
 
+# ---------------------------------------- runExperiment
 def runExperiment(strTopoPath):
    """
    Runs experiment
    """
+   logging.info('[runExperiment] Running MiniNDN experiment')
    setLogLevel('info')
    Minindn.cleanUp()
    Minindn.verifyDependencies()
 
    ######################################################
    # Start MiniNDN and set controller, if any
-   if (c_bSDNEnabled):
+   if (g_bSDNEnabled):
       ndn = Minindn(topoFile=strTopoPath, controller=Ryu)
    else:
       ndn = Minindn(topoFile=strTopoPath)
@@ -259,8 +262,57 @@ def runExperiment(strTopoPath):
    Experiment.setup(strTopoPath)
    Experiment.run()
 
-   MiniNDNCLI(ndn.net)
+   # MiniNDNCLI(ndn.net)
    ndn.stop()
+
+# ---------------------------------------- setICNCache
+def setICNCache():
+   """
+   Sets cache for ICN hosts.
+   """
+   global c_nHumanCacheSize, c_nDroneCacheSize, c_nSensorCacheSize, c_nVehicleCacheSize
+   c_nHumanCacheSize   = c_nCacheSizeDefault 
+   c_nDroneCacheSize   = c_nCacheSizeDefault
+   c_nSensorCacheSize  = c_nCacheSizeDefault 
+   c_nVehicleCacheSize = c_nCacheSizeDefault
+   logging.info('[setICNCache] Set')
+
+# ---------------------------------------- setIPCache
+def setIPCache():
+   """
+   Sets cache for IP hosts.
+   """
+   global c_nHumanCacheSize, c_nDroneCacheSize, c_nSensorCacheSize, c_nVehicleCacheSize
+   c_nHumanCacheSize   = 0
+   c_nDroneCacheSize   = 0
+   c_nSensorCacheSize  = 0
+   c_nVehicleCacheSize = 0
+   logging.info('[setIPCache] Set')
+
+# ---------------------------------------- setNetworkType
+def setNetworkType(strMode):
+   """
+   Sets the network as 'sdn', 'icn' or 'ip'
+   """
+   global g_strNetworkType, g_bSDNEnabled
+   lstAllowedTypes = ['sdn', 'ip', 'icn']
+   if (g_strNetworkType == ''):
+      if (strMode == 'sdn'):
+         g_bSDNEnabled = True      
+         setICNCache()
+      elif (strMode == 'icn'):
+         g_bSDNEnabled = False
+         setICNCache()
+      elif (strMode == 'ip'):
+         g_bSDNEnabled = False         
+         setIPCache()
+      else:
+         raise Exception('[setNetworkType] Unrecognized network type=%s' % strMode)   
+      
+      g_strNetworkType = strMode
+      logging.info('[setNetworkType] Type=%s' % g_strNetworkType)
+   else:
+      raise Exception('[setNetworkType] called more than once, current type=%s' % g_strNetworkType)
 
 # ---------------------------------------- showHelp
 def showHelp():
@@ -277,62 +329,32 @@ def showHelp():
 # ---------------------------------------- Main
 def main():
 
-   global c_bIsMockExperiment, c_strTopologyFile, c_bSDNEnabled
-   global c_nCacheSizeDefault, c_nHumanCacheSize, c_nDroneCacheSize, c_nSensorCacheSize, c_nVehicleCacheSize
+   global g_bIsMockExperiment
  
-   # Read command line arguments
    strTopologyPath = ''
-   if (len(sys.argv) == 1):
-      showHelp()
-      exit(0)
-   else:
-      strTopologyPath = sys.argv[1]
+   short_options = 'hmt:'
+   long_options  = ['help', 'mock', 'sdn', 'icn', 'ip', 'topology=']
+   opts, args = getopt.getopt(sys.argv[1:], short_options, long_options)
+   for opt, arg in opts:
+      if opt in ['-h', '--help']:
+         showHelp()
+         exit(0)
+      elif opt in ('-t', '--topology'):
+         strTopologyPath = arg
+         logging.info('[main] Topology path=%s' % strTopologyPath)
+      elif opt in ['-m', '--mock']:
+         g_bIsMockExperiment = True
+      elif opt == '--sdn':
+         setNetworkType('sdn')
+      elif opt == '--icn':
+         setNetworkType('icn')
+      elif opt == '--ip':
+         setNetworkType('ip')
+   
+   # Reset argv arguments for the minindn CLI
+   sys.argv = [sys.argv[0]]   
 
-   if ('mock' in sys.argv[2:]):
-      c_bIsMockExperiment = True
-   else:
-      c_bIsMockExperiment = False
-
-   if ('sdn' in sys.argv[2:]):
-      c_bSDNEnabled = True
-
-   if ('ip' in sys.argv[2:]):
-      c_nCacheSizeDefault = 0
-      c_nHumanCacheSize   = c_nCacheSizeDefault 
-      c_nDroneCacheSize   = c_nCacheSizeDefault
-      c_nSensorCacheSize  = c_nCacheSizeDefault 
-      c_nVehicleCacheSize = c_nCacheSizeDefault
-
-   if ('icn' in sys.argv[2:]):
-      c_bSDNEnabled = False
-          
-   # argv = sys.argv[2:]
-   # short_options = 'hmscit:'
-   # long_options  = ['help', 'mock', 'sdn', 'icn', 'ip', 'topology=']
-   # opts, args = getopt.getopt(argv, short_options, long_options)
-   # for opt, arg in opts:
-   #    if opt in ['-h', '--help']:
-   #       showHelp()
-   #       exit(0)
-   #    elif opt in ['-t', '--topology']:
-   #       strTopologyPath = arg
-   #       print('strTopology=%s' % strTopologyPath)
-   #    elif opt in ['-m', '--mock']:
-   #       print('MOCK')
-   #       c_bIsMockExperiment = True
-   #    elif opt in ['-s', '--sdn']:
-   #       c_bSDNEnabled = True
-   #    elif opt in ['-c', '--icn']:
-   #       c_bSDNEnabled = False
-   #    elif opt in ['-i', '--ip']:
-   #       c_bSDNEnabled = False
-   #       c_nCacheSizeDefault = 0
-   #       c_nHumanCacheSize   = c_nCacheSizeDefault 
-   #       c_nDroneCacheSize   = c_nCacheSizeDefault
-   #       c_nSensorCacheSize  = c_nCacheSizeDefault 
-   #       c_nVehicleCacheSize = c_nCacheSizeDefault
-
-   if(c_bIsMockExperiment):
+   if(g_bIsMockExperiment):
       runMock(strTopologyPath)
    else:
       runExperiment(strTopologyPath)
