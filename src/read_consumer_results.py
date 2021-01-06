@@ -11,7 +11,7 @@ import re
 from datetime import datetime
 
 from icnexperiment.result_analysis import readConsumerLogs, avgTransTime, avgTransTimePerType, countStatus
-from icnexperiment.log_dir import c_strLogDir
+from icnexperiment.dir_config import c_strLogDir
 
 # Constants ----------------------------------------------------
 c_strLogFile = c_strLogDir + 'read_consumer_results.log'
@@ -55,7 +55,8 @@ def main():
         # Average trasnmissiontime per type
         hshTransTimes = avgTransTimePerType(hshNodes)
         for nType in range(1, 6):
-            logging.info('[main] Transmission time for type=%d; average=%f ms' % (nType, hshTransTimes[nType]))
+            if (nType in hshTransTimes):
+                logging.info('[main] Transmission time for type=%d; average=%f ms' % (nType, hshTransTimes[nType]))
     else:
         logging.info('[main] No transmissions! lsn(hshNodes) = 0')
 

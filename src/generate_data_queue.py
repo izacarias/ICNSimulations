@@ -9,7 +9,7 @@ import pickle
 import logging
 
 from icnexperiment.data_generation import DataManager, readHostNamesFromTopoFile
-from icnexperiment.log_dir import c_strLogDir
+from icnexperiment.dir_config import c_strLogDir
 
 # ---------------------------------------- Constants
 c_strLogFile         = c_strLogDir + 'generate_data_queue.log'

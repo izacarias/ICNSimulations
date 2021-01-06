@@ -10,7 +10,7 @@ import logging
 import sys
 
 from icnexperiment.topology_generation import TopologyGenerator
-from icnexperiment.log_dir import c_strLogDir
+from icnexperiment.dir_config import c_strLogDir
 
 # ---------------------------------------------------------------------- Constants
 c_strDefaultTopoPath = '/home/vagrant/icnsimulations/topologies/default-test-topo.conf'

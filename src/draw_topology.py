@@ -11,7 +11,7 @@ import logging
 import matplotlib.pyplot as plt
 
 from icnexperiment.topology_generation import TopologyGenerator
-from icnexperiment.log_dir import c_strLogDir
+from icnexperiment.dir_config import c_strLogDir
 
 c_strLogFile = c_strLogDir + 'draw_topology.log'
 

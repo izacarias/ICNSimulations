@@ -8,6 +8,7 @@ Created 25/09/2020 by Andre Dexheimer Carneiro
 import sys
 import time
 import logging
+import getopt
 from random   import randint
 from datetime import datetime, timedelta
 
@@ -20,16 +21,16 @@ from minindn.apps.nlsr import Nlsr
 from mininet.node import Ryu
 
 from icnexperiment.data_generation import DataManager, curDatetimeToFloat, readHostNamesFromTopoFile
-from icnexperiment.log_dir import c_strLogDir
+from icnexperiment.dir_config import c_strLogDir, c_strTopologyDir
 
 # ---------------------------------------- Constants  
 c_strAppName         = 'C2Data'
 c_strLogFile         = c_strLogDir + 'experiment_send.log'
-c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
+c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
 c_bIsMockExperiment  = False
 c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 10*60
+c_sExperimentTimeSec = 2*60
 
 c_bSDNEnabled       = False
 c_nCacheSizeDefault = 65536
@@ -144,13 +145,18 @@ class RandomTalks():
       """
       Issues MiniNDN commands to instantiate a producer
       """
-      strFilter       = self.getFilterByHostname(str(pHost))
-      strCmdAdvertise = 'nlsrc advertise %s' % strFilter
-      strCmdProducer  = 'producer %s %s %s &' % (strFilter, strTTLValues, strPayloadValues)
+      ############################################################################
+      # The experiment uses the default advertisements estabilished by NLSR, these advertisements were found lowering 
+      # NLSR log level to debug. Previously, advertise commands were issued in each producer, however this would cause
+      # a bunch of NACKs were the should not be.
+      # strCmdAdvertise = 'nlsrc advertise %s' % strFilter
       # pHost.cmd(strCmdAdvertise)
+      # logging.debug('[RandomTalks.instantiateProducer] AdvertiseCmd: ' + strCmdAdvertise)
+
+      strFilter      = self.getFilterByHostname(str(pHost))
+      strCmdProducer = 'producer %s %s %s &' % (strFilter, strTTLValues, strPayloadValues)
       pHost.cmd(strCmdProducer)
       logging.debug('[RandomTalks.instantiateProducer] Instantiating new producer ' + str(pHost) + ' ' + strFilter + ' &')
-      # logging.debug('[RandomTalks.instantiateProducer] AdvertiseCmd: ' + strCmdAdvertise)
       logging.debug('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmdProducer)
 
    def findHostIndexByName(self, strName):
@@ -256,17 +262,75 @@ def runExperiment(strTopoPath):
    MiniNDNCLI(ndn.net)
    ndn.stop()
 
+# ---------------------------------------- showHelp
+def showHelp():
+   strHelp  = 'experiment_send.py - runs MiniNDN experiments with C2Data\n\n'
+   strHelp += 'Usage:\n'
+   strHelp += './experiment_send.py <topology_path> <options>\n' 
+   strHelp += 'Options can be, in any order:' 
+   strHelp += '  mock: Runs mock experiment, without any calls to Mininet, MiniNDN, NFD, NLSR, ...\n'
+   strHelp += '  sdn: SDN experiment with Ryu controller\n'
+   strHelp += '  icn: ICN experiment without specific controller\n'
+   strHelp += '  ip:  IP experiment, no specific controller or cache\n'
+   print(strHelp)
+
 # ---------------------------------------- Main
 def main():
 
-   # Read input param for topology
+   global c_bIsMockExperiment, c_strTopologyFile, c_bSDNEnabled
+   global c_nCacheSizeDefault, c_nHumanCacheSize, c_nDroneCacheSize, c_nSensorCacheSize, c_nVehicleCacheSize
+ 
+   # Read command line arguments
+   strTopologyPath = ''
    if (len(sys.argv) == 1):
-      logging.error('[setup] no topology file specified. To use default, use \'default\' as the first parameter')
-      exit()
-   elif (sys.argv[1] == 'default'):
-      strTopologyPath = c_strTopologyFile
+      showHelp()
+      exit(0)
    else:
       strTopologyPath = sys.argv[1]
+
+   if ('mock' in sys.argv[2:]):
+      c_bIsMockExperiment = True
+   else:
+      c_bIsMockExperiment = False
+
+   if ('sdn' in sys.argv[2:]):
+      c_bSDNEnabled = True
+
+   if ('ip' in sys.argv[2:]):
+      c_nCacheSizeDefault = 0
+      c_nHumanCacheSize   = c_nCacheSizeDefault 
+      c_nDroneCacheSize   = c_nCacheSizeDefault
+      c_nSensorCacheSize  = c_nCacheSizeDefault 
+      c_nVehicleCacheSize = c_nCacheSizeDefault
+
+   if ('icn' in sys.argv[2:]):
+      c_bSDNEnabled = False
+          
+   # argv = sys.argv[2:]
+   # short_options = 'hmscit:'
+   # long_options  = ['help', 'mock', 'sdn', 'icn', 'ip', 'topology=']
+   # opts, args = getopt.getopt(argv, short_options, long_options)
+   # for opt, arg in opts:
+   #    if opt in ['-h', '--help']:
+   #       showHelp()
+   #       exit(0)
+   #    elif opt in ['-t', '--topology']:
+   #       strTopologyPath = arg
+   #       print('strTopology=%s' % strTopologyPath)
+   #    elif opt in ['-m', '--mock']:
+   #       print('MOCK')
+   #       c_bIsMockExperiment = True
+   #    elif opt in ['-s', '--sdn']:
+   #       c_bSDNEnabled = True
+   #    elif opt in ['-c', '--icn']:
+   #       c_bSDNEnabled = False
+   #    elif opt in ['-i', '--ip']:
+   #       c_bSDNEnabled = False
+   #       c_nCacheSizeDefault = 0
+   #       c_nHumanCacheSize   = c_nCacheSizeDefault 
+   #       c_nDroneCacheSize   = c_nCacheSizeDefault
+   #       c_nSensorCacheSize  = c_nCacheSizeDefault 
+   #       c_nVehicleCacheSize = c_nCacheSizeDefault
 
    if(c_bIsMockExperiment):
       runMock(strTopologyPath)
