@@ -1,5 +1,13 @@
 #!/bin/bash
-# set -e
+
+##################################################################
+#
+# Runs a suite of MiniNDN experiments and moves
+# the resulting # log files to a specific output directory.
+#
+# Andre Dexheimer Carneiro      06/12/2021
+#
+#################################################################
 
 # Default values
 n_iterations=3
@@ -32,10 +40,11 @@ show_help () {
 run_benchmark () {
     # $1 -> experiment type (sdn, icn, ip)
     # $2 -> experiment iteration
-    echo "Experiment iteration $1 $2" >> $log_path
+    echo "Running $1 experiment iteration $2" >> $log_path
     sudo ./experiment_send.py -t $topology_path --$1
-    mkdir -p $output_dir/icn/run$2
-    sudo mv /tmp/minindn/* $output_dir/icn/run$2
+    mkdir -p $output_dir/$1/run$2
+    sudo mv /tmp/minindn/* $output_dir/$1/run$2
+    sudo chmod -R 775 $output_dir/$1/run$2
 }
 
 echo "Starting" >> $log_path
