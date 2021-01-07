@@ -16,7 +16,7 @@ from icnexperiment.dir_config import c_strLogDir
 # Constants ----------------------------------------------------
 c_strLogFile = c_strLogDir + 'read_consumer_results.log'
 
-logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 # ---------------------------------------------------------------------- main

@@ -42,7 +42,7 @@ g_bExperimentModeSet = False
 g_bSDNEnabled        = False
 g_strNetworkType     = ''
 
-logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
@@ -65,6 +65,7 @@ class RandomTalks():
 
       # Load data queue
       self.lstDataQueue = DataManager.loadDataQueueFromFile(strTopoPath)
+      logging.info('[RandomTalks.setup] Data queue size=%d' % len(self.lstDataQueue))
 
       # Get TTLs from data manager
       strTTLValues = self.pDataManager.getTTLValuesParam()
@@ -76,7 +77,7 @@ class RandomTalks():
 
       # Log resulting data queue
       for nIndex, node in enumerate(self.lstDataQueue):
-         logging.info('[RandomTalks.setup] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
+         logging.debug('[RandomTalks.setup] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
 
    def run(self):
       """
@@ -318,19 +319,20 @@ def setNetworkType(strMode):
 def showHelp():
    strHelp  = 'experiment_send.py - runs MiniNDN experiments with C2Data\n\n'
    strHelp += 'Usage:\n'
-   strHelp += './experiment_send.py <topology_path> <options>\n' 
-   strHelp += 'Options can be, in any order:' 
-   strHelp += '  mock: Runs mock experiment, without any calls to Mininet, MiniNDN, NFD, NLSR, ...\n'
-   strHelp += '  sdn: SDN experiment with Ryu controller\n'
-   strHelp += '  icn: ICN experiment without specific controller\n'
-   strHelp += '  ip:  IP experiment, no specific controller or cache\n'
+   strHelp += './experiment_send.py -t <topology_path> <options>\n' 
+   strHelp += 'Options can be, in any order:\n' 
+   strHelp += '  --mock: Runs mock experiment, without any calls to Mininet, MiniNDN, NFD, NLSR, ...\n'
+   strHelp += '  --sdn:  SDN experiment with Ryu controller\n'
+   strHelp += '  --icn:  ICN experiment without specific controller\n'
+   strHelp += '  --ip:   IP experiment, no specific controller or cache\n'
    print(strHelp)
 
 # ---------------------------------------- Main
 def main():
 
-   global g_bIsMockExperiment
+   global g_bIsMockExperiment, g_strNetworkType
  
+   strMode = 'icn'
    strTopologyPath = ''
    short_options = 'hmt:'
    long_options  = ['help', 'mock', 'sdn', 'icn', 'ip', 'topology=']
@@ -345,19 +347,32 @@ def main():
       elif opt in ['-m', '--mock']:
          g_bIsMockExperiment = True
       elif opt == '--sdn':
-         setNetworkType('sdn')
+         strMode = 'sdn'
       elif opt == '--icn':
-         setNetworkType('icn')
+         strMode = 'icn'
       elif opt == '--ip':
-         setNetworkType('ip')
+         strMode = 'ip'
    
+   setNetworkType(strMode)
    # Reset argv arguments for the minindn CLI
    sys.argv = [sys.argv[0]]   
+
+   # Check if topology was specified
+   if (strTopologyPath == ''):
+      logging.error('[main] No topology file specified!')
+      showHelp()
+      exit(0)
+
+   if (g_strNetworkType == ''):
+      logging.error('[main] No network type set')
+      showHelp()
+      exit(0)   
 
    if(g_bIsMockExperiment):
       runMock(strTopologyPath)
    else:
       runExperiment(strTopologyPath)
+
 
 if __name__ == '__main__':
    main()

@@ -16,10 +16,10 @@ from icnexperiment.dir_config import c_strLogDir
 c_strDefaultTopoPath = '/home/vagrant/icnsimulations/topologies/default-test-topo.conf'
 c_strLogFile         = c_strLogDir + 'generate_topology.log'
 c_nNodeLinks         = 3
-c_nHumans            = 4
-c_nSensors           = 4
-c_nDrones            = 4
-c_nVehicles          = 4
+c_nHumans            = 7
+c_nSensors           = 7
+c_nDrones            = 7
+c_nVehicles          = 7
 c_nMaxX              = 100
 c_nMaxY              = 100
 

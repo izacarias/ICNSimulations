@@ -14,7 +14,7 @@ from icnexperiment.dir_config import c_strLogDir
 # ---------------------------------------- Constants
 c_strLogFile         = c_strLogDir + 'generate_data_queue.log'
 c_strTopologyFile    = '/home/vagrant/icnsimulations/topologies/default-topology.conf'
-c_nMissionMinutes    = 20
+c_nMissionMinutes    = 60
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))

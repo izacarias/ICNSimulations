@@ -135,8 +135,8 @@ class DataManager:
         strPath  = DataManager.queueFileNameForFromTopo(strTopoFilePath)
         lstQueue = None
         with open(strPath, 'rb') as pFile:
+            logging.info('[DataManager.loadDataQueueFromFile] Reading data queue from path=%s' % strPath)
             lstQueue = pickle.load(pFile)
-            logging.info('[DataManager.loadDataQueueFromFile] Read data queue from path=%s' % strPath)
         return lstQueue
 
     @staticmethod
@@ -144,5 +144,9 @@ class DataManager:
         """
         Returns the designated pickle file path
         """
-        strPath = dirname(strTopoFilePath) + '/queue_' + basename(strTopoFilePath).strip(c_strTopoFileSuffix) + '.pkl'
+        strTopoName = basename(strTopoFilePath)
+        if (strTopoName.endswith('.conf')):
+            strTopoName = strTopoName[:-5]
+        strPath = dirname(strTopoFilePath) + '/queue_' + strTopoName + '.pkl'
+        
         return strPath
