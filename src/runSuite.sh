@@ -47,7 +47,7 @@ run_benchmark () {
     sudo chmod -R 775 $output_dir/$1/run$2
 }
 
-echo "Starting" >> $log_path
+echo "Starting time=$(date)" >> $log_path
 
 # Read commmand line parameters
 while getopts "h?n:?icn-:?sdn-:?ip-:?o:t:" opt; do
