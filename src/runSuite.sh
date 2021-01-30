@@ -31,9 +31,9 @@ show_help () {
       --icn: Pure ICN benchmark
       --sdn: ICN + SDN benchmark
       --ip: IP benchmark
-      
+
       -o: Output path for the resulting MiniNDN logs
-      -t: Topology file 
+      -t: Topology file
       "
 }
 
@@ -43,7 +43,7 @@ run_benchmark () {
     echo "Running $1 experiment iteration $2" >> $log_path
     sudo ./experiment_send.py -t $topology_path --$1
     mkdir -p $output_dir/$1/run$2
-    sudo mv /tmp/minindn/* $output_dir/$1/run$2
+    sudo mv /tmp/minindn/*/consumerLog.log $output_dir/$1/run$2
     sudo chmod -R 775 $output_dir/$1/run$2
 }
 
@@ -66,7 +66,7 @@ while getopts "h?n:?icn-:?sdn-:?ip-:?o:t:" opt; do
         ;;
     t)
         topology_path=$OPTARG
-        ;; 
+        ;;
     -)
         case "${OPTARG}" in
             sdn)
