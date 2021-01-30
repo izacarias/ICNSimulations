@@ -1,1 +1,0 @@
-FATAL: error while receiving data from socket (End of file) [from ../ndn-cxx/transport/detail/stream-transport-impl.hpp:226 in handleAsyncReceive]

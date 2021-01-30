@@ -1,3 +1,0 @@
-NameLsaSeq 1
-AdjLsaSeq 4
-CorLsaSeq 0
