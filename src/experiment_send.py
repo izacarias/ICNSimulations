@@ -12,18 +12,23 @@ import getopt
 from random   import randint
 from datetime import datetime, timedelta
 
-from mininet.log import setLogLevel, info
-from minindn.minindn import Minindn
-from minindn.util import MiniNDNCLI
-from minindn.apps.app_manager import AppManager
-from minindn.apps.nfd import Nfd
-from minindn.apps.nlsr import Nlsr
-from mininet.node import Ryu
+try:
+   from mininet.log import setLogLevel, info
+   from minindn.minindn import Minindn
+   from minindn.util import MiniNDNCLI
+   from minindn.apps.app_manager import AppManager
+   from minindn.apps.nfd import Nfd
+   from minindn.apps.nlsr import Nlsr
+   from mininet.node import Ryu
+   g_bMinindnLibsImported = True
+except ImportError:
+   print('Could not import MiniNDN libraries')
+   g_bMinindnLibsImported = False
 
 from icnexperiment.data_generation import DataManager, curDatetimeToFloat, readHostNamesFromTopoFile
 from icnexperiment.dir_config import c_strLogDir, c_strTopologyDir
 
-# ---------------------------------------- Constants  
+# ---------------------------------------- Constants
 c_strAppName         = 'C2Data'
 c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
@@ -34,8 +39,8 @@ c_sExperimentTimeSec = 2*60
 c_nCacheSizeDefault = 65536
 
 c_nNLSRSleepSec   = 40
-c_strNLSRLogLevel = 'DEBUG'
-c_strNFDLogLevel  = 'DEBUG'
+c_strNLSRLogLevel = 'NONE'
+c_strNFDLogLevel  = 'NONE'
 
 g_bIsMockExperiment  = False
 g_bExperimentModeSet = False
@@ -53,9 +58,9 @@ class RandomTalks():
       """
       Constructor. Meh
       """
-      self.logFile         = None
-      self.pDataManager    = DataManager()
-      self.lstHosts        = lstHosts
+      self.logFile      = None
+      self.pDataManager = DataManager()
+      self.lstHosts     = lstHosts
 
    def setup(self, strTopoPath):
       """
@@ -107,7 +112,7 @@ class RandomTalks():
             logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; pDataBuff[0]=%s; sElapsedTimeMs=%s' % (nDataIndex, len(self.lstDataQueue)-1, pDataBuff[0], sElapsedTimeMs))
             self.instantiateConsumer(pDataBuff[1])
             nDataIndex += 1
-         
+
          if (nDataIndex < len(self.lstDataQueue)):
             logging.debug('[RandomTalks.run] Waiting to send next data package nDataIndex=%s; pDataBuff[0]=%s; sElapsedTimeMs=%s' %
                (nDataIndex, self.lstDataQueue[nDataIndex][0], sElapsedTimeMs))
@@ -147,7 +152,7 @@ class RandomTalks():
       Issues MiniNDN commands to instantiate a producer
       """
       ############################################################################
-      # The experiment uses the default advertisements estabilished by NLSR, these advertisements were found lowering 
+      # The experiment uses the default advertisements estabilished by NLSR, these advertisements were found lowering
       # NLSR log level to debug. Previously, advertise commands were issued in each producer, however this would cause
       # a bunch of NACKs were the should not be.
       # strCmdAdvertise = 'nlsrc advertise %s' % strFilter
@@ -189,7 +194,7 @@ class MockHost():
    def cmd(self, strLine):
       return 0
 
-# ---------------------------------------- runMock 
+# ---------------------------------------- runMock
 def runMock(strTopoPath):
    """
    Runs mock experiment. No cummunication with Mininet or MiniNDN
@@ -272,11 +277,11 @@ def setICNCache():
    Sets cache for ICN hosts.
    """
    global c_nHumanCacheSize, c_nDroneCacheSize, c_nSensorCacheSize, c_nVehicleCacheSize
-   c_nHumanCacheSize   = c_nCacheSizeDefault 
+   c_nHumanCacheSize   = c_nCacheSizeDefault
    c_nDroneCacheSize   = c_nCacheSizeDefault
-   c_nSensorCacheSize  = c_nCacheSizeDefault 
+   c_nSensorCacheSize  = c_nCacheSizeDefault
    c_nVehicleCacheSize = c_nCacheSizeDefault
-   logging.info('[setICNCache] Set')
+   logging.info('[setICNCache] Set, human=%d, drone=%d, sensor=%d, vehicle=%d' % (c_nHumanCacheSize, c_nDroneCacheSize, c_nSensorCacheSize, c_nVehicleCacheSize))
 
 # ---------------------------------------- setIPCache
 def setIPCache():
@@ -288,7 +293,7 @@ def setIPCache():
    c_nDroneCacheSize   = 0
    c_nSensorCacheSize  = 0
    c_nVehicleCacheSize = 0
-   logging.info('[setIPCache] Set')
+   logging.info('[setIPCache] Set, human=%d, drone=%d, sensor=%d, vehicle=%d' % (c_nHumanCacheSize, c_nDroneCacheSize, c_nSensorCacheSize, c_nVehicleCacheSize))
 
 # ---------------------------------------- setNetworkType
 def setNetworkType(strMode):
@@ -296,22 +301,24 @@ def setNetworkType(strMode):
    Sets the network as 'sdn', 'icn' or 'ip'
    """
    global g_strNetworkType, g_bSDNEnabled
-   lstAllowedTypes = ['sdn', 'ip', 'icn']
    if (g_strNetworkType == ''):
       if (strMode == 'sdn'):
-         g_bSDNEnabled = True      
+         g_bSDNEnabled = True
          setICNCache()
       elif (strMode == 'icn'):
          g_bSDNEnabled = False
          setICNCache()
       elif (strMode == 'ip'):
-         g_bSDNEnabled = False         
+         g_bSDNEnabled = False
+         setIPCache()
+      elif (strMode == 'ip_sdn'):
+         g_bSDNEnabled = True
          setIPCache()
       else:
-         raise Exception('[setNetworkType] Unrecognized network type=%s' % strMode)   
-      
+         raise Exception('[setNetworkType] Unrecognized network type=%s' % strMode)
+
       g_strNetworkType = strMode
-      logging.info('[setNetworkType] Type=%s' % g_strNetworkType)
+      logging.info('[setNetworkType] Type=%s, RyuController=%s' % (g_strNetworkType, g_bSDNEnabled))
    else:
       raise Exception('[setNetworkType] called more than once, current type=%s' % g_strNetworkType)
 
@@ -319,23 +326,24 @@ def setNetworkType(strMode):
 def showHelp():
    strHelp  = 'experiment_send.py - runs MiniNDN experiments with C2Data\n\n'
    strHelp += 'Usage:\n'
-   strHelp += './experiment_send.py -t <topology_path> <options>\n' 
-   strHelp += 'Options can be, in any order:\n' 
-   strHelp += '  --mock: Runs mock experiment, without any calls to Mininet, MiniNDN, NFD, NLSR, ...\n'
-   strHelp += '  --sdn:  SDN experiment with Ryu controller\n'
-   strHelp += '  --icn:  ICN experiment without specific controller\n'
-   strHelp += '  --ip:   IP experiment, no specific controller or cache\n'
+   strHelp += './experiment_send.py -t <topology_path> <options>\n'
+   strHelp += 'Options can be, in any order:\n'
+   strHelp += '  --mock:   Runs mock experiment, without any calls to Mininet, MiniNDN, NFD, NLSR, ...\n'
+   strHelp += '  --sdn:    SDN experiment with Ryu controller\n'
+   strHelp += '  --icn:    ICN experiment without specific controller\n'
+   strHelp += '  --ip:     IP experiment, no specific controller or cache\n'
+   strHelp += '  --ip_sdn: IP with SDN experiment, with Ryu controller and no cache\n'
    print(strHelp)
 
 # ---------------------------------------- Main
 def main():
 
-   global g_bIsMockExperiment, g_strNetworkType
- 
+   global g_bIsMockExperiment, g_strNetworkType, g_bMinindnLibsImported
+
    strMode = 'icn'
    strTopologyPath = ''
    short_options = 'hmt:'
-   long_options  = ['help', 'mock', 'sdn', 'icn', 'ip', 'topology=']
+   long_options  = ['help', 'mock', 'sdn', 'icn', 'ip', 'ip_sdn', 'topology=']
    opts, args = getopt.getopt(sys.argv[1:], short_options, long_options)
    for opt, arg in opts:
       if opt in ['-h', '--help']:
@@ -352,10 +360,12 @@ def main():
          strMode = 'icn'
       elif opt == '--ip':
          strMode = 'ip'
-   
+      elif opt == '--ip_sdn':
+         strMode = 'ip_sdn'
+
    setNetworkType(strMode)
    # Reset argv arguments for the minindn CLI
-   sys.argv = [sys.argv[0]]   
+   sys.argv = [sys.argv[0]]
 
    # Check if topology was specified
    if (strTopologyPath == ''):
@@ -366,13 +376,15 @@ def main():
    if (g_strNetworkType == ''):
       logging.error('[main] No network type set')
       showHelp()
-      exit(0)   
+      exit(0)
 
    if(g_bIsMockExperiment):
       runMock(strTopologyPath)
    else:
-      runExperiment(strTopologyPath)
-
+      if (g_bMinindnLibsImported):
+         runExperiment(strTopologyPath)
+      else:
+         logging.error('[main] Experiment can not run because MiniNDN libraries could not be imported')
 
 if __name__ == '__main__':
    main()

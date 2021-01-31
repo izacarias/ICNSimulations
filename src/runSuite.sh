@@ -14,6 +14,7 @@ n_iterations=3
 flag_run_icn=0
 flag_run_ip=0
 flag_run_sdn=0
+flag_run_ip_sdn=0
 output_dir=""
 topology_path=""
 log_path="runSuite.log"
@@ -31,6 +32,7 @@ show_help () {
       --icn: Pure ICN benchmark
       --sdn: ICN + SDN benchmark
       --ip: IP benchmark
+      --ip_sdn: IP with SDN benchmark
 
       -o: Output path for the resulting MiniNDN logs
       -t: Topology file
@@ -38,19 +40,26 @@ show_help () {
 }
 
 run_benchmark () {
-    # $1 -> experiment type (sdn, icn, ip)
+    # $1 -> experiment type (sdn, icn, ip, ip_sdn)
     # $2 -> experiment iteration
     echo "Running $1 experiment iteration $2" >> $log_path
     sudo ./experiment_send.py -t $topology_path --$1
     mkdir -p $output_dir/$1/run$2
-    sudo mv /tmp/minindn/*/consumerLog.log $output_dir/$1/run$2
-    sudo chmod -R 775 $output_dir/$1/run$2
+    for host_dir in $(ls /tmp/minindn)
+    do
+        mkdir $output_dir/$1/run$2/$host_dir
+        sudo mv /tmp/minindn/$host_dir/consumerLog.log $output_dir/$1/run$2/$host_dir
+        sudo chmod -R 755 $output_dir/$1/run$2/$host_dir
+    done
+
+    # sudo mv /tmp/minindn/*/consumerLog.log $output_dir/$1/run$2
+    # sudo chmod -R 775 $output_dir/$1/run$2
 }
 
 echo "Starting time=$(date)" >> $log_path
 
 # Read commmand line parameters
-while getopts "h?n:?icn-:?sdn-:?ip-:?o:t:" opt; do
+while getopts "h?n:?icn-:?sdn-:?ip-:?o:t:sdn-:?" opt; do
     case "$opt" in
     h|\?)
         show_help
@@ -81,6 +90,10 @@ while getopts "h?n:?icn-:?sdn-:?ip-:?o:t:" opt; do
                 flag_run_ip=1
                 echo "IP"
                 ;;
+            id_sdn)
+                flag_run_ip_sdn=1
+                echo "IP with SDN"
+                ;;
             *)
                 echo "Unknown argument --${OPTARG}"
                 ;;
@@ -89,11 +102,12 @@ while getopts "h?n:?icn-:?sdn-:?ip-:?o:t:" opt; do
 done
 
 # Decide which benchmarks to run
-if [ "$flag_run_sdn" = 0 ] && [ "$flag_run_icn" = 0 ] && [ "$flag_run_ip" = 0 ]; then
+if [ "$flag_run_sdn" = 0 ] && [ "$flag_run_icn" = 0 ] && [ "$flag_run_ip" = 0 ] && [ "$flag_run_ip_sdn" = 0 ]; then
     # If the benchmarks have not been specified, run all
     flag_run_sdn=1
     flag_run_icn=1
     flag_run_ip=1
+    flag_run_ip_sdn=1
 fi
 
 # Check output directory
@@ -127,6 +141,11 @@ do
     if [ "$flag_run_ip" = 1 ]
     then
         run_benchmark "ip" "$i"
+    fi
+    # IP with SDN benchmark
+    if [ "$flag_run_ip_sdn" = 1 ]
+    then
+        run_benchmark "ip_sdn" "$i"
     fi
 done
 

@@ -69,3 +69,13 @@ do
     read_network_results "$1$file_name/"
   fi
 done
+
+# Read and write IP_SDN results
+for file_name in $(ls $result_path)
+do
+  if [ $file_name == "ip_sdn" ]
+  then
+    echo -e "\n\nResults for IP with SDN --------------------------------------------------"
+    read_network_results "$1$file_name/"
+  fi
+done
