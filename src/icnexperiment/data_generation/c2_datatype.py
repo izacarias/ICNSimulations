@@ -26,6 +26,13 @@ class C2DataType:
         self.lstAllowedHostTypes = lstAllowedHostTypes # Host types that can receive this data
         # By default, drones, humans and vehicles, sensors are left out because they are meant to only produce data and not consume it
 
+    def toString(self):
+        """
+        Returns a string containing information about this datatype
+        """
+        strInfo = 'nType=%d; nTTL=%s; nPeriodSec=%d; nSize=%d; sRatioMaxReceivers=%f; sPeriodWiggleRoom=%s; lstAllowedHostTypes=%s' % (self.nType, self.nTTL, self.nPeriodSec, self.nPayloadSize, self.sRatioMaxReceivers, self.sPeriodWiggleRoom, self.lstAllowedHostTypes)
+        return strInfo
+
     def generateDataQueue(self, strHost, nMissionMinutes, lstDataQueue, lstHosts):
         """
         Generates the data queue for a host

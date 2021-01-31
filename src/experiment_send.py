@@ -84,6 +84,10 @@ class RandomTalks():
       for nIndex, node in enumerate(self.lstDataQueue):
          logging.debug('[RandomTalks.setup] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
 
+      # Log the current configuration for data_manager
+      logging.info('[RandomTalks.setup] Current data type configuration: \n%s' % self.pDataManager.info())
+      logging.info('[RandomTalks.setup] Note that this could be outdated since the data queue configuration is set when it is created!')
+
    def run(self):
       """
       Experiment routine
@@ -324,7 +328,8 @@ def setNetworkType(strMode):
 
 # ---------------------------------------- showHelp
 def showHelp():
-   strHelp  = 'experiment_send.py - runs MiniNDN experiments with C2Data\n\n'
+   strHelp  =  'Help: -----------------------------------------------\n'
+   strHelp += 'experiment_send.py - runs MiniNDN experiments with C2Data\n\n'
    strHelp += 'Usage:\n'
    strHelp += './experiment_send.py -t <topology_path> <options>\n'
    strHelp += 'Options can be, in any order:\n'

@@ -52,8 +52,8 @@ run_benchmark () {
         sudo chmod -R 755 $output_dir/$1/run$2/$host_dir
     done
 
-    # sudo mv /tmp/minindn/*/consumerLog.log $output_dir/$1/run$2
-    # sudo chmod -R 775 $output_dir/$1/run$2
+    cp ../log/experiment_send.log $output_dir/$1/run$2
+    sudo rm ../log/experiment_send.log
 }
 
 echo "Starting time=$(date)" >> $log_path

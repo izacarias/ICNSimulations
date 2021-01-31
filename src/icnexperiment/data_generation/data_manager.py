@@ -34,6 +34,18 @@ class DataManager:
         self.lstDataTypes.append(C2DataType(nTTL=10*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=5, nSize=5000, sRatioMaxReceivers=0.4))   # INTEREST 5
         self.lstDataTypes.append(C2DataType(nTTL=20*60*1000/nFactor, nPeriodSec=20*60/nFactor, nType=6, nSize=5000, sRatioMaxReceivers=0.4))   # INTEREST 6
 
+    def info(self):
+        """
+        Returns a multi-line string with information about all data types configured.
+        """
+        strInfo = ''
+        for i in range(len(self.lstDataTypes)):
+            strInfo += '[%d] - %s\n' % (i, self.lstDataTypes[i].toString())
+
+        # Removes the last \n
+        strInfo = strInfo[0:len(strInfo)]
+        return strInfo
+
     def generateSpreadDataQueue(self, lstHosts, nMissionMinutes):
         """
         Generates a simple data queue for spreading packets from only one node.
