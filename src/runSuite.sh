@@ -49,6 +49,7 @@ run_benchmark () {
     do
         mkdir $output_dir/$1/run$2/$host_dir
         sudo mv /tmp/minindn/$host_dir/consumerLog.log $output_dir/$1/run$2/$host_dir
+        sudo mv /tmp/minindn/$host_dir/log $output_dir/$1/run$2/$host_dir
         sudo chmod -R 755 $output_dir/$1/run$2/$host_dir
     done
 
