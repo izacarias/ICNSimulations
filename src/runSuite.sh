@@ -18,6 +18,7 @@ flag_run_ip_sdn=0
 output_dir=""
 topology_path=""
 log_path="runSuite.log"
+username="vagrant"
 
 show_help () {
 
@@ -55,6 +56,7 @@ run_benchmark () {
 
     cp ../log/experiment_send.log $output_dir/$1/run$2
     sudo rm ../log/experiment_send.log
+    sudo chown $username $output_dir/$1/run$2
 }
 
 echo "Starting time=$(date)" >> $log_path
