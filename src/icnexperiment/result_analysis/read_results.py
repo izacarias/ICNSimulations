@@ -6,7 +6,7 @@ Andre Dexheimer Carneiro        28/12/2020
 """
 import sys
 import logging
-from os.path import dirname, exists
+from os.path import dirname, exists, isdir, isfile
 from os import listdir
 
 from .transmission import Transmission
@@ -26,25 +26,27 @@ def readConsumerLogs(strPath):
     # Visit nodes (directories) one by one
     for strConsumer in lstNodes:
         # Read result file for each node
-        strConsumerLog = strPath + '/' + strConsumer + '/' + c_strConsumerLog
-        if (exists(strConsumerLog)):
-            pFile = open(strConsumerLog, 'r')
-            if (pFile):
-                logging.debug('[readConsumerLogs] reading results for node=%s ------------------------------------------' % (strConsumer))
-                # Process each line for a transmission
-                lstTransmissions  = []
-                for strLine in pFile:
-                    newTrans = Transmission.fromString(strLine, strConsumer)
-                    lstTransmissions.append(newTrans)
-                    logging.debug('[readConsumerLogs] Read new transmission=%s' % newTrans)
-                
-                if (len(lstTransmissions) > 0):
-                    hshNodes[strConsumer] = lstTransmissions
-                pFile.close()
+        strHostDir = strPath + '/' + strConsumer
+        if (isdir(strHostDir)):
+            strConsumerLog = strHostDir + '/' + c_strConsumerLog
+            if (exists(strConsumerLog) and isfile(strConsumerLog)):
+                pFile = open(strConsumerLog, 'r')
+                if (pFile):
+                    logging.debug('[readConsumerLogs] reading results for node=%s ------------------------------------------' % (strConsumer))
+                    # Process each line for a transmission
+                    lstTransmissions  = []
+                    for strLine in pFile:
+                        newTrans = Transmission.fromString(strLine, strConsumer)
+                        lstTransmissions.append(newTrans)
+                        logging.debug('[readConsumerLogs] Read new transmission=%s' % newTrans)
+                    
+                    if (len(lstTransmissions) > 0):
+                        hshNodes[strConsumer] = lstTransmissions
+                    pFile.close()
+                else:
+                    logging.error('[readConsumerLogs] Error reading information for node=' + strConsumer)
             else:
-                logging.error('[readConsumerLogs] Error reading information for node=' + strConsumer)
-        else:
-            logging.error('[readConsumerLogs] could not find log=%s for node=%s' % (c_strConsumerLog, strConsumer))
+                logging.error('[readConsumerLogs] could not find log=%s for node=%s' % (c_strConsumerLog, strConsumer))
 
     return hshNodes
 

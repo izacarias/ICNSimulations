@@ -38,14 +38,11 @@ class Node:
         """
         Places the Node in a random pair of x,y coordinates
         """
-        if (self.nX >= 0) or (self.nY >= 0):
-            raise Exception('placeAtRandom: Node has already been placed at (%d ,%d)' % (self.nX, self.nY))
-        else:
-            self.nX = randint(1, nMaxX)
-            self.nY = randint(1, nMaxY)
-            self.sRadius = sqrt(self.nX**2 + self.nY**2)
-            self.sAngle  = atan(float(self.nY)/float(self.nX))
-            logging.debug('[Node.placeAtRandom] host %s placed at x=%d; y=%d; r=%f; angle=%f' % (self.strName, self.nX, self.nY, self.sRadius, self.sAngle))
+        self.nX = randint(1, nMaxX)
+        self.nY = randint(1, nMaxY)
+        self.sRadius = sqrt(self.nX**2 + self.nY**2)
+        self.sAngle  = atan(float(self.nY)/float(self.nX))
+        logging.debug('[Node.placeAtRandom] host %s placed at x=%d; y=%d; r=%f; angle=%f' % (self.strName, self.nX, self.nY, self.sRadius, self.sAngle))
 
     def distanceTo(self, pNode):
         """
@@ -84,6 +81,9 @@ class Node:
 
     def getCoord(self):
         return (self.nX, self.nY)
+
+    def getRadCoord(self):
+        return (self.sRadius, self.sAngle)
 
     @staticmethod
     def fromString(strNode):

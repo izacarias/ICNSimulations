@@ -34,7 +34,7 @@ c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
 c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 2*60
+c_sExperimentTimeSec = 3*60
 
 c_nCacheSizeDefault = 65536
 

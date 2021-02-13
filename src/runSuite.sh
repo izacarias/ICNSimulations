@@ -15,6 +15,7 @@ flag_run_icn=0
 flag_run_ip=0
 flag_run_sdn=0
 flag_run_ip_sdn=0
+flag_save_nfd_log=0
 output_dir=""
 topology_path=""
 log_path="runSuite.log"
@@ -50,13 +51,15 @@ run_benchmark () {
     do
         mkdir $output_dir/$1/run$2/$host_dir
         sudo mv /tmp/minindn/$host_dir/consumerLog.log $output_dir/$1/run$2/$host_dir
-        sudo mv /tmp/minindn/$host_dir/log $output_dir/$1/run$2/$host_dir
+        if [ "$flag_save_nfd_log" = 1 ]; then
+            sudo mv /tmp/minindn/$host_dir/log $output_dir/$1/run$2/$host_dir
+        fi
         sudo chmod -R 755 $output_dir/$1/run$2/$host_dir
     done
 
     cp ../log/experiment_send.log $output_dir/$1/run$2
     sudo rm ../log/experiment_send.log
-    sudo chown $username $output_dir/$1/run$2
+    sudo chown -R $username $output_dir/$1/run$2
 }
 
 echo "Starting time=$(date)" >> $log_path

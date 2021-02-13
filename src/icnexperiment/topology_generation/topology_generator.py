@@ -27,15 +27,30 @@ class TopologyGenerator:
         """
         Places all hosts randomly in a X,Y space and stabilishes connections with the N hosts closest to each one.
         """
+        c_nMaxTriesForDuplicateCoord = 20
         logging.info('[createRandomTopo] Begin maxX=%d, maxY=%d, NodeLinks=%d' % (nMaxX, nMaxY, nNodeLinks))
 
         # Place all nodes at random x,y coordinates
         lstNodes = []
         lstLinks = []
         for strHost in lstHosts:
-            newNode = Node(strHost)
-            newNode.placeAtRandom(nMaxX, nMaxY)
-            lstNodes.append(newNode)
+            newNode         = Node(strHost)
+            nTries          = 0
+            bDuplicateCoord = False
+            while bDuplicateCoord or (nTries == 0):
+                #############################################
+                # Nodes placed at the same point will cause 
+                # MiniNDN to raise an exception and quit
+                nTries += 1
+                bDuplicateCoord = False
+                if (nTries > c_nMaxTriesForDuplicateCoord):
+                    raise Exception('Tried more than %d times to find not duplicate coordinate' % c_nMaxTriesForDuplicateCoord)
+                newNode.placeAtRandom(nMaxX, nMaxY)
+                for pNode in lstNodes:
+                    if (newNode.getRadCoord() == pNode.getRadCoord()):
+                        bDuplicateCoord = True               
+                if (not bDuplicateCoord):
+                    lstNodes.append(newNode)
 
         # Create links for each node
         for i in range(len(lstNodes)):
