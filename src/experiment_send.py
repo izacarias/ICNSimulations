@@ -163,7 +163,6 @@ class RandomTalks():
                   strHost = RandomTalks.getHostnameFromFilter(proc.cmdline()[1])
                   lstRunningProducers.append(strHost)
             except:
-	       logging.info('[RandomTalks.checkRunningProducers] Exception supressed, cmdline=%s, name=%s' % (str(proc.cmdline()), proc.name())) 
                pass
          
          logging.info('[RandomTalks.checkRunningProducers] Found %d running producer programs' % len(lstRunningProducers))
@@ -320,9 +319,16 @@ def runExperiment(strTopoPath):
 
    ##########################################################
    # Set up and run experiment
+   logging.info('[runExperiment] Begin experiment')
    Experiment = RandomTalks(ndn.net.hosts)
-   Experiment.setup(strTopoPath)
-   Experiment.run()
+   try:
+      Experiment.setup(strTopoPath)
+      Experiment.run()
+   except:
+      logging.error('[runExperiment] An exception was raised during the experiment')
+      raise      
+
+   logging.info('[runExperiment] End')
 
    # MiniNDNCLI(ndn.net)
    ndn.stop()

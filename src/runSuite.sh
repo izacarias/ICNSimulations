@@ -59,7 +59,7 @@ run_benchmark () {
 
     cp ../log/experiment_send.log $output_dir/$1/run$2
     sudo rm ../log/experiment_send.log
-    sudo chown -R $username $output_dir/$1/run$2
+    sudo chown -R $username $output_dir
 }
 
 echo "Starting time=$(date)" >> $log_path
