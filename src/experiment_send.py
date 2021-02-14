@@ -35,7 +35,7 @@ c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
 c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 3*60
+c_sExperimentTimeSec = 7*60
 
 c_nCacheSizeDefault = 65536
 
@@ -87,7 +87,7 @@ class RandomTalks():
 
       # Log resulting data queue
       for nIndex, node in enumerate(self.lstDataQueue):
-         logging.debug('[RandomTalks.setup] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
+         logging.info('[RandomTalks.setup] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
 
       # Log the current configuration for data_manager
       logging.info('[RandomTalks.setup] Current data type configuration: \n%s' % self.pDataManager.info())
@@ -118,7 +118,7 @@ class RandomTalks():
          while (nDataIndex < len(self.lstDataQueue)) and (self.lstDataQueue[nDataIndex][0] <= sElapsedTimeMs):
             # Send data
             pDataBuff = self.lstDataQueue[nDataIndex]
-            logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; pDataBuff[0]=%s; sElapsedTimeMs=%s' % (nDataIndex, len(self.lstDataQueue)-1, pDataBuff[0], sElapsedTimeMs))
+            logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; elapsedSec=%s; delayMs=%s' % (nDataIndex, len(self.lstDataQueue)-1, sElapsedTimeMs/1000.0, sElapsedTimeMs-pDataBuff[0]))
             
             # Instantiate consumer and producer host associated in the data package
             pDataPackage = pDataBuff[1]
@@ -157,21 +157,21 @@ class RandomTalks():
          lstRunningProducers = []
          for proc in psutil.process_iter():
             try:
-               # Exceptions are raised when trying to get the name of processes that are not running anymore
+               # Exceptions can happen here as processes are spawned and killed concurrently
                if (proc.name() == 'producer'):
                   # Second parameter should be the interest filter
                   strHost = RandomTalks.getHostnameFromFilter(proc.cmdline()[1])
                   lstRunningProducers.append(strHost)
             except:
-               raise 
-               # pass
+	       logging.info('[RandomTalks.checkRunningProducers] Exception supressed, cmdline=%s, name=%s' % (str(proc.cmdline()), proc.name())) 
+               pass
          
          logging.info('[RandomTalks.checkRunningProducers] Found %d running producer programs' % len(lstRunningProducers))
       
          for pHost in self.lstHosts:
             if (str(pHost) not in lstRunningProducers):
                logging.info('[RandomTalks.checkRunningProducers] instantiating missing producer=%s' % str(pHost))
-               self.instantiateProducer(pHost) 
+               self.instantiateProducer(pHost)
       
          # Update last check time
          g_dtLastProducerCheck = datetime.now()
