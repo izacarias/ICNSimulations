@@ -9,6 +9,7 @@ import sys
 import time
 import logging
 import getopt
+import psutil
 from random   import randint
 from datetime import datetime, timedelta
 
@@ -47,6 +48,9 @@ g_bExperimentModeSet = False
 g_bSDNEnabled        = False
 g_strNetworkType     = ''
 
+g_dtLastProducerCheck     = None
+g_nProducerCheckPeriodSec = 1
+
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
@@ -58,9 +62,11 @@ class RandomTalks():
       """
       Constructor. Meh
       """
-      self.logFile      = None
-      self.pDataManager = DataManager()
-      self.lstHosts     = lstHosts
+      self.logFile          = None
+      self.pDataManager     = DataManager()
+      self.lstHosts         = lstHosts
+      self.strTTLValues     = 'None'
+      self.strPayloadValues = 'None'
 
    def setup(self, strTopoPath):
       """
@@ -73,12 +79,11 @@ class RandomTalks():
       logging.info('[RandomTalks.setup] Data queue size=%d' % len(self.lstDataQueue))
 
       # Get TTLs from data manager
-      strTTLValues = self.pDataManager.getTTLValuesParam()
-      strPayloadValues = self.pDataManager.getPayloadValuesParam()
+      self.strTTLValues     = self.pDataManager.getTTLValuesParam()
+      self.strPayloadValues = self.pDataManager.getPayloadValuesParam()
 
       # Instantiate all producers
-      for pHost in self.lstHosts:
-         self.instantiateProducer(pHost, strTTLValues, strPayloadValues)
+      self.checkRunningProducers()
 
       # Log resulting data queue
       for nIndex, node in enumerate(self.lstDataQueue):
@@ -114,7 +119,16 @@ class RandomTalks():
             # Send data
             pDataBuff = self.lstDataQueue[nDataIndex]
             logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; pDataBuff[0]=%s; sElapsedTimeMs=%s' % (nDataIndex, len(self.lstDataQueue)-1, pDataBuff[0], sElapsedTimeMs))
-            self.instantiateConsumer(pDataBuff[1])
+            
+            # Instantiate consumer and producer host associated in the data package
+            pDataPackage = pDataBuff[1]
+            pProducer = self.findHostByName(pDataPackage.strOrig)
+            pConsumer = self.findHostByName(pDataPackage.strDest)
+
+            # In some setups, producer hosts might be killed by the OS for an unknown reason
+            # This makes sure producers are running correctly during the simulation
+            self.checkRunningProducers()
+            self.instantiateConsumer(pConsumer, pDataPackage.getInterest())
             nDataIndex += 1
 
          if (nDataIndex < len(self.lstDataQueue)):
@@ -132,26 +146,37 @@ class RandomTalks():
 
       # Close log file
       logging.info('[RandomTalks.run] Experiment done in %s seconds log written to %s' % (sElapsedTimeMs/1000, c_strLogFile))
-
-   def instantiateConsumer(self, pDataPackage):
+ 
+   def checkRunningProducers(self):
       """
-      Issues MiniNDN commands to set up a consumer for a data package
+      Checks for all producer processes periodicaly. The period is set by g_nProducerCheckPeriodSec.
       """
-      # Find consumer associated to the package
-      nConsumer = self.findHostIndexByName(pDataPackage.strDest)
+      global g_nProducerCheckPeriodSec, g_dtLastProducerCheck
 
-      if(nConsumer >= 0):
-         # Valid consumer and producer
-         pConsumer   = self.lstHosts[nConsumer]
-         strInterest = pDataPackage.getInterest()
-         sTimestamp  = curDatetimeToFloat()
-         strCmdConsumer = 'consumer %s %s %f &' % (strInterest, str(pConsumer), sTimestamp)
-         pConsumer.cmd(strCmdConsumer)
-         logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
-      else:
-         raise Exception('[RandomTalks.instantiateConsumer] ERROR, invalid origin host in data package=%s' % pDataPackage)
+      if (g_dtLastProducerCheck is None) or (g_dtLastProducerCheck + timedelta(seconds=g_nProducerCheckPeriodSec) <= datetime.now()):
+         lstRunningProducers = []
+         for proc in psutil.process_iter():
+            try:
+               # Exceptions are raised when trying to get the name of processes that are not running anymore
+               if (proc.name() == 'producer'):
+                  # Second parameter should be the interest filter
+                  strHost = RandomTalks.getHostnameFromFilter(proc.cmdline()[1])
+                  lstRunningProducers.append(strHost)
+            except:
+               raise 
+               # pass
+         
+         logging.info('[RandomTalks.checkRunningProducers] Found %d running producer programs' % len(lstRunningProducers))
+      
+         for pHost in self.lstHosts:
+            if (str(pHost) not in lstRunningProducers):
+               logging.info('[RandomTalks.checkRunningProducers] instantiating missing producer=%s' % str(pHost))
+               self.instantiateProducer(pHost) 
+      
+         # Update last check time
+         g_dtLastProducerCheck = datetime.now()
 
-   def instantiateProducer(self, pHost, strTTLValues, strPayloadValues):
+   def instantiateProducer(self, pHost):
       """
       Issues MiniNDN commands to instantiate a producer
       """
@@ -162,28 +187,55 @@ class RandomTalks():
       # strCmdAdvertise = 'nlsrc advertise %s' % strFilter
       # pHost.cmd(strCmdAdvertise)
       # logging.debug('[RandomTalks.instantiateProducer] AdvertiseCmd: ' + strCmdAdvertise)
-
-      strFilter      = self.getFilterByHostname(str(pHost))
-      strCmdProducer = 'producer %s %s %s &' % (strFilter, strTTLValues, strPayloadValues)
-      pHost.cmd(strCmdProducer)
-      logging.debug('[RandomTalks.instantiateProducer] Instantiating new producer ' + str(pHost) + ' ' + strFilter + ' &')
-      logging.debug('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmdProducer)
-
-   def findHostIndexByName(self, strName):
+      if (pHost):
+         if (self.strTTLValues != 'None') and (self.strPayloadValues != 'None'):
+            strFilter      = RandomTalks.getFilterByHostname(str(pHost))
+            strCmdProducer = 'producer %s %s %s &' % (strFilter, self.strTTLValues, self.strPayloadValues)
+            pHost.cmd(strCmdProducer)
+            logging.debug('[RandomTalks.instantiateProducer] Instantiating new producer ' + str(pHost) + ' ' + strFilter + ' &')
+            logging.debug('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmdProducer)
+         else:
+            logging.error('[RandomTalks.instantiateProducer] Uninitialized values strTTLValues=%s, strPayloadValues=%s' % (self.strTTLValues, self.strPayloadValues))
+      else:
+         logging.critical('[RandomTalks.instantiateProducer] Producer is nil!')
+      
+   def instantiateConsumer(self, pHost, strInterest):
       """
-      Finds a host in MiniNDN self.lstHosts by name
+      Issues MiniNDN commands to set up a consumer for a data package
       """
-      for (nIndex, pNode) in enumerate(self.lstHosts):
-         if (str(pNode) == strName):
-            return nIndex
-      return -1
+      if (pHost):
+         # Usage of the consumer program: consumer <interest> <consumerName> <floatTimestamp>
+         sTimestamp     = curDatetimeToFloat()
+         strCmdConsumer = 'consumer %s %s %f &' % (strInterest, str(pHost), sTimestamp)
+         pHost.cmd(strCmdConsumer)
+         logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
+      else:
+         logging.critical('[RandomTalks.instantiateConsumer] Host is nil! strInterest=%s' % strInterest)
 
-   def getFilterByHostname(self, strName):
+   def findHostByName(self, strHostName):
+      """
+      Returns a host found in the host list.
+      """
+      pResultHost = None
+      for pHost in self.lstHosts:
+         if (str(pHost) == strHostName):
+            pResultHost = pHost
+      return pResultHost  
+
+   @staticmethod
+   def getFilterByHostname(strName):
       """
       Creates interest filter base on the producer`s name
       """
       # return '/' + c_strAppName + '/' + strName + '/'
       return '/ndn/%s-site/%s/' % (strName, strName)
+
+   @staticmethod
+   def getHostnameFromFilter(strInterestFilter):
+      """
+      Returns a hostname read from an interest filter
+      """
+      return strInterestFilter.split('/')[-2]
 
 # ---------------------------------------- MockHost
 class MockHost():
