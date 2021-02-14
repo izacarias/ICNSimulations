@@ -35,7 +35,7 @@ c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
 c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 7*60
+c_sExperimentTimeSec = 8*60
 
 c_nCacheSizeDefault = 65536
 
@@ -106,6 +106,8 @@ class RandomTalks():
       nDataIndex     = 0
       sElapsedTimeMs = 0
       nIteration     = 0
+      sTimeDiffSum   = 0
+      sTimeDiffAvg   = 0
       while (((sElapsedTimeMs/1000) < c_sExperimentTimeSec) and (nDataIndex < len(self.lstDataQueue))):
          # Send data until the end of the experiment time
          # Sweep queue and send data according to the elapsed time
@@ -118,8 +120,13 @@ class RandomTalks():
          while (nDataIndex < len(self.lstDataQueue)) and (self.lstDataQueue[nDataIndex][0] <= sElapsedTimeMs):
             # Send data
             pDataBuff = self.lstDataQueue[nDataIndex]
-            logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; elapsedSec=%s; delayMs=%s' % (nDataIndex, len(self.lstDataQueue)-1, sElapsedTimeMs/1000.0, sElapsedTimeMs-pDataBuff[0]))
             
+            sTimeDiffMs = sElapsedTimeMs - pDataBuff[0]
+ 	    sTimeDiffSum += sTimeDiffMs
+            sTimeDiffAvg = float(sTimeDiffSum)/(nDataIndex+1)
+	    if (sTimeDiffMs > 0):
+               logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; elapsedSec=%s; timeDiffMs=%s, timeDiffAvg=%s' % (nDataIndex, len(self.lstDataQueue)-1, sElapsedTimeMs/1000.0, sTimeDiffMs, sTimeDiffAvg))
+
             # Instantiate consumer and producer host associated in the data package
             pDataPackage = pDataBuff[1]
             pProducer = self.findHostByName(pDataPackage.strOrig)
@@ -165,7 +172,7 @@ class RandomTalks():
             except:
                pass
          
-         logging.info('[RandomTalks.checkRunningProducers] Found %d running producer programs' % len(lstRunningProducers))
+         logging.info('[RandomTalks.checkRunningProducers] Found %d running producer programs, missing=%d' % (len(lstRunningProducers), len(self.lstHosts)-len(lstRunningProducers)))
       
          for pHost in self.lstHosts:
             if (str(pHost) not in lstRunningProducers):
