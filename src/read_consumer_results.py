@@ -10,7 +10,7 @@ import logging
 import re
 from datetime import datetime
 
-from icnexperiment.result_analysis import readConsumerLogs, avgTransTime, avgTransTimePerType, countStatus
+from icnexperiment.result_analysis import *
 from icnexperiment.dir_config import c_strLogDir
 
 # Constants ----------------------------------------------------
@@ -44,7 +44,7 @@ def main():
         for pTrans in lstNacks:
             logging.debug('[main] NACK dtDate=%s (%s -> %s) nType=%d' % (pTrans.dtDate.strftime('%H:%M:%S.%f'), pTrans.strProd, pTrans.strCons, pTrans.nDataType))
 
-        # Number of datas, nacks and timeouts
+        # Number of total datas, nacks and timeouts
         (nDatas, nNacks, nTimeouts) = countStatus(hshNodes)
         logging.info('[main] nDATA=%d; nNACK=%d; nTIMEOUT=%d' % (nDatas, nNacks, nTimeouts))
 
@@ -53,10 +53,40 @@ def main():
         logging.info('[main] Transmission time average=%f ms' % (sAvgTransTime))
 
         # Average trasnmissiontime per type
-        hshTransTimes = avgTransTimePerType(hshNodes)
-        for nType in range(1, 6):
-            if (nType in hshTransTimes):
-                logging.info('[main] Transmission time for type=%d; average=%f ms' % (nType, hshTransTimes[nType]))
+        # hshTransTimes = avgTransTimePerType(hshNodes)
+        # for nType in range(1, 7):
+        #     if (nType in hshTransTimes):
+        #         logging.info('[main] Transmission time for type=%d; average=%f ms' % (nType, hshTransTimes[nType]))
+
+        # Basic info for each type
+        hshTypes = basicInfoPerType(hshNodes)
+        for nType in range(1, (min(7, len(hshNodes)+1))):
+            if (nType in hshTypes):
+                hshInfo = hshTypes[nType]
+                print('[main] Info for type=%2d; nDATA=%5d; nNACK=%3d; nTIMEOUT=%3d; avgDelay=%.3f ms' % (nType, hshInfo['nDatas'], hshInfo['nNacks'], hshInfo['nTimeouts'], hshInfo['sDelayAvg']))
+        
+        # Log timeouts with date
+        lstTimeouts = []
+        for strNode in hshNodes:
+            for pTrans in hshNodes[strNode]:
+                if (pTrans.strStatus == 'TIMEOUT'):
+                    lstTimeouts.append(pTrans)
+
+
+        # logging.info('[main] Ordering by timestamp')
+        # lstTimeouts.sort(key=lambda x: x.dtDate)
+        # for pTrans in lstTimeouts:
+        #     logging.info('[main] timestamp=%s; TIMEOUT for interest=%s; producer=%s; consumer=%s' % (pTrans.dtDate, pTrans.strInterest, pTrans.strProd, pTrans.strCons))
+
+        # logging.info('[main] Ordering by consumer name')
+        # lstTimeouts.sort(key=lambda x: x.strCons)
+        # for pTrans in lstTimeouts:
+        #     logging.info('[main] timestamp=%s; TIMEOUT for interest=%s; producer=%s; consumer=%s' % (pTrans.dtDate, pTrans.strInterest, pTrans.strProd, pTrans.strCons))
+        
+        # logging.info('[main] Ordering by producer name')
+        # lstTimeouts.sort(key=lambda x: x.strProd)
+        # for pTrans in lstTimeouts:
+        #     logging.info('[main] timestamp=%s; TIMEOUT for interest=%s; producer=%s; consumer=%s' % (pTrans.dtDate, pTrans.strInterest, pTrans.strProd, pTrans.strCons))
     else:
         logging.info('[main] No transmissions! lsn(hshNodes) = 0')
 

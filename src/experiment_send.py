@@ -82,6 +82,10 @@ class RandomTalks():
       self.strTTLValues     = self.pDataManager.getTTLValuesParam()
       self.strPayloadValues = self.pDataManager.getPayloadValuesParam()
 
+      # Get average payload size from DataManager. This will be used to set cache sizes in the future
+      sPayloadAvg = self.pDataManager.avgPayloadSize()
+      logging.info('[RandomTalks.setup] avgPayloadSize=%.3f' % sPayloadAvg)
+
       # Instantiate all producers
       self.checkRunningProducers()
 
@@ -124,8 +128,8 @@ class RandomTalks():
             sTimeDiffMs = sElapsedTimeMs - pDataBuff[0]
  	    sTimeDiffSum += sTimeDiffMs
             sTimeDiffAvg = float(sTimeDiffSum)/(nDataIndex+1)
-	    if (sTimeDiffMs > 0):
-               logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; elapsedSec=%s; timeDiffMs=%s, timeDiffAvg=%s' % (nDataIndex, len(self.lstDataQueue)-1, sElapsedTimeMs/1000.0, sTimeDiffMs, sTimeDiffAvg))
+	    if (sTimeDiffMs > 5):
+               logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; elapsedSec=%s; timeDiffMs=%s, timeDiffAvg=%.2f' % (nDataIndex, len(self.lstDataQueue)-1, sElapsedTimeMs/1000.0, sTimeDiffMs, sTimeDiffAvg))
 
             # Instantiate consumer and producer host associated in the data package
             pDataPackage = pDataBuff[1]
@@ -161,6 +165,9 @@ class RandomTalks():
       global g_nProducerCheckPeriodSec, g_dtLastProducerCheck
 
       if (g_dtLastProducerCheck is None) or (g_dtLastProducerCheck + timedelta(seconds=g_nProducerCheckPeriodSec) <= datetime.now()):
+
+         logging.info('[RandomTalks.checkRunningProducers] Started check')
+
          lstRunningProducers = []
          for proc in psutil.process_iter():
             try:
@@ -173,6 +180,9 @@ class RandomTalks():
                pass
          
          logging.info('[RandomTalks.checkRunningProducers] Found %d running producer programs, missing=%d' % (len(lstRunningProducers), len(self.lstHosts)-len(lstRunningProducers)))
+
+         if (g_dtLastProducerCheck is None) and (len(lstRunningProducers) > 0):
+            logging.critical('[RandomTalks.checkRunningProducers] first producer check, found %d producers already running' % len(lstRunningProducers))
       
          for pHost in self.lstHosts:
             if (str(pHost) not in lstRunningProducers):
@@ -214,7 +224,10 @@ class RandomTalks():
          sTimestamp     = curDatetimeToFloat()
          strCmdConsumer = 'consumer %s %s %f &' % (strInterest, str(pHost), sTimestamp)
          pHost.cmd(strCmdConsumer)
-         logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
+         if (str(pHost)[0] == 's'):
+            logging.info('[RandomTalks.instantiateConsumer] Sensor - ConsumerCmd: ' + strCmdConsumer)
+         else:
+            logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
       else:
          logging.critical('[RandomTalks.instantiateConsumer] Host is nil! strInterest=%s' % strInterest)
 

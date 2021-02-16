@@ -47,7 +47,7 @@ void Consumer::run(std::string strInterest, std::string strNode, std::string str
    std::chrono::steady_clock::time_point dtEnd, dtBegin;
 
    // Read input parameters
-   m_strNode     = strNode;
+   m_strNode      = strNode;
    m_strTimestamp = strTimestamp;
 
    if (strInterest.length() > 0)
