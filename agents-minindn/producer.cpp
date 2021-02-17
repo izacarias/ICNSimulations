@@ -50,6 +50,7 @@ void Producer::run(std::string strFilter, std::vector<int> lstTTLs, std::vector<
     // No specific filter set
     strFilter = "/exampleApp/blup";
   }
+  fprintf(stderr, "[Producer::run] Begin\n");
 
   m_lstTTLs     = lstTTLs;
   m_lstPayloads = lstPayloads;
@@ -61,6 +62,7 @@ void Producer::run(std::string strFilter, std::vector<int> lstTTLs, std::vector<
   // nullptr is because RegisterPrefixSuccessCallback is optional
   m_face.setInterestFilter(strFilter, bind(&Producer::onInterest, this, _1, _2), nullptr, bind(&Producer::onRegisterFailed, this, _1, _2));
   m_face.processEvents();
+  fprintf(stderr, "[Producer::run] End\n");
 }
 
 // --------------------------------------------------------------------------------
@@ -92,9 +94,14 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   // Create packet for interest
   pPayload = (char*) malloc(nPayloadSize);
   auto data = make_shared<Data>(interest.getName());
+  fprintf(stderr, "[Producer::onInterest] 1");
   data->setFreshnessPeriod(boost::chrono::milliseconds(nTTLMs));
+  fprintf(stderr, "[Producer::onInterest] 2");
   data->setContent(reinterpret_cast<const uint8_t*>(pPayload), nPayloadSize);
+  data->setContent(reinterpret_cast<const uint8_t*>(NULL), nPayloadSize);
+  fprintf(stderr, "[Producer::onInterest] 3");
   m_keyChain.sign(*data);
+  fprintf(stderr, "[Producer::onInterest] 4");
 
   /////////////////////////////////////////////////////////////////////////////
   // interest.toUri() results in the same thing
@@ -116,6 +123,8 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   // Return Data packet to the requester
   std::cout << "[Producer::onInterest] << D: " << *data << std::endl;
   m_face.put(*data);
+  // free((void*) pPayload);
+  std::cout << "[Producer::onInterest] End"  << std::endl;
 }
 
 // --------------------------------------------------------------------------------
@@ -186,6 +195,8 @@ int main(int argc, char** argv)
   unsigned int i;
   int j;
 
+  fprintf(stderr, "[main] Begin");
+
   strFilter = "";
 
   // Parameter [1] interest filter
@@ -217,6 +228,7 @@ int main(int argc, char** argv)
   try {
     ndn::examples::Producer producer;
     producer.run(strFilter, lstTTLs, lstPayloads);
+    fprintf(stderr, "[main] End");
     return 0;
   }
   catch (const std::exception& e) {
