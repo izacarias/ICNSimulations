@@ -67,26 +67,17 @@ def main():
         
         # Log timeouts with date
         lstTimeouts = []
+        lstTransmissions = []
         for strNode in hshNodes:
             for pTrans in hshNodes[strNode]:
+                lstTransmissions.append(pTrans)
                 if (pTrans.strStatus == 'TIMEOUT'):
                     lstTimeouts.append(pTrans)
 
-
-        # logging.info('[main] Ordering by timestamp')
-        # lstTimeouts.sort(key=lambda x: x.dtDate)
-        # for pTrans in lstTimeouts:
-        #     logging.info('[main] timestamp=%s; TIMEOUT for interest=%s; producer=%s; consumer=%s' % (pTrans.dtDate, pTrans.strInterest, pTrans.strProd, pTrans.strCons))
-
-        # logging.info('[main] Ordering by consumer name')
-        # lstTimeouts.sort(key=lambda x: x.strCons)
-        # for pTrans in lstTimeouts:
-        #     logging.info('[main] timestamp=%s; TIMEOUT for interest=%s; producer=%s; consumer=%s' % (pTrans.dtDate, pTrans.strInterest, pTrans.strProd, pTrans.strCons))
-        
-        # logging.info('[main] Ordering by producer name')
-        # lstTimeouts.sort(key=lambda x: x.strProd)
-        # for pTrans in lstTimeouts:
-        #     logging.info('[main] timestamp=%s; TIMEOUT for interest=%s; producer=%s; consumer=%s' % (pTrans.dtDate, pTrans.strInterest, pTrans.strProd, pTrans.strCons))
+        # lstTransmissions.sort(key=lambda x: x.dtDate)
+        # for i in range(len(lstTransmissions)):
+        #     pTrans = lstTransmissions[i]
+        #     logging.info('[main] Transmission %d/%d - date=%s; status=%s; sDelay=%.3f; consumer=%s; producer=%s; interest=%s' % (i+1, len(lstTransmissions), pTrans.dtDate, pTrans.strStatus, pTrans.sDelayUs, pTrans.strCons, pTrans.strProd, pTrans.strInterest))
     else:
         logging.info('[main] No transmissions! lsn(hshNodes) = 0')
 

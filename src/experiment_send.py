@@ -35,7 +35,7 @@ c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
 c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 8*60
+c_sExperimentTimeSec = 5*60
 
 c_nCacheSizeDefault = 65536
 
@@ -49,7 +49,8 @@ g_bSDNEnabled        = False
 g_strNetworkType     = ''
 
 g_dtLastProducerCheck     = None
-g_nProducerCheckPeriodSec = 1
+g_nProducerCheckPeriodSec = 10
+g_bShowMiniNDNCli         = False
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -206,7 +207,7 @@ class RandomTalks():
       if (pHost):
          if (self.strTTLValues != 'None') and (self.strPayloadValues != 'None'):
             strFilter      = RandomTalks.getFilterByHostname(str(pHost))
-            strCmdProducer = 'producer %s %s %s &' % (strFilter, self.strTTLValues, self.strPayloadValues)
+            strCmdProducer = 'producer %s %s %s >> /home/vagrant/producerlogs/%s.log &' % (strFilter, self.strTTLValues, self.strPayloadValues, str(pHost))
             pHost.cmd(strCmdProducer)
             logging.debug('[RandomTalks.instantiateProducer] Instantiating new producer ' + str(pHost) + ' ' + strFilter + ' &')
             logging.debug('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmdProducer)
@@ -224,10 +225,9 @@ class RandomTalks():
          sTimestamp     = curDatetimeToFloat()
          strCmdConsumer = 'consumer %s %s %f &' % (strInterest, str(pHost), sTimestamp)
          pHost.cmd(strCmdConsumer)
-         if (str(pHost)[0] == 's'):
-            logging.info('[RandomTalks.instantiateConsumer] Sensor - ConsumerCmd: ' + strCmdConsumer)
-         else:
-            logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
+         # if (RandomTalks.getHostnameFromFilter(strInterest)[0] == 's'):
+         #    logging.info('[RandomTalks.instantiateConsumer] interest=%s; consumer=%s; producer=%s' % (strInterest, str(pHost), RandomTalks.getHostnameFromFilter(strInterest)))
+         logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
       else:
          logging.critical('[RandomTalks.instantiateConsumer] Host is nil! strInterest=%s' % strInterest)
 
@@ -286,6 +286,7 @@ def runExperiment(strTopoPath):
    """
    Runs experiment
    """
+   global g_bShowMiniNDNCli
    logging.info('[runExperiment] Running MiniNDN experiment')
    setLogLevel('info')
    Minindn.cleanUp()
@@ -301,7 +302,7 @@ def runExperiment(strTopoPath):
 
    #######################################################
    # Initialize NFD and set cache size based on host type
-   info('Starting NFD on nodes\n')
+   logging.info('[runExperiment] Starting NFD on nodes\n')
    lstHumanHosts   = []
    lstDroneHosts   = []
    lstSensorHosts  = []
@@ -329,7 +330,7 @@ def runExperiment(strTopoPath):
 
    ##########################################################
    # Initialize NFD
-   info('Starting NLSR on nodes\n')
+   logging.info('[runExperiment] Starting NLSR on nodes\n')
    nlsrs = AppManager(ndn, ndn.net.hosts, Nlsr, logLevel=c_strNLSRLogLevel)
 
    ##########################################################
@@ -344,13 +345,14 @@ def runExperiment(strTopoPath):
    try:
       Experiment.setup(strTopoPath)
       Experiment.run()
-   except:
-      logging.error('[runExperiment] An exception was raised during the experiment')
+   except Exception as e:
+      logging.error('[runExperiment] An exception was raised during the experiment: %s' % str(e))
       raise      
 
-   logging.info('[runExperiment] End')
+   logging.info('[runExperiment] End experiment')
 
-   # MiniNDNCLI(ndn.net)
+   if (g_bShowMiniNDNCli):
+      MiniNDNCLI(ndn.net)
    ndn.stop()
 
 # ---------------------------------------- setICNCache
