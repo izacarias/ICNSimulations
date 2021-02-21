@@ -64,7 +64,10 @@ def avgTransTime(hshNodes):
                 sTotalTimeMs += pTrans.sDelayUs/1000.0
     
     # Calculate average
-    sAvgTime = sTotalTimeMs/nTotalTrans
+    if (nTotalTrans > 0):
+        sAvgTime = sTotalTimeMs/nTotalTrans
+    else:
+        sAvgTime = 0
     logging.info('[avgTransTime] average=%s, transmissions=%d' % (sAvgTime, nTotalTrans))
     return sAvgTime
 

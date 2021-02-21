@@ -34,6 +34,17 @@ class DataManager:
         self.lstDataTypes.append(C2DataType(nTTL=10*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=5, nSize=5*1024, sRatioMaxReceivers=0.4))   # INTEREST 5
         self.lstDataTypes.append(C2DataType(nTTL=20*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=6, nSize=5*1024, sRatioMaxReceivers=0.4))   # INTEREST 6
 
+    def avgPayloadSize(self):
+        nAvg = 0
+        nSum = 0
+        for pDataType in self.lstDataTypes:
+            nSum += pDataType.nPayloadSize
+        if (nAvg > 0):
+            nAvg = nSum/len(self.lstDataTypes)
+        else:
+            nAvg = 0
+        return nAvg
+
     def info(self):
         """
         Returns a multi-line string with information about all data types configured.

@@ -28,8 +28,11 @@ def main():
         strPath = '/tmp/minindn'
     
     logging.info('[main] Reading consumer logs from path=%s' % (strPath))
-
-    hshNodes = readConsumerLogs(strPath)
+    hshNodes = {}
+    if (os.path.isdir(strPath)):
+        hshNodes = readConsumerLogs(strPath)
+    else:
+        logging.critical('[main] Directory=%s does not exist!')
 
     if (len(hshNodes) > 0):
 
@@ -58,21 +61,21 @@ def main():
         #     if (nType in hshTransTimes):
         #         logging.info('[main] Transmission time for type=%d; average=%f ms' % (nType, hshTransTimes[nType]))
 
-        # Basic info for each type
-        hshTypes = basicInfoPerType(hshNodes)
-        for nType in range(1, (min(7, len(hshNodes)+1))):
-            if (nType in hshTypes):
-                hshInfo = hshTypes[nType]
-                print('[main] Info for type=%2d; nDATA=%5d; nNACK=%3d; nTIMEOUT=%3d; avgDelay=%.3f ms' % (nType, hshInfo['nDatas'], hshInfo['nNacks'], hshInfo['nTimeouts'], hshInfo['sDelayAvg']))
+        # # Basic info for each type
+        # hshTypes = basicInfoPerType(hshNodes)
+        # for nType in range(1, (min(7, len(hshNodes)+1))):
+        #     if (nType in hshTypes):
+        #         hshInfo = hshTypes[nType]
+        #         print('[main] Info for type=%2d; nDATA=%5d; nNACK=%3d; nTIMEOUT=%3d; avgDelay=%.3f ms' % (nType, hshInfo['nDatas'], hshInfo['nNacks'], hshInfo['nTimeouts'], hshInfo['sDelayAvg']))
         
-        # Log timeouts with date
-        lstTimeouts = []
-        lstTransmissions = []
-        for strNode in hshNodes:
-            for pTrans in hshNodes[strNode]:
-                lstTransmissions.append(pTrans)
-                if (pTrans.strStatus == 'TIMEOUT'):
-                    lstTimeouts.append(pTrans)
+        # # Log timeouts with date
+        # lstTimeouts = []
+        # lstTransmissions = []
+        # for strNode in hshNodes:
+        #     for pTrans in hshNodes[strNode]:
+        #         lstTransmissions.append(pTrans)
+        #         if (pTrans.strStatus == 'TIMEOUT'):
+        #             lstTimeouts.append(pTrans)
 
         # lstTransmissions.sort(key=lambda x: x.dtDate)
         # for i in range(len(lstTransmissions)):

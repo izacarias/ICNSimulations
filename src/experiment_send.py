@@ -84,8 +84,8 @@ class RandomTalks():
       self.strPayloadValues = self.pDataManager.getPayloadValuesParam()
 
       # Get average payload size from DataManager. This will be used to set cache sizes in the future
-      # sPayloadAvg = self.pDataManager.avgPayloadSize()
-      # logging.info('[RandomTalks.setup] avgPayloadSize=%.3f' % sPayloadAvg)
+      sPayloadAvg = self.pDataManager.avgPayloadSize()
+      logging.info('[RandomTalks.setup] avgPayloadSize=%.3f' % sPayloadAvg)
 
       # Instantiate all producers
       self.checkRunningProducers()
