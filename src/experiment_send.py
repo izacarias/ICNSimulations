@@ -14,7 +14,6 @@ from random   import randint
 from datetime import datetime, timedelta
 
 try:
-   from mininet.log import setLogLevel, info
    from minindn.minindn import Minindn
    from minindn.util import MiniNDNCLI
    from minindn.apps.app_manager import AppManager
@@ -40,8 +39,8 @@ c_sExperimentTimeSec = 5*60
 c_nCacheSizeDefault = 65536
 
 c_nNLSRSleepSec   = 40
-c_strNLSRLogLevel = 'NONE'
-c_strNFDLogLevel  = 'NONE'
+c_strNLSRLogLevel = 'DEBUG'
+c_strNFDLogLevel  = 'DEBUG'
 
 g_bIsMockExperiment  = False
 g_bExperimentModeSet = False
@@ -288,7 +287,6 @@ def runExperiment(strTopoPath):
    """
    global g_bShowMiniNDNCli
    logging.info('[runExperiment] Running MiniNDN experiment')
-   setLogLevel('info')
    Minindn.cleanUp()
    Minindn.verifyDependencies()
 
@@ -302,7 +300,7 @@ def runExperiment(strTopoPath):
 
    #######################################################
    # Initialize NFD and set cache size based on host type
-   logging.info('[runExperiment] Starting NFD on nodes\n')
+   logging.info('[runExperiment] Starting NFD on nodes')
    lstHumanHosts   = []
    lstDroneHosts   = []
    lstSensorHosts  = []
@@ -320,17 +318,17 @@ def runExperiment(strTopoPath):
          raise Exception('[runExperiment] Hostname=%s not recognized as human, drone, sensor or vehicle' % pHost.name)
 
    nfdsHuman = AppManager(ndn, lstHumanHosts, Nfd, csSize=c_nHumanCacheSize, logLevel=c_strNFDLogLevel)
-   info('[runExperiment] Cache set for humans=%d, size=%d\n' % (len(lstHumanHosts), c_nHumanCacheSize))
+   logging.info('[runExperiment] Cache set for humans=%d, size=%d' % (len(lstHumanHosts), c_nHumanCacheSize))
    nfdsDrone = AppManager(ndn, lstDroneHosts, Nfd, csSize=c_nDroneCacheSize, logLevel=c_strNFDLogLevel)
-   info('[runExperiment] Cache set for drones=%d, size=%d\n' % (len(lstDroneHosts), c_nDroneCacheSize))
+   logging.info('[runExperiment] Cache set for drones=%d, size=%d' % (len(lstDroneHosts), c_nDroneCacheSize))
    nfdsSensor = AppManager(ndn, lstSensorHosts, Nfd, csSize=c_nSensorCacheSize, logLevel=c_strNFDLogLevel)
-   info('[runExperiment] Cache set for sensors=%d, size=%d\n' % (len(lstSensorHosts), c_nSensorCacheSize))
+   logging.info('[runExperiment] Cache set for sensors=%d, size=%d' % (len(lstSensorHosts), c_nSensorCacheSize))
    nfdsVehicle = AppManager(ndn, lstVehicleHosts, Nfd, csSize=c_nVehicleCacheSize, logLevel=c_strNFDLogLevel)
-   info('[runExperiment] Cache set for vehicles=%d, size=%d\n' % (len(lstVehicleHosts), c_nVehicleCacheSize))
+   logging.info('[runExperiment] Cache set for vehicles=%d, size=%d' % (len(lstVehicleHosts), c_nVehicleCacheSize))
 
    ##########################################################
    # Initialize NFD
-   logging.info('[runExperiment] Starting NLSR on nodes\n')
+   logging.info('[runExperiment] Starting NLSR on nodes')
    nlsrs = AppManager(ndn, ndn.net.hosts, Nlsr, logLevel=c_strNLSRLogLevel)
 
    ##########################################################
