@@ -10,6 +10,7 @@
 #include <libgen.h>
 #include <iostream>
 #include <boost/chrono/duration.hpp>
+#include <ndn-cxx/util/random.hpp>
 
 #define STR_APPNAME             "C2Data"
 #define N_DEFAULT_TTL_MS        10000
@@ -19,6 +20,8 @@
 namespace ndn {
 // Additional nested namespaces should be used to prevent/limit name conflicts
 namespace examples {
+
+static std::string getRandomByteString(std::size_t length);
 
 class Producer
 {
@@ -74,7 +77,7 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
 {
   int nType, nID, nPayloadSize, nTTLMs;
   std::string strPacket;
-  const char *pPayload;
+  std::string strContent;
 
   std::cout << "[Producer::onInterest] >> I: " << interest << std::endl;
 
@@ -90,18 +93,18 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   nPayloadSize = getPayloadBytesFromType(nType);
 
   printf("[Producer::onInterest] nType=%d; nID=%d; TTLms=%d; PayloadSize=%d\n", nType, nID, nTTLMs, nPayloadSize);  
+  
+  // This used to be how the payload was allocated
+  // const char *pPayload;
+  // pPayload = (char*) malloc(nPayloadSize);
+  // data->setContent(reinterpret_cast<const uint8_t*>(pPayload), nPayloadSize);
 
   // Create packet for interest
-  pPayload = (char*) malloc(nPayloadSize);
-  auto data = make_shared<Data>(interest.getName());
-  fprintf(stderr, "[Producer::onInterest] 1");
+  auto data  = make_shared<Data>(interest.getName());
+  strContent = getRandomByteString(nPayloadSize);
+  data->setContent(reinterpret_cast<const uint8_t*>(strContent.data()), strContent.length());
   data->setFreshnessPeriod(boost::chrono::milliseconds(nTTLMs));
-  fprintf(stderr, "[Producer::onInterest] 2");
-  data->setContent(reinterpret_cast<const uint8_t*>(pPayload), nPayloadSize);
-  data->setContent(reinterpret_cast<const uint8_t*>(NULL), nPayloadSize);
-  fprintf(stderr, "[Producer::onInterest] 3");
   m_keyChain.sign(*data);
-  fprintf(stderr, "[Producer::onInterest] 4");
 
   /////////////////////////////////////////////////////////////////////////////
   // interest.toUri() results in the same thing
@@ -184,6 +187,25 @@ void Producer::onRegisterFailed(const Name& prefix, const std::string& reason)
             << "' with the local forwarder (" << reason << ")" << std::endl;
   m_face.shutdown();
 }
+
+// --------------------------------------------------------------------------------
+//  getRandomByteString
+//
+//
+// --------------------------------------------------------------------------------
+static std::string getRandomByteString(std::size_t length)
+  {
+    // per ISO C++ std, cannot instantiate uniform_int_distribution with char
+    static std::uniform_int_distribution<short> dist(std::numeric_limits<char>::min(),
+                                                     std::numeric_limits<char>::max());
+
+    std::string s;
+    s.reserve(length);
+    for (std::size_t i = 0; i < length; i++) {
+      s += static_cast<char>(dist(random::getRandomNumberEngine()));
+    }
+    return s;
+  }
 
 } // namespace examples
 } // namespace ndn
