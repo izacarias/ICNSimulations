@@ -8,7 +8,8 @@ Custom topology generator. Returns MiniNDN readable .conf file for different top
 import logging
 import sys
 from .link import Link
-from .node import Node
+from .node import Node, Station, AccessPoint
+from .topology import Topology
 
 # ---------------------------------------------------------------------- Constants
 c_nDefaultNodeLinks = 5
@@ -19,40 +20,78 @@ c_nDefaultY         = 100
 
 class TopologyGenerator:
     """
-    Creates MiniNDN readable topologies.
+    Handles MiniNDN readable topologies.
     """
 
     @staticmethod
     def createRandomTopo(lstHosts, nNodeLinks=c_nDefaultNodeLinks, nMaxX=c_nDefaultX, nMaxY=c_nDefaultY):
         """
         Places all hosts randomly in a X,Y space and stabilishes connections with the N hosts closest to each one.
+        returns: Topology object containing lstStations and lstLinks
+        """
+        logging.info('[createRandomTopo] Begin maxX=%d, maxY=%d, NodeLinks=%d' % (nMaxX, nMaxY, nNodeLinks))
+        # Place all nodes at random x,y coordinates
+        lstStations = TopologyGenerator.placeStationsRandomly(lstHosts, nMaxX, nMaxY, Node)
+        # Create links connecting each node
+        lstLinks = TopologyGenerator.placeLinksBetweenNodes(lstStations, nNodeLinks)
+        return Topology(lstStations, lstLinks)
+
+    @staticmethod
+    def createRandomTopoWifi(lstHosts, nNodeLinks=c_nDefaultNodeLinks, nMaxX=c_nDefaultX, nMaxY=c_nDefaultY):
+        """
+        Places hosts randomly in a X,Y space. Places AccessPoints directly next to hosts. Places links between
+        the N closest AccessPoints.
+        returns: Topology object containing lstStations, lstAccessPoints and lstLinks
+        """
+        logging.info('[createRandomTopoWifi] Begin maxX=%d, maxY=%d, NodeLinks=%d' % (nMaxX, nMaxY, nNodeLinks))
+        # Place all nodes at random x,y coordinates
+        lstStations = TopologyGenerator.placeStationsRandomly(lstHosts, nMaxX, nMaxY, Station)
+        # Place access points connecting to each station
+        lstAccessPoints = []
+        for pStation in lstStations:
+            newAccessPoint = AccessPoint('AP_' + pStation.strName)
+            newAccessPoint.place(pStation.nX, pStation.nY + 1)
+            # Might need to check for duplicate coordinates here
+            lstAccessPoints.append(newAccessPoint)
+
+        # Create links connecting each node
+        lstLinks = TopologyGenerator.placeLinksBetweenNodes(lstAccessPoints, nNodeLinks)
+        return Topology(lstStations, lstLinks, lstAccessPoints)
+
+    @staticmethod
+    def placeStationsRandomly(lstHosts, nMaxX, nMaxY, NodeType):
+        """
+        Places stations randomly in a nMaxX by nMaxY area.
         """
         c_nMaxTriesForDuplicateCoord = 20
-        logging.info('[createRandomTopo] Begin maxX=%d, maxY=%d, NodeLinks=%d' % (nMaxX, nMaxY, nNodeLinks))
-
-        # Place all nodes at random x,y coordinates
-        lstNodes = []
-        lstLinks = []
+        lstStations = []
         for strHost in lstHosts:
-            newNode         = Node(strHost)
+            newStation      = NodeType(strHost)
             nTries          = 0
             bDuplicateCoord = False
             while bDuplicateCoord or (nTries == 0):
                 #############################################
-                # Nodes placed at the same point will cause 
+                # Nodes placed at the same point will cause
                 # MiniNDN to raise an exception and quit
                 nTries += 1
                 bDuplicateCoord = False
                 if (nTries > c_nMaxTriesForDuplicateCoord):
                     raise Exception('Tried more than %d times to find not duplicate coordinate' % c_nMaxTriesForDuplicateCoord)
-                newNode.placeAtRandom(nMaxX, nMaxY)
-                for pNode in lstNodes:
-                    if (newNode.getRadCoord() == pNode.getRadCoord()):
-                        bDuplicateCoord = True               
-                if (not bDuplicateCoord):
-                    lstNodes.append(newNode)
 
-        # Create links for each node
+                newStation.placeAtRandom(nMaxX, nMaxY)
+                for pNode in lstStations:
+                    if (newStation.getCoord() == pNode.getCoord()):
+                        bDuplicateCoord = True
+
+                if (not bDuplicateCoord):
+                    lstStations.append(newStation)
+
+        return lstStations
+
+    @staticmethod
+    def placeLinksBetweenNodes(lstNodes, nNodeLinks):
+
+        lstLinks = []
         for i in range(len(lstNodes)):
             lstDistances = []
             pNode        = lstNodes[i]
@@ -73,22 +112,9 @@ class TopologyGenerator:
                 if (not TopologyGenerator.isLinkDuplicate(pNode, destNode, lstLinks)):
                     newLink = Link(pNode, lstNodes[tupleNode[0]])
                     lstLinks.append(newLink)
-                    logging.debug('[createRandomTopo] New link orig=%s; dest=%s' % (newLink.origHost.Name(), newLink.destHost.Name()))
+                    logging.debug('placeLinksBetweenHosts New link orig=%s; dest=%s' % (newLink.origHost.Name(), newLink.destHost.Name()))
 
-        return lstNodes, lstLinks
-
-    @staticmethod
-    def writeTopoFile(lstNodes, lstLinks, strPath):
-        """
-        Writes the output file for the topology in a MiniNDN readable format
-        """
-        with open(strPath, 'w') as pFile:
-            pFile.write(c_strNodesTag + '\n')
-            for pNode in lstNodes:
-                pFile.write(pNode.toTopoFile() + '\n')
-            pFile.write(c_strLinksTag + '\n')
-            for pLink in lstLinks:
-                pFile.write(pLink.toTopoFile() + '\n')
+        return lstLinks
 
     @staticmethod
     def createHostList(nHumans, nDrones, nSensors, nVehicles):
@@ -105,96 +131,6 @@ class TopologyGenerator:
         for i in range(nVehicles):
             lstHosts.append('v' + str(i))
         return lstHosts
-
-    @staticmethod
-    def readTopoFile(strPath):
-        """
-        Reads a MiniNDN formated topology .conf file. Returns nodes list and link list
-        """
-        lstNodes = []
-        lstLinks = []
-        with open(strPath) as pFile:
-            lstLines = pFile.readlines()
-            bNodeSection = False
-            bLinkSection = False
-            for strLine in lstLines:
-                # Begin the section where the hosts are described
-                if (strLine.strip() == c_strNodesTag):
-                    bNodeSection = True
-                    bLinkSection = False
-                    continue
-                # Begin links session, end of the hosts session
-                if (strLine.strip() == c_strLinksTag):
-                    bNodeSection = False
-                    bLinkSection = True
-                    continue
-                # Attempt to read hostnames in the following standard
-                # b1: _ cache=0 radius=0.6 angle=3.64159265359
-                if (bNodeSection):
-                    newNode = Node.fromString(strLine)
-                    lstNodes.append(newNode)
-                # Attempt to read link information in the following standard
-                # h0:h2 delay=10ms bw=1000 loss=12
-                if (bLinkSection):
-                    newLink = Link.fromString(strLine, lstNodes)
-                    lstLinks.append(newLink)
-                    continue
-
-        return (lstNodes, lstLinks)
-
-    @staticmethod
-    def allNodesConnected(lstNodes, lstLinks):
-        """
-        Checks the given topology for islands of nodes that are not connected to all other nodes.
-        """
-        bDone             = False
-        lstLinksCopy      = lstLinks.copy()
-        curLink           = lstLinksCopy[0]
-        lstConnectedNodes = [curLink.origHost, curLink.destHost]
-        i                 = 0
-        lstLinksCopy.remove(curLink)
-        while(not bDone):
-
-            # Find the first link connected to the connected nodes
-            curLink = None
-            for pLink in lstLinksCopy:
-                if (pLink.origHost in lstConnectedNodes) or (pLink.destHost in lstConnectedNodes):
-                    curLink = pLink
-
-            if (curLink is not None):
-                # Found a link, continue
-                lstLinksCopy.remove(curLink)
-
-                if (curLink.origHost not in lstConnectedNodes):
-                    lstConnectedNodes.append(curLink.origHost)
-                elif (curLink.destHost not in lstConnectedNodes):
-                    lstConnectedNodes.append(curLink.destHost)
-
-                # Increment index to rotate around the list
-                i = i+1 if (i < len(lstLinksCopy)-1) else 0
-            else:
-                # There is no link left that connects to the nodes connected so far
-                bDone = True
-
-        # DEBUG - UNCONNECTED NODES LIST
-        lstUnconnectedNodes = []
-        for pNode in lstNodes:
-            if (pNode not in lstConnectedNodes):
-                lstUnconnectedNodes.append(pNode)
-
-        # There is no link left to visit
-        if (len(lstConnectedNodes) == len(lstNodes)):
-            # All nodes have already been connected
-            logging.info('[TopologyGenerator.allNodesConnected] All nodes are connected!')
-            return True
-        elif (len(lstLinksCopy) == 0):
-            logging.error('[TopologyGenerator.allNodesConnected] Visited all links but could not reach all nodes, lstConnectedNodes=%s' % str(lstConnectedNodes))
-            logging.error('[TopologyGenerator.allNodesConnected] Unconnected nodes=%s' % str(lstUnconnectedNodes))
-            return False
-        else:
-            logging.error('[TopologyGenerator.allNodesConnected] Could not reach all nodes, lstConnectedNodes=%s' % str(lstConnectedNodes))
-            logging.error('[TopologyGenerator.allNodesConnected] Unconnected nodes=%s' % str(lstUnconnectedNodes))
-            return False
 
     @staticmethod
     def isLinkDuplicate(node1, node2, lstLinks):

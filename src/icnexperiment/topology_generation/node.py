@@ -14,7 +14,7 @@ from math   import sqrt, atan, sin, cos
 # ---------------------------------------------------------------------- Node
 class Node:
     """
-    Represents a Node element in the MiniNDN topology.
+    Represents a Node in the MiniNDN topology.
     """
 
     def __init__(self, strName, sRadius=-1, sAngle=-1):
@@ -33,6 +33,16 @@ class Node:
 
     def __repr__(self):
         return '<Node %s at (%d, %d)>' % (self.strName, self.nX, self.nY)
+
+    def place(self, nX, nY):
+        """
+        Places at the specified coordinates
+        """
+        if (nX >= 0) and (nY >=0):
+            self.nX = nX
+            self.nY = nY
+        else:
+            raise Exception('Node.place: Coordinate must be greather than zero! x=%d, y=%d, strName=%s' % (nX, nY, self.strName))
 
     def placeAtRandom(self, nMaxX, nMaxY):
         """
@@ -93,6 +103,8 @@ class Node:
         """
         sRadius = -1
         sAngle  = -1
+        nX      = -1
+        nY      = -1
         strName = ''
         newNode = None
         # Read host name
@@ -110,9 +122,8 @@ class Node:
         if (pMatch):
             sAngle = float(pMatch.group(1))
 
-        if (strName != '') and (sRadius != -1) and (sAngle != -1):
-            newNode = Node(strName, sRadius=sRadius, sAngle=sAngle)
-            logging.debug('[Node.fromString] new Node name=%s, x=%d; y=%d; r=%f; angle=%s' % (newNode.Name(), newNode.nX, newNode.nY, newNode.sRadius, newNode.sAngle))
+        newNode = Node(strName, sRadius=sRadius, sAngle=sAngle)
+        logging.debug('[Node.fromString] new Node name=%s, x=%d; y=%d; r=%f; angle=%s' % (newNode.Name(), newNode.nX, newNode.nY, newNode.sRadius, newNode.sAngle))
 
         return newNode
 
@@ -125,3 +136,67 @@ class Node:
             if (pNode.strName == strName):
                 return pNode
         return None
+
+class Station(Node):
+
+    def __init__(self, strName, nX=-1, nY=-1, sRadius=-1, sAngle=-1):
+        Node.__init__(self, strName, sRadius, sAngle)
+        self.nRange = 2
+        if (nX >= 0) and (nY >= 0):
+            self.place(nX, nY)
+
+    def __repr__(self):
+        return '<Station %s at (%d, %d)>' % (self.strName, self.nX, self.nY)
+
+    def toTopoFile(self):
+        """
+        Returns Station string in MiniNDNWifi topology file format
+        ex. sta1: range=10 speed=5 position=50,50,50
+        """
+        strLine = '%s: range=%d position=%d, %d, 0' % (self.strName, self.nRange, self.nX, self.nY)
+        return strLine
+
+    @staticmethod
+    def fromString(strStation):
+        newNode    = Node.fromString(strStation)
+        newStation = None
+        # Read position
+        strPositionRegex = r'.*position=([0-9\. ]+),([0-9\. ]+),([0-9\. ]+).*'
+        pMatch = re.match(strPositionRegex, strStation, re.M|re.I)
+        if (pMatch):
+            nX = int(pMatch.group(1))
+            nY = int(pMatch.group(2))
+            newStation = Station(newNode.strName, nX, nY)
+        return newStation
+
+class AccessPoint(Node):
+
+    def __init__(self, strName, nX=-1, nY=-1, sRadius=-1, sAngle=-1):
+        Node.__init__(self, strName, sRadius, sAngle)
+        self.nRange = 2
+        if (nX >= 0) and (nY >= 0):
+            self.place(nX, nY)
+
+    def __repr__(self):
+        return '<AccessPoint %s at (%d, %d)>' % (self.strName, self.nX, self.nY)
+
+    def toTopoFile(self):
+        """
+        Returns AccessPoint string in MiniNDNWifi topology file format
+        ex. ap1: range=10 position=50,50,50
+        """
+        strLine = '%s: range=%d position=%d, %d, 0' % (self.strName, self.nRange, self.nX, self.nY)
+        return strLine
+
+    @staticmethod
+    def fromString(strAP):
+        newNode    = Node.fromString(strAP)
+        newAP = None
+        # Read position
+        strPositionRegex = r'.*position=([0-9\. ]+),([0-9\. ]+),([0-9\. ]+).*'
+        pMatch = re.match(strPositionRegex, strAP, re.M|re.I)
+        if (pMatch):
+            nX = int(pMatch.group(1))
+            nY = int(pMatch.group(2))
+            newAP = AccessPoint(newNode.strName, nX, nY)
+        return newAP

@@ -55,7 +55,7 @@ class Link:
         strDest  = ''
         #####################################
         # Read host names
-        strNamesRegex = r'([0-9a-zA-Z]+):([0-9a-zA-Z]+).*'
+        strNamesRegex = r'([0-9a-zA-Z_]+):([0-9a-zA-Z_]+).*'
         pMatch = re.match(strNamesRegex, strLink, re.M)
         if (pMatch):
             strOrig = pMatch.group(1)
