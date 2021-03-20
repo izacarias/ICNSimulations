@@ -19,9 +19,10 @@ class Transmission:
         self.strProd     = ''
         self.nDataID     = -1
         self.nDataType   = -1
+        self.processInterestFilter()
 
-        if (not self.processInterestFilter()):
-            raise Exception('[Transmission.__init__] Could not read data from interest=%s' % self.strInterest)
+        # if (not self.processInterestFilter()):
+        #     raise Exception('[Transmission.__init__] Could not read data from interest=%s' % self.strInterest)
     
     def __repr__(self):
         return '<Transmission> (%s to %s) interest=%s, timeDiff=%f, status=%s, timeSinceEpoch=%s' % (self.strProd, self.strCons, self.strInterest, self.sDelayUs, self.strStatus, self.dtDate.strftime('%d/%m/%Y %H:%M:%S.%f'))
@@ -50,8 +51,14 @@ class Transmission:
         newTrans = None
         strLine  = strLine.replace('\n', '')
         lstContents = strLine.split(';')
+        if ('' in lstContents):
+            lstContents.remove('')
+            
         if (len(lstContents) == 4):
             newTrans = Transmission(strConsumer, lstContents[0], lstContents[1], lstContents[2], lstContents[3])
+        elif (len(lstContents) == 3):
+            # No timeSinceEpoch
+            newTrans = Transmission(strConsumer, lstContents[0], lstContents[1], lstContents[2], 0)
         else:
             raise Exception('[Transmission.fromString] Line with more or less than 4 fields line=%s' % strLine)
         return newTrans

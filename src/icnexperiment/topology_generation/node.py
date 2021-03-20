@@ -141,7 +141,7 @@ class Station(Node):
 
     def __init__(self, strName, nX=-1, nY=-1, sRadius=-1, sAngle=-1):
         Node.__init__(self, strName, sRadius, sAngle)
-        self.nRange = 2
+        self.nRange = 116
         if (nX >= 0) and (nY >= 0):
             self.place(nX, nY)
 
@@ -153,7 +153,7 @@ class Station(Node):
         Returns Station string in MiniNDNWifi topology file format
         ex. sta1: range=10 speed=5 position=50,50,50
         """
-        strLine = '%s: range=%d position=%d, %d, 0' % (self.strName, self.nRange, self.nX, self.nY)
+        strLine = '%s: range=%d position=%d,%d,0' % (self.strName, self.nRange, self.nX, self.nY)
         return strLine
 
     @staticmethod
@@ -173,7 +173,7 @@ class AccessPoint(Node):
 
     def __init__(self, strName, nX=-1, nY=-1, sRadius=-1, sAngle=-1):
         Node.__init__(self, strName, sRadius, sAngle)
-        self.nRange = 2
+        self.nRange = 116
         if (nX >= 0) and (nY >= 0):
             self.place(nX, nY)
 
@@ -185,7 +185,7 @@ class AccessPoint(Node):
         Returns AccessPoint string in MiniNDNWifi topology file format
         ex. ap1: range=10 position=50,50,50
         """
-        strLine = '%s: range=%d position=%d, %d, 0' % (self.strName, self.nRange, self.nX, self.nY)
+        strLine = '%s: range=%d position=%d,%d,0' % (self.strName, self.nRange, self.nX, self.nY)
         return strLine
 
     @staticmethod

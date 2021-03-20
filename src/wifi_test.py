@@ -30,16 +30,22 @@ from minindn.apps.nfd import Nfd
 from minindn.helpers.nfdc import Nfdc
 from minindn.helpers.ndnpingclient import NDNPingClient
 from time import sleep
+from icnexperiment.result_analysis import *
+
 # This experiment uses the singleap topology and is intended to be a basic
 # test case where we see if two nodes can send interests to each other.
+from icnexperiment.data_generation import curDatetimeToFloat
+
+c_bShowCli = True
+
 def runExperiment():
     setLogLevel('info')
 
     info("Starting network")
-    ndnwifi = MinindnWifi(controller=RemoteController)
-    
-    a = ndnwifi.net["sta1"]
-    b = ndnwifi.net["sta2"]
+    ndnwifi = MinindnWifi(controller=RemoteController, topoFile='/home/vagrant/icnsimulations/src/wifi-topo.conf')
+
+    a = ndnwifi.net["h0"]
+    b = ndnwifi.net["d0"]
 
     # Test for model-based mobility
     if ndnwifi.args.modelMob:
@@ -65,40 +71,50 @@ def runExperiment():
     info("Starting NFD\n")
     sleep(2)
     nfds = AppManager(ndnwifi, ndnwifi.net.stations, Nfd)
-    
-    info("Creating faces...\n")
-    Nfdc.createFace(a, b.IP())
-    Nfdc.registerRoute(a, "/sta2", b.IP())
-    
-    Nfdc.createFace(b, a.IP())
-    Nfdc.registerRoute(b, "/sta1", a.IP())
 
-    info("Instantiating producers...\n")
-    a_prod_proc = getPopen(a, "producer /sta1")
-    b_prod_proc = getPopen(b, "producer /sta2")
+    # Create faces linking every node and instantiate producers
+    info("Creating faces and instantiating producers...\n")
+    hshProducers = {}
+    for pHostOrig in ndnwifi.net.stations:
+        for pHostDest in ndnwifi.net.stations:
+            if (pHostDest != pHostOrig):
+                info('Register, pHostOrig=%s; pHostDest=%s\n' % (str(pHostOrig), str(pHostDest)))
+                Nfdc.createFace(pHostOrig, pHostDest.IP())
+                Nfdc.registerRoute(pHostOrig, interestFilterForHost(pHostDest), pHostDest.IP())
+
+        hshProducers[str(pHostOrig)] = getPopen(pHostOrig, 'producer %s' % interestFilterForHost(pHostOrig))
+
+    # Read consumerLogs before to check the results
+    hshNodes = readConsumerLogs('/tmp/minindn')
+    (nDatasBefore, nNacksBefore, nTimeoutsBefore) = countStatus(hshNodes)
   
     info("Instantiating consumers...\n")
-    a_cons_proc = getPopen(a, "consumer /sta2/test sta1")
-    a_cons_proc = getPopen(a, "consumer /sta2/test sta1")
-    a_cons_proc = getPopen(a, "consumer /sta2/test sta1")
-    a_cons_proc = getPopen(a, "consumer /sta2/test sta1")
-    a_cons_proc = getPopen(a, "consumer /sta2/test sta1")
-    a_cons_proc = getPopen(a, "consumer /sta2/test sta1")
-    a_cons_proc = getPopen(a, "consumer /sta2/test sta1")
-    a_cons_proc = getPopen(b, "consumer /sta1/test sta2")
-    a_cons_proc = getPopen(b, "consumer /sta1/test sta2")
-    a_cons_proc = getPopen(b, "consumer /sta1/test sta2")
-    a_cons_proc = getPopen(b, "consumer /sta1/test sta2")
-    a_cons_proc = getPopen(b, "consumer /sta1/test sta2")
-    a_cons_proc = getPopen(b, "consumer /sta1/test sta2")
+    nConsumers = 0
+    for pConsumer in ndnwifi.net.stations:
+        for pProducer in ndnwifi.net.stations:
+            if (pProducer != pConsumer):
+                nConsumers += 1
+                getPopen(pConsumer, 'consumer %s/test %s %f' % (interestFilterForHost(pProducer), str(pConsumer), curDatetimeToFloat()))
+
+    sleep(20)
+    hshNodes = {}
+    hshNodes = readConsumerLogs('/tmp/minindn')
+    (nDatas, nNacks, nTimeouts) = countStatus(hshNodes)
+
+    info('[main] nConsumers=%d\n' % nConsumers)
+    info('[main] BEFORE: nDATA=%d; nNACK=%d; nTIMEOUT=%d\n' % (nDatasBefore, nNacksBefore, nTimeoutsBefore))
+    info('[main] AFTER:  nDATA=%d; nNACK=%d; nTIMEOUT=%d\n' % (nDatas, nNacks, nTimeouts))
+            
+        # proc = getPopen(b, "consumer /sta1/test sta2")
 
     # Start the CLI
-    MiniNDNWifiCLI(ndnwifi.net)
+    if (c_bShowCli):
+        MiniNDNWifiCLI(ndnwifi.net)
     ndnwifi.net.stop()
     ndnwifi.cleanUp()
 
 def interestFilterForHost(pHost):
-    return '/ndn/%s-site/%s/' % (str(pHost), str(pHost))
+    return '/%s' % (str(pHost))
 
 if __name__ == '__main__':
     try:
