@@ -64,7 +64,7 @@ def main():
 
     # Draw legend
     lstScatters = [humanScatter, sensorScatter, droneScatter, vehicleScatter, accessScatter]
-    lstLabels   = ['Soldado', 'Sensor', 'Drone', 'VeÃ­culo', 'AccessPoint']
+    lstLabels   = ['Soldado', 'Sensor', 'Drone', 'Veículo', 'AccessPoint']
     plt.legend(lstScatters, lstLabels, loc='upper right')
 
     #################################################
