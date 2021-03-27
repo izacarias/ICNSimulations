@@ -15,11 +15,12 @@ from datetime import datetime, timedelta
 
 try:
    from minindn.minindn import Minindn
+   from minindn.wifi.minindnwifi import MinindnWifi
    from minindn.util import MiniNDNCLI, getPopen
    from minindn.apps.app_manager import AppManager
    from minindn.apps.nfd import Nfd
    from minindn.apps.nlsr import Nlsr
-   from mininet.node import Ryu
+   from mininet.node import RemoteController
    g_bMinindnLibsImported = True
 except ImportError:
    print('Could not import MiniNDN libraries')
@@ -34,7 +35,7 @@ c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
 c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 3*60
+c_sExperimentTimeSec = 1*60
 
 c_nCacheSizeDefault = 65536
 
@@ -58,7 +59,7 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 # ---------------------------------------- RandomTalks
 class RandomTalks():
 
-   def __init__(self, lstHosts):
+   def __init__(self, lstHosts, lstDataQueue):
       """
       Constructor. Meh
       """
@@ -67,16 +68,13 @@ class RandomTalks():
       self.lstHosts         = lstHosts
       self.strTTLValues     = 'None'
       self.strPayloadValues = 'None'
+      self.lstDataQueue     = lstDataQueue
 
-   def setup(self, strTopoPath):
+   def setup(self):
       """
       Setup experiment
       """
       logging.info('[RandomTalks.setup] Setting up new experiment')
-
-      # Load data queue
-      self.lstDataQueue = DataManager.loadDataQueueFromFile(strTopoPath)
-      logging.info('[RandomTalks.setup] Data queue size=%d' % len(self.lstDataQueue))
 
       # Get TTLs from data manager
       self.strTTLValues     = self.pDataManager.getTTLValuesParam()
@@ -203,12 +201,14 @@ class RandomTalks():
       # strCmdAdvertise = 'nlsrc advertise %s' % strFilter
       # pHost.cmd(strCmdAdvertise)
       # logging.debug('[RandomTalks.instantiateProducer] AdvertiseCmd: ' + strCmdAdvertise)
+      global g_bIsMockExperiment
       if (pHost):
          if (self.strTTLValues != 'None') and (self.strPayloadValues != 'None'):
             strFilter      = RandomTalks.getFilterByHostname(str(pHost))
             strCmdProducer = 'producer %s %s %s >> /home/vagrant/producerlogs/%s.log &' % (strFilter, self.strTTLValues, self.strPayloadValues, str(pHost))
-            # pHost.cmd(strCmdProducer)
-            getPopen(pHost, strCmdProducer)
+            if (not g_bIsMockExperiment):
+               # pHost.cmd(strCmdProducer)
+               getPopen(pHost, strCmdProducer)
             logging.debug('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmdProducer)
          else:
             logging.error('[RandomTalks.instantiateProducer] Uninitialized values strTTLValues=%s, strPayloadValues=%s' % (self.strTTLValues, self.strPayloadValues))
@@ -219,12 +219,14 @@ class RandomTalks():
       """
       Issues MiniNDN commands to set up a consumer for a data package
       """
+      global g_bIsMockExperiment
       if (pHost):
          # Usage of the consumer program: consumer <interest> <consumerName> <floatTimestamp>
          sTimestamp     = curDatetimeToFloat()
          strCmdConsumer = 'consumer %s %s %f &' % (strInterest, str(pHost), sTimestamp)
-         # pHost.cmd(strCmdConsumer)
-         getPopen(pHost, strCmdConsumer)
+         if (not g_bIsMockExperiment):
+            # pHost.cmd(strCmdConsumer)
+            getPopen(pHost, strCmdConsumer)
          logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
       else:
          logging.critical('[RandomTalks.instantiateConsumer] Host is nil! strInterest=%s' % strInterest)
@@ -260,42 +262,55 @@ class MockHost():
    def __init__(self, strName):
       # Shit
       self.strName = strName
+      self.params = {'params': {'homeDir': ''}}
 
    def __repr__(self):
       return self.strName
 
    def cmd(self, strLine):
       return 0
+   
 
 # ---------------------------------------- runMock
-def runMock(strTopoPath):
+def runMock(strTopoPath, lstDataQueue):
    """
    Runs mock experiment. No cummunication with Mininet or MiniNDN
    """
    logging.info('[runMock] Running mock experiment')
    lstHostNames = readHostNamesFromTopoFile(strTopoPath)
    lstHosts = [MockHost(strName) for strName in lstHostNames]
-   Experiment = RandomTalks(lstHosts)
-   Experiment.setup(strTopoPath)
+   Experiment = RandomTalks(lstHosts, lstDataQueue)
+   Experiment.setup()
    Experiment.run()
 
 # ---------------------------------------- runExperiment
-def runExperiment(strTopoPath):
+def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
    """
-   Runs experiment
+   Runs the experiment using regular MiniNDN
    """
    global g_bShowMiniNDNCli
    logging.info('[runExperiment] Running MiniNDN experiment')
    Minindn.cleanUp()
    Minindn.verifyDependencies()
 
+   if (bWifi):
+      MiniNDNClass = MinindnWifi
+   else:
+      MiniNDNClass = Minindn
+
    ######################################################
    # Start MiniNDN and set controller, if any
    if (g_bSDNEnabled):
-      ndn = Minindn(topoFile=strTopoPath, controller=Ryu)
+      ndn = MiniNDNClass(topoFile=strTopoPath, controller=RemoteController)
    else:
-      ndn = Minindn(topoFile=strTopoPath)
+      ndn = MiniNDNClass(topoFile=strTopoPath)
    ndn.start()
+
+   # Wifi topology uses stations instead of hosts, the idea is the same
+   if (bWifi):
+      lstHosts = ndn.net.stations
+   else:
+      lstHosts = ndn.net.hosts
 
    #######################################################
    # Initialize NFD and set cache size based on host type
@@ -304,7 +319,7 @@ def runExperiment(strTopoPath):
    lstDroneHosts   = []
    lstSensorHosts  = []
    lstVehicleHosts = []
-   for pHost in ndn.net.hosts:
+   for pHost in lstHosts:
       if (pHost.name[0] == 'h'):
          lstHumanHosts.append(pHost)
       elif (pHost.name[0] == 'd'):
@@ -325,22 +340,23 @@ def runExperiment(strTopoPath):
    nfdsVehicle = AppManager(ndn, lstVehicleHosts, Nfd, csSize=c_nVehicleCacheSize, logLevel=c_strNFDLogLevel)
    logging.info('[runExperiment] Cache set for vehicles=%d, size=%d' % (len(lstVehicleHosts), c_nVehicleCacheSize))
 
-   ##########################################################
-   # Initialize NFD
-   logging.info('[runExperiment] Starting NLSR on nodes')
-   nlsrs = AppManager(ndn, ndn.net.hosts, Nlsr, logLevel=c_strNLSRLogLevel)
+   if (not bWifi):
+      ##########################################################
+      # Initialize NLSR
+      logging.info('[runExperiment] Starting NLSR on nodes')
+      nlsrs = AppManager(ndn, lstHosts, Nlsr, logLevel=c_strNLSRLogLevel)
 
-   ##########################################################
-   # Wait for NLSR initialization, at least 30 seconds to be on the safe side
-   logging.info('[runExperiment] NLSR sleep set to %d seconds' % c_nNLSRSleepSec)
-   time.sleep(c_nNLSRSleepSec)
+      ##########################################################
+      # Wait for NLSR initialization, at least 30 seconds to be on the safe side
+      logging.info('[runExperiment] NLSR sleep set to %d seconds' % c_nNLSRSleepSec)
+      time.sleep(c_nNLSRSleepSec)
 
    ##########################################################
    # Set up and run experiment
    logging.info('[runExperiment] Begin experiment')
-   Experiment = RandomTalks(ndn.net.hosts)
+   Experiment = RandomTalks(lstHosts, lstDataQueue)
    try:
-      Experiment.setup(strTopoPath)
+      Experiment.setup()
       Experiment.run()
    except Exception as e:
       logging.error('[runExperiment] An exception was raised during the experiment: %s' % str(e))
@@ -454,6 +470,10 @@ def main():
       logging.error('[main] No topology file specified!')
       showHelp()
       exit(0)
+   
+   # Load data queue
+   lstDataQueue = DataManager.loadDataQueueFromFile(strTopologyPath)
+   logging.info('[main] Data queue size=%d' % len(lstDataQueue))
 
    if (g_strNetworkType == ''):
       logging.error('[main] No network type set')
@@ -461,10 +481,10 @@ def main():
       exit(0)
 
    if(g_bIsMockExperiment):
-      runMock(strTopologyPath)
+      runMock(strTopologyPath, lstDataQueue)
    else:
       if (g_bMinindnLibsImported):
-         runExperiment(strTopologyPath)
+         runExperiment(strTopologyPath, lstDataQueue)
       else:
          logging.error('[main] Experiment can not run because MiniNDN libraries could not be imported')
 
