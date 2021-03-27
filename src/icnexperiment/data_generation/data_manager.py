@@ -170,6 +170,10 @@ class DataManager:
         strTopoName = basename(strTopoFilePath)
         if (strTopoName.endswith('.conf')):
             strTopoName = strTopoName[:-5]
-        strPath = dirname(strTopoFilePath) + '/queue_' + strTopoName + '.pkl'
+
+        strDirName = dirname(strTopoFilePath)
+        if (strDirName != '') and (strDirName[-1] != '/'):
+            strDirName += '/'
         
+        strPath = strDirName + 'queue_' + strTopoName + '.pkl'
         return strPath

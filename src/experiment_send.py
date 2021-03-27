@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 
 try:
    from minindn.minindn import Minindn
-   from minindn.util import MiniNDNCLI
+   from minindn.util import MiniNDNCLI, getPopen
    from minindn.apps.app_manager import AppManager
    from minindn.apps.nfd import Nfd
    from minindn.apps.nlsr import Nlsr
@@ -34,7 +34,7 @@ c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
 c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 5*60
+c_sExperimentTimeSec = 3*60
 
 c_nCacheSizeDefault = 65536
 
@@ -207,8 +207,8 @@ class RandomTalks():
          if (self.strTTLValues != 'None') and (self.strPayloadValues != 'None'):
             strFilter      = RandomTalks.getFilterByHostname(str(pHost))
             strCmdProducer = 'producer %s %s %s >> /home/vagrant/producerlogs/%s.log &' % (strFilter, self.strTTLValues, self.strPayloadValues, str(pHost))
-            pHost.cmd(strCmdProducer)
-            logging.debug('[RandomTalks.instantiateProducer] Instantiating new producer ' + str(pHost) + ' ' + strFilter + ' &')
+            # pHost.cmd(strCmdProducer)
+            getPopen(pHost, strCmdProducer)
             logging.debug('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmdProducer)
          else:
             logging.error('[RandomTalks.instantiateProducer] Uninitialized values strTTLValues=%s, strPayloadValues=%s' % (self.strTTLValues, self.strPayloadValues))
@@ -223,9 +223,8 @@ class RandomTalks():
          # Usage of the consumer program: consumer <interest> <consumerName> <floatTimestamp>
          sTimestamp     = curDatetimeToFloat()
          strCmdConsumer = 'consumer %s %s %f &' % (strInterest, str(pHost), sTimestamp)
-         pHost.cmd(strCmdConsumer)
-         # if (RandomTalks.getHostnameFromFilter(strInterest)[0] == 's'):
-         #    logging.info('[RandomTalks.instantiateConsumer] interest=%s; consumer=%s; producer=%s' % (strInterest, str(pHost), RandomTalks.getHostnameFromFilter(strInterest)))
+         # pHost.cmd(strCmdConsumer)
+         getPopen(pHost, strCmdConsumer)
          logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
       else:
          logging.critical('[RandomTalks.instantiateConsumer] Host is nil! strInterest=%s' % strInterest)

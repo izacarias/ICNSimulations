@@ -63,8 +63,11 @@ def main():
         plt.annotate(pNode.Name(), (pNode.nX, pNode.nY), xytext=(pNode.nX+0.5, pNode.nY+0.5))
 
     # Draw legend
-    lstScatters = [humanScatter, sensorScatter, droneScatter, vehicleScatter, accessScatter]
-    lstLabels   = ['Soldado', 'Sensor', 'Drone', 'Veículo', 'AccessPoint']
+    lstScatters = [humanScatter, sensorScatter, droneScatter, vehicleScatter]
+    lstLabels   = ['Soldado', 'Sensor', 'Drone', 'Veículo']
+    if (len(lstAccessCoord) > 0):
+        lstScatters.append(accessScatter)
+        lstLabels.append('AccessPoint')
     plt.legend(lstScatters, lstLabels, loc='upper right')
 
     #################################################
