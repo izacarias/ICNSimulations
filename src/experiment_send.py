@@ -288,7 +288,7 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
    """
    Runs the experiment using regular MiniNDN
    """
-   global g_bShowMiniNDNCli
+   global g_bShowMiniNDNCli, g_bSDNEnabled
    logging.info('[runExperiment] Running MiniNDN experiment')
    Minindn.cleanUp()
    Minindn.verifyDependencies()
@@ -340,7 +340,15 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
    nfdsVehicle = AppManager(ndn, lstVehicleHosts, Nfd, csSize=c_nVehicleCacheSize, logLevel=c_strNFDLogLevel)
    logging.info('[runExperiment] Cache set for vehicles=%d, size=%d' % (len(lstVehicleHosts), c_nVehicleCacheSize))
 
-   if (not bWifi):
+   if (bWifi):
+      # Connect all APs to the remote controller
+      # This should be done regardless of SDN, otherwise packets will not be routed
+      logging.info('[runExperiment] Connecting stations to remote controller...')
+      for pAp in ndnwifi.net.aps:
+         subprocess.call(['ovs-vsctl', 'set-controller', str(pAp), 'tcp:127.0.0.1:6633'])
+
+      # TODO: Add priority based rules to APs if g_bSDNEnabled
+   else:
       ##########################################################
       # Initialize NLSR
       logging.info('[runExperiment] Starting NLSR on nodes')
