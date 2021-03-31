@@ -10,6 +10,7 @@ import time
 import logging
 import getopt
 import psutil
+import subprocess
 from random   import randint
 from datetime import datetime, timedelta
 
@@ -21,6 +22,7 @@ try:
    from minindn.apps.nfd import Nfd
    from minindn.apps.nlsr import Nlsr
    from mininet.node import RemoteController
+   from minindn.helpers.nfdc import Nfdc
    g_bMinindnLibsImported = True
 except ImportError:
    print('Could not import MiniNDN libraries')
@@ -50,7 +52,7 @@ g_strNetworkType     = ''
 
 g_dtLastProducerCheck     = None
 g_nProducerCheckPeriodSec = 10
-g_bShowMiniNDNCli         = False
+g_bShowMiniNDNCli         = True
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -341,10 +343,19 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
    logging.info('[runExperiment] Cache set for vehicles=%d, size=%d' % (len(lstVehicleHosts), c_nVehicleCacheSize))
 
    if (bWifi):
+
+      # Advertise faces
+      for pHostOrig in ndn.net.stations:
+         for pHostDest in ndn.net.stations:
+            if (pHostDest != pHostOrig):
+               logging.debug('[runExperiment] Register, pHostOrig=%s; pHostDest=%s\n' % (str(pHostOrig), str(pHostDest)))
+               Nfdc.createFace(pHostOrig, pHostDest.IP())
+               Nfdc.registerRoute(pHostOrig, RandomTalks.getFilterByHostname(str(pHostDest)), pHostDest.IP())
+
       # Connect all APs to the remote controller
       # This should be done regardless of SDN, otherwise packets will not be routed
       logging.info('[runExperiment] Connecting stations to remote controller...')
-      for pAp in ndnwifi.net.aps:
+      for pAp in ndn.net.aps:
          subprocess.call(['ovs-vsctl', 'set-controller', str(pAp), 'tcp:127.0.0.1:6633'])
 
       # TODO: Add priority based rules to APs if g_bSDNEnabled
@@ -368,7 +379,7 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
       Experiment.run()
    except Exception as e:
       logging.error('[runExperiment] An exception was raised during the experiment: %s' % str(e))
-      raise      
+      raise
 
    logging.info('[runExperiment] End experiment')
 
@@ -492,7 +503,7 @@ def main():
       runMock(strTopologyPath, lstDataQueue)
    else:
       if (g_bMinindnLibsImported):
-         runExperiment(strTopologyPath, lstDataQueue)
+         runExperiment(strTopologyPath, lstDataQueue, bWifi=True)
       else:
          logging.error('[main] Experiment can not run because MiniNDN libraries could not be imported')
 

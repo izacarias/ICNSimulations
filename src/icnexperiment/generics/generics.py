@@ -23,7 +23,9 @@ def readHostNamesFromTopoFile(sTopoPath):
     """
     Returns a list containing the hostnames read from a MiniNDN topology file
     """
+    raise Exception('Should be using generics from data_generation')
     c_strNodesTag = '[nodes]'
+    c_strStationsTag = '[stations]'
     c_strLinksTag = '[links]'
 
     lstHosts = []
@@ -36,7 +38,10 @@ def readHostNamesFromTopoFile(sTopoPath):
             if (strLine.strip() == c_strNodesTag):
                 bNodeSection = True
                 continue
-
+            # Begin station session
+            if (strLine.strip() == c_strStationsTag):
+                bNodeSection = True
+                continue                
             # Begin links session, end of the hosts session
             if (strLine.strip() == c_strLinksTag):
                 bNodeSection = False
