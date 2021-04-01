@@ -49,7 +49,7 @@ class TopologyGenerator:
         # Place access points connecting to each station
         lstAccessPoints = []
         for pStation in lstStations:
-            newAccessPoint = AccessPoint('AP_' + pStation.strName)
+            newAccessPoint = AccessPoint('ap_' + pStation.strName)
             newAccessPoint.place(pStation.nX, pStation.nY + 1)
             # Might need to check for duplicate coordinates here
             lstAccessPoints.append(newAccessPoint)

@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 try:
    from minindn.minindn import Minindn
    from minindn.wifi.minindnwifi import MinindnWifi
-   from minindn.util import MiniNDNCLI, getPopen
+   from minindn.util import MiniNDNCLI, MiniNDNWifiCLI, getPopen
    from minindn.apps.app_manager import AppManager
    from minindn.apps.nfd import Nfd
    from minindn.apps.nlsr import Nlsr
@@ -90,8 +90,8 @@ class RandomTalks():
       self.checkRunningProducers()
 
       # Log resulting data queue
-      for nIndex, node in enumerate(self.lstDataQueue):
-         logging.info('[RandomTalks.setup] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
+#      for nIndex, node in enumerate(self.lstDataQueue):
+#         logging.info('[RandomTalks.setup] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
 
       # Log the current configuration for data_manager
       logging.info('[RandomTalks.setup] Current data type configuration: \n%s' % self.pDataManager.info())
@@ -355,10 +355,15 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
       # Connect all APs to the remote controller
       # This should be done regardless of SDN, otherwise packets will not be routed
       logging.info('[runExperiment] Connecting stations to remote controller...')
+      nApId = 1
       for pAp in ndn.net.aps:
          subprocess.call(['ovs-vsctl', 'set-controller', str(pAp), 'tcp:127.0.0.1:6633'])
+         strApId = '1000000000' + str(nApId).zfill(6)
+         subprocess.call(['ovs-vsctl', 'set', 'bridge', str(pAp), 'other-config:datapath-id='+strApId])
+         nApId += 1
 
       # TODO: Add priority based rules to APs if g_bSDNEnabled
+      # ovs-ofctl add-flow <ap_name> dl_type=0x0800
    else:
       ##########################################################
       # Initialize NLSR
@@ -384,7 +389,10 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
    logging.info('[runExperiment] End experiment')
 
    if (g_bShowMiniNDNCli):
-      MiniNDNCLI(ndn.net)
+      if (bWifi):
+         MiniNDNWifiCLI(ndn.net)
+      else:
+         MiniNDNCLI(ndn.net)
    ndn.stop()
 
 # ---------------------------------------- setICNCache

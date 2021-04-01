@@ -15,12 +15,12 @@ from icnexperiment.dir_config import c_strLogDir
 # ---------------------------------------------------------------------- Constants
 c_strLogFile = c_strLogDir + 'generate_topology.log'
 c_nNodeLinks = 3
-c_nHumans    = 2
-c_nSensors   = 2
-c_nDrones    = 2
-c_nVehicles  = 2
-c_nMaxX      = 100
-c_nMaxY      = 100
+c_nHumans    = 3
+c_nSensors   = 3
+c_nDrones    = 3
+c_nVehicles  = 3
+c_nMaxX      = 1000000
+c_nMaxY      = 1000000
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))

@@ -56,10 +56,10 @@ def main():
         logging.info('[main] Transmission time average=%f ms' % (sAvgTransTime))
 
         # Average trasnmissiontime per type
-        # hshTransTimes = avgTransTimePerType(hshNodes)
-        # for nType in range(1, 7):
-        #     if (nType in hshTransTimes):
-        #         logging.info('[main] Transmission time for type=%d; average=%f ms' % (nType, hshTransTimes[nType]))
+        hshTransTimes = avgTransTimePerType(hshNodes)
+        for nType in range(1, 7):
+            if (nType in hshTransTimes):
+                logging.info('[main] Transmission time for type=%d; average=%f ms' % (nType, hshTransTimes[nType]))
 
         # # Basic info for each type
         # hshTypes = basicInfoPerType(hshNodes)
