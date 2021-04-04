@@ -6,6 +6,7 @@ packages and their timestamps created and queued by DataManager.
 Created 25/09/2020 by Andre Dexheimer Carneiro
 """
 import sys
+import os
 import time
 import logging
 import getopt
@@ -37,9 +38,9 @@ c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
 c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 1*60
+c_sExperimentTimeSec = 1.5*60
 
-c_nCacheSizeDefault = 65536
+c_nCacheSizeDefault = 0
 
 c_nNLSRSleepSec   = 40
 c_strNLSRLogLevel = 'DEBUG'
@@ -249,7 +250,8 @@ class RandomTalks():
       Creates interest filter base on the producer`s name
       """
       # return '/' + c_strAppName + '/' + strName + '/'
-      return '/ndn/%s-site/%s/' % (strName, strName)
+      return '/%s' % (strName)
+      # return '/ndn/%s-site/%s/' % (strName, strName)
 
    @staticmethod
    def getHostnameFromFilter(strInterestFilter):
@@ -285,7 +287,7 @@ def runMock(strTopoPath, lstDataQueue):
    Experiment.run()
 
 # ---------------------------------------- runExperiment
-def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
+def runExperiment(strTopoPath, lstDataQueue, bWifi=True):
    """
    Runs the experiment using regular MiniNDN
    """
@@ -316,27 +318,16 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
    if (ndn.net.aps is not None):
       # Connect all APs to the remote controller
       # This should be done regardless of SDN, otherwise packets will not be routed
-      logging.info('[runExperiment] Connecting stations to remote controller...')
+      logging.info('[runExperiment] Setting up access points...')
       nApId = 1
       for pAp in ndn.net.aps:
          strApId = '1000000000' + str(nApId).zfill(6)
-         # lstCmd = ['ovs-vsctl', 'set', 'bridge', str(pAp), 'other-config:datapath-id='+strApId]
-         os.system('ovs-vsctl set bridge ' + str(pAp) + ' other-config:datapath-id=' + strApId)
          subprocess.call(['ovs-vsctl', 'set-controller', str(pAp), 'tcp:127.0.0.1:6633'])
-         # subprocess.call(lstCmd)
-         # logging.info('[runExperiment] AP id command= %s' % str(lstCmd))
+         subprocess.call(['ovs-vsctl', 'set', 'bridge', str(pAp), 'other-config:datapath-id='+strApId])
          nApId += 1
 
          # TODO: Add priority based rules to APs if g_bSDNEnabled
          # ovs-ofctl add-flow <ap_name> dl_type=0x0800
-
-   # Advertise faces
-   for pHostOrig in lstHosts:
-      for pHostDest in lstHosts:
-         if (pHostDest != pHostOrig):
-            logging.debug('[runExperiment] Register, pHostOrig=%s; pHostDest=%s\n' % (str(pHostOrig), str(pHostDest)))
-            Nfdc.createFace(pHostOrig, pHostDest.IP())
-            Nfdc.registerRoute(pHostOrig, RandomTalks.getFilterByHostname(str(pHostDest)), pHostDest.IP())
 
    #######################################################
    # Initialize NFD and set cache size based on host type
@@ -365,6 +356,14 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
    logging.info('[runExperiment] Cache set for sensors=%d, size=%d' % (len(lstSensorHosts), c_nSensorCacheSize))
    nfdsVehicle = AppManager(ndn, lstVehicleHosts, Nfd, csSize=c_nVehicleCacheSize, logLevel=c_strNFDLogLevel)
    logging.info('[runExperiment] Cache set for vehicles=%d, size=%d' % (len(lstVehicleHosts), c_nVehicleCacheSize))
+
+   # Advertise faces
+   for pHostOrig in lstHosts:
+      for pHostDest in lstHosts:
+         if (pHostDest != pHostOrig):
+            logging.debug('[runExperiment] Register, pHostOrig=%s; pHostDest=%s\n' % (str(pHostOrig), str(pHostDest)))
+            Nfdc.createFace(pHostOrig, pHostDest.IP())
+            Nfdc.registerRoute(pHostOrig, RandomTalks.getFilterByHostname(str(pHostDest)), pHostDest.IP())
 
    if (not bWifi):
       ##########################################################
@@ -513,7 +512,7 @@ def main():
       runMock(strTopologyPath, lstDataQueue)
    else:
       if (g_bMinindnLibsImported):
-         runExperiment(strTopologyPath, lstDataQueue, bWifi=True)
+         runExperiment(strTopologyPath, lstDataQueue)
       else:
          logging.error('[main] Experiment can not run because MiniNDN libraries could not be imported')
 
