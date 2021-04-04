@@ -21,8 +21,8 @@ try:
    from minindn.apps.app_manager import AppManager
    from minindn.apps.nfd import Nfd
    from minindn.apps.nlsr import Nlsr
-   from mininet.node import RemoteController
    from minindn.helpers.nfdc import Nfdc
+   from mininet.node import RemoteController
    g_bMinindnLibsImported = True
 except ImportError:
    print('Could not import MiniNDN libraries')
@@ -272,7 +272,6 @@ class MockHost():
    def cmd(self, strLine):
       return 0
    
-
 # ---------------------------------------- runMock
 def runMock(strTopoPath, lstDataQueue):
    """
@@ -314,6 +313,31 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
    else:
       lstHosts = ndn.net.hosts
 
+   if (ndn.net.aps is not None):
+      # Connect all APs to the remote controller
+      # This should be done regardless of SDN, otherwise packets will not be routed
+      logging.info('[runExperiment] Connecting stations to remote controller...')
+      nApId = 1
+      for pAp in ndn.net.aps:
+         strApId = '1000000000' + str(nApId).zfill(6)
+         # lstCmd = ['ovs-vsctl', 'set', 'bridge', str(pAp), 'other-config:datapath-id='+strApId]
+         os.system('ovs-vsctl set bridge ' + str(pAp) + ' other-config:datapath-id=' + strApId)
+         subprocess.call(['ovs-vsctl', 'set-controller', str(pAp), 'tcp:127.0.0.1:6633'])
+         # subprocess.call(lstCmd)
+         # logging.info('[runExperiment] AP id command= %s' % str(lstCmd))
+         nApId += 1
+
+         # TODO: Add priority based rules to APs if g_bSDNEnabled
+         # ovs-ofctl add-flow <ap_name> dl_type=0x0800
+
+   # Advertise faces
+   for pHostOrig in lstHosts:
+      for pHostDest in lstHosts:
+         if (pHostDest != pHostOrig):
+            logging.debug('[runExperiment] Register, pHostOrig=%s; pHostDest=%s\n' % (str(pHostOrig), str(pHostDest)))
+            Nfdc.createFace(pHostOrig, pHostDest.IP())
+            Nfdc.registerRoute(pHostOrig, RandomTalks.getFilterByHostname(str(pHostDest)), pHostDest.IP())
+
    #######################################################
    # Initialize NFD and set cache size based on host type
    logging.info('[runExperiment] Starting NFD on nodes')
@@ -342,29 +366,7 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=False):
    nfdsVehicle = AppManager(ndn, lstVehicleHosts, Nfd, csSize=c_nVehicleCacheSize, logLevel=c_strNFDLogLevel)
    logging.info('[runExperiment] Cache set for vehicles=%d, size=%d' % (len(lstVehicleHosts), c_nVehicleCacheSize))
 
-   if (bWifi):
-
-      # Advertise faces
-      for pHostOrig in ndn.net.stations:
-         for pHostDest in ndn.net.stations:
-            if (pHostDest != pHostOrig):
-               logging.debug('[runExperiment] Register, pHostOrig=%s; pHostDest=%s\n' % (str(pHostOrig), str(pHostDest)))
-               Nfdc.createFace(pHostOrig, pHostDest.IP())
-               Nfdc.registerRoute(pHostOrig, RandomTalks.getFilterByHostname(str(pHostDest)), pHostDest.IP())
-
-      # Connect all APs to the remote controller
-      # This should be done regardless of SDN, otherwise packets will not be routed
-      logging.info('[runExperiment] Connecting stations to remote controller...')
-      nApId = 1
-      for pAp in ndn.net.aps:
-         subprocess.call(['ovs-vsctl', 'set-controller', str(pAp), 'tcp:127.0.0.1:6633'])
-         strApId = '1000000000' + str(nApId).zfill(6)
-         subprocess.call(['ovs-vsctl', 'set', 'bridge', str(pAp), 'other-config:datapath-id='+strApId])
-         nApId += 1
-
-      # TODO: Add priority based rules to APs if g_bSDNEnabled
-      # ovs-ofctl add-flow <ap_name> dl_type=0x0800
-   else:
+   if (not bWifi):
       ##########################################################
       # Initialize NLSR
       logging.info('[runExperiment] Starting NLSR on nodes')

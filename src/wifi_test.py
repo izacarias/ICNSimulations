@@ -1,28 +1,6 @@
-# -*- Mode:python; c-file-style:"gnu"; indent-tabs-mode:nil -*- */
-#
-# Copyright (C) 2015-2020, The University of Memphis,
-#                          Arizona Board of Regents,
-#                          Regents of the University of California.
-#
-# This file is part of Mini-NDN.
-# See AUTHORS.md for a complete list of Mini-NDN authors and contributors.
-#
-# Mini-NDN is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Mini-NDN is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Mini-NDN, e.g., in COPYING.md file.
-# If not, see <http://www.gnu.org/licenses/>.
-
-from mininet.log import setLogLevel, info, debug
-from mininet.node import RemoteController, Ryu
+import os
+from mininet.log import setLogLevel, info
+from mininet.node import RemoteController
 from minindn.wifi.minindnwifi import MinindnWifi
 from minindn.util import MiniNDNWifiCLI, getPopen
 from minindn.apps.app_manager import AppManager
@@ -30,9 +8,7 @@ from minindn.apps.nfd import Nfd
 from minindn.helpers.nfdc import Nfdc
 from minindn.helpers.ndnpingclient import NDNPingClient
 from time import sleep
-from icnexperiment.result_analysis import *
-from datetime import datetime
-import subprocess
+# from icnexperiment.result_analysis import *
 
 # This experiment uses the singleap topology and is intended to be a basic
 # test case where we see if two nodes can send interests to each other.
@@ -44,15 +20,15 @@ def runExperiment():
     setLogLevel('info')
 
     info("Starting network")
-    ndnwifi = MinindnWifi(controller=RemoteController, topoFile='/home/vagrant/icnsimulations/topologies/wifi-topo-close.conf')
+    ndnwifi = MinindnWifi(controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6633), topoFile='/home/vagrant/icnsimulations/topologies/wifi-topo.conf')
 
-    # a = ndnwifi.net["h0"]
-    # b = ndnwifi.net["d0"]
+    a = ndnwifi.net["h0"]
+    b = ndnwifi.net["d0"]
 
-    # # Test for model-based mobility
+    # Test for model-based mobility
     # if ndnwifi.args.modelMob:
     #     ndnwifi.startMobilityModel(model='GaussMarkov')
-    # #Test for replay based mobility
+    #Test for replay based mobility
     # if ndnwifi.args.mobility:
     #     info("Running with mobility...")
 
@@ -70,25 +46,44 @@ def runExperiment():
     #     ndnwifi.startMobility(time=0, mob_rep=1, reverse=False)
 
     ndnwifi.start()
-    info("Starting NFD...\n")
+    
+    info("Setting unambiguous DPIDs\n")
+    # os.system('ovs-vsctl set bridge ap_h0 other-config:datapath-id=1000000000000001')
+    # os.system('ovs-vsctl set bridge ap_h1 other-config:datapath-id=1000000000000002')
+    # os.system('ovs-vsctl set bridge ap_h2 other-config:datapath-id=1000000000000005')
+    # os.system('ovs-vsctl set bridge ap_h3 other-config:datapath-id=1000000000000006')
+    # os.system('ovs-vsctl set bridge ap_d0 other-config:datapath-id=1000000000000003')
+    # os.system('ovs-vsctl set bridge ap_d1 other-config:datapath-id=1000000000000004')
+    # os.system('ovs-vsctl set bridge ap_d2 other-config:datapath-id=1000000000000008')
+    # os.system('ovs-vsctl set bridge ap_v0 other-config:datapath-id=1000000000000009')
+    # os.system('ovs-vsctl set bridge ap_v1 other-config:datapath-id=1000000000000010')
+    
+    for pAp in ndn.net.aps:
+        subprocess.call(['ovs-vsctl', 'set-controller', str(pAp), 'tcp:127.0.0.1:6633'])
+
+    for pAp in ndn.net.aps:
+        strApId = '1000000000' + str(nApId).zfill(6)
+        subprocess.call(lstCmd)
+
+    
+    info("Starting NFD\n")
     sleep(2)
+
     nfds = AppManager(ndnwifi, ndnwifi.net.stations, Nfd)
 
     # Create faces linking every node and instantiate producers
-    info('Creating faces and instantiating producers...\n')
+    info("Creating faces and instantiating producers...\n")
     hshProducers = {}
     for pHostOrig in ndnwifi.net.stations:
         for pHostDest in ndnwifi.net.stations:
             if (pHostDest != pHostOrig):
-                debug('Register, pHostOrig=%s; pHostDest=%s\n' % (str(pHostOrig), str(pHostDest)))
+                info('Register, pHostOrig=%s; pHostDest=%s\n' % (str(pHostOrig), str(pHostDest)))
                 Nfdc.createFace(pHostOrig, pHostDest.IP())
                 Nfdc.registerRoute(pHostOrig, interestFilterForHost(pHostDest), pHostDest.IP())
 
         hshProducers[str(pHostOrig)] = getPopen(pHostOrig, 'producer %s' % interestFilterForHost(pHostOrig))
 
-    info('Connecting stations to remote controller...\n')
-    for pAp in ndnwifi.net.aps:
-        subprocess.call(['ovs-vsctl', 'set-controller', str(pAp), 'tcp:127.0.0.1:6633'])  
+    # ndnwifi.net.plotGraph(max_x=100, max_y=100)
   
     # info("Instantiating consumers...\n")
     # nConsumers = 0
@@ -98,11 +93,11 @@ def runExperiment():
     #             nConsumers += 1
     #             # Parametros do consumer: consumer <interesse> <nome_consumidor> <horario_float>
     #             getPopen(pConsumer, 'consumer %s/test %s %f' % (interestFilterForHost(pProducer), str(pConsumer), curDatetimeToFloat()))
-       
+
+            
     # Start the CLI
     if (c_bShowCli):
         MiniNDNWifiCLI(ndnwifi.net)
-
     ndnwifi.net.stop()
     ndnwifi.cleanUp()
 
@@ -122,8 +117,3 @@ if __name__ == '__main__':
         runExperiment()
     except Exception as e:
         MinindnWifi.handleException()
-
-        # netstat
-        # ovs-vsctl set-controller ap_h0 tcp:127.0.0.1:6633
-        
-        # python ./pox.py -- verbose samples.pretty_log forwarding.l2_learning
