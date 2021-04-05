@@ -10,7 +10,7 @@ from icnexperiment.generics import floatToDatetime
 
 class Transmission:
 
-    def __init__(self, strConsumer, strInterest, delayUs, strStatus, timeSinceEpoch):
+    def __init__(self, strConsumer, strInterest, delayUs, strStatus, timeSinceEpoch, nPayload=-1):
         self.strInterest = strInterest
         self.sDelayUs    = float(delayUs)
         self.dtDate      = floatToDatetime(float(timeSinceEpoch))
@@ -19,6 +19,7 @@ class Transmission:
         self.strProd     = ''
         self.nDataID     = -1
         self.nDataType   = -1
+        self.nPayload    = nPayload
         self.processInterestFilter()
 
         # if (not self.processInterestFilter()):
@@ -54,11 +55,13 @@ class Transmission:
         if ('' in lstContents):
             lstContents.remove('')
             
-        if (len(lstContents) == 4):
+        if (len(lstContents) >= 5):
+            newTrans = Transmission(strConsumer, lstContents[0], lstContents[1], lstContents[2], lstContents[3], lstContents[4])
+        elif (len(lstContents) == 4):
             newTrans = Transmission(strConsumer, lstContents[0], lstContents[1], lstContents[2], lstContents[3])
         elif (len(lstContents) == 3):
             # No timeSinceEpoch
             newTrans = Transmission(strConsumer, lstContents[0], lstContents[1], lstContents[2], 0)
         else:
-            raise Exception('[Transmission.fromString] Line with more or less than 4 fields line=%s' % strLine)
+            raise Exception('[Transmission.fromString] Line with less than 3 fields line=%s' % strLine)
         return newTrans

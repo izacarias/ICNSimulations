@@ -9,12 +9,14 @@
 #include <ndn-cxx/security/signing-helpers.hpp>
 #include <libgen.h>
 #include <iostream>
+#include <string.h>
 #include <boost/chrono/duration.hpp>
 #include <ndn-cxx/util/random.hpp>
 
 #define STR_APPNAME             "C2Data"
 #define N_DEFAULT_TTL_MS        10000
-#define N_DEFALUT_PAYLOAD_BYTES 100
+
+int g_nDefaultPayload = 100;
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
@@ -152,7 +154,7 @@ int Producer::getTTLMsFromType(int nType)
 // --------------------------------------------------------------------------------
 int Producer::getPayloadBytesFromType(int nType)
 {
-  int nPayload = N_DEFALUT_PAYLOAD_BYTES;
+  int nPayload = g_nDefaultPayload;
   if ((nType > 0) && ((uint) nType <= m_lstPayloads.size())){
     // The starting value for nType is 1
     nPayload = m_lstPayloads[nType-1];
@@ -216,6 +218,7 @@ int main(int argc, char** argv)
   std::vector<int> lstTTLs, lstPayloads, lstParameters;
   unsigned int i;
   int j;
+  bool bDefaultPayloadSet=false;
 
   fprintf(stderr, "[main] Begin");
 
@@ -225,25 +228,37 @@ int main(int argc, char** argv)
   if (argc > 1)
     strFilter = argv[1];
 
-  // Parameter [2..] list of TTLs and payloads
-  if (argc > 2){
-    for (j = 2; j < argc; j++){
-      lstParameters.push_back(atoi(argv[j]));
-    }
+  // If there are only 2 paremeters (disconsidering & as last parameter), use value as default payload
+  if ((argc == 3) || ((argc == 4) and (strcmp(argv[3], "&") != 0))){
+    g_nDefaultPayload = atoi(argv[2]);
+    bDefaultPayloadSet = true;
+    fprintf(stderr, "[main] Default payload set, nDefaultPayload=%d bytes\n", g_nDefaultPayload);
   }
 
-  // Create TTL and Payload lists from the parameters
-  if (lstParameters.size() % 2 == 0){
-    // Even size, divide parameters into two lists: TTL and payload values
-    for (i=0; i < lstParameters.size()/2; i++){
-      lstTTLs.push_back(lstParameters[i]);
-      lstPayloads.push_back(lstParameters[i + lstParameters.size()/2]);
+  if (!bDefaultPayloadSet){
+    // Parameter [2..] list of TTLs and payloads
+    if (argc > 2){
+      for (j = 2; j < argc; j++){
+        if (strcmp(argv[j], "&") != 0){
+          // Ignore char used to run producer in the background
+          lstParameters.push_back(atoi(argv[j]));
+        }      
+      }
     }
-  }
-  else{
-    // Odd size, use parameters as TTL values only
-    for (i = 0; i < lstParameters.size(); i++){
-      lstTTLs.push_back(lstParameters[i]);
+
+    // Create TTL and Payload lists from the parameters
+    if (lstParameters.size() % 2 == 0){
+      // Even size, divide parameters into two lists: TTL and payload values
+      for (i=0; i < lstParameters.size()/2; i++){
+        lstTTLs.push_back(lstParameters[i]);
+        lstPayloads.push_back(lstParameters[i + lstParameters.size()/2]);
+      }
+    }
+    else{
+      // Odd size, use parameters as TTL values only
+      for (i = 0; i < lstParameters.size(); i++){
+        lstTTLs.push_back(lstParameters[i]);
+      }
     }
   }
 

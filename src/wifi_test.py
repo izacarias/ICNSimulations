@@ -47,7 +47,7 @@ def runExperiment():
                 Nfdc.createFace(pHostOrig, pHostDest.IP())
                 Nfdc.registerRoute(pHostOrig, interestFilterForHost(pHostDest), pHostDest.IP())
 
-        hshProducers[str(pHostOrig)] = getPopen(pHostOrig, 'producer %s' % interestFilterForHost(pHostOrig))
+        # hshProducers[str(pHostOrig)] = getPopen(pHostOrig, 'producer %s' % interestFilterForHost(pHostOrig))
             
     # Start the CLI
     if (c_bShowCli):

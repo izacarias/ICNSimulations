@@ -24,6 +24,7 @@ class Consumer
       void onNack(const Interest&, const lp::Nack& nack)   const;
       void onTimeout(const Interest& interest)             const;
       void logResult(float sTimeDiff, const char* pResult, std::string strTimestamp) const;
+      void logResultWithSize(float sTimeDiff, const char* pResult, std::string strTimestamp, size_t nSize) const;
       void renameExistingLogFile();
 
    private:
@@ -96,9 +97,10 @@ void Consumer::onData(const Interest&, const Data& data) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "DATA", m_strTimestamp);
+   // logResult(sTimeDiff, "DATA", m_strTimestamp);
+   logResultWithSize(sTimeDiff, "DATA", m_strTimestamp, data.getContent().value_size());
 
-   std::cout << "[Consumer::onData] Received Data=" << data << "Delay=" << sTimeDiff << std::endl;
+   std::cout << "[Consumer::onData] Received Data=" << data << "Delay=" << sTimeDiff << "; Size=" << data.getContent().value_size() << std::endl;
 }
 
 // --------------------------------------------------------------------------------
@@ -156,6 +158,30 @@ void Consumer::logResult(float sTimeDiff, const char* pResult, std::string strTi
 
       if (pFile){
          fprintf(pFile, "%s;%.4f;%s;%s\n", m_strInterest.c_str(), sTimeDiff, pResult, strTimestamp.c_str());
+         fclose(pFile);
+      }
+      else{
+         std::cout << "[Consumer::log] ERROR opening output file for pResult=" << pResult
+             << std::endl;
+      }
+   }
+}
+
+// --------------------------------------------------------------------------------
+//   logResult
+//
+//
+// --------------------------------------------------------------------------------
+void Consumer::logResultWithSize(float sTimeDiff, const char* pResult, std::string strTimestamp, size_t nSize) const
+{
+   FILE* pFile;
+
+   if (m_strNode.length() > 0){
+      // Write results to files
+      pFile = fopen(m_strLogPath.c_str(), "a");
+
+      if (pFile){
+         fprintf(pFile, "%s;%.4f;%s;%s;%d\n", m_strInterest.c_str(), sTimeDiff, pResult, strTimestamp.c_str(), (int)nSize);
          fclose(pFile);
       }
       else{

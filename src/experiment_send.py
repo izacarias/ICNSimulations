@@ -208,7 +208,7 @@ class RandomTalks():
       if (pHost):
          if (self.strTTLValues != 'None') and (self.strPayloadValues != 'None'):
             strFilter      = RandomTalks.getFilterByHostname(str(pHost))
-            strCmdProducer = 'producer %s %s %s >> /home/vagrant/producerlogs/%s.log &' % (strFilter, self.strTTLValues, self.strPayloadValues, str(pHost))
+            strCmdProducer = 'producer %s %s %s &' % (strFilter, self.strTTLValues, self.strPayloadValues)
             if (not g_bIsMockExperiment):
                # pHost.cmd(strCmdProducer)
                getPopen(pHost, strCmdProducer)
