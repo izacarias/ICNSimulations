@@ -2,6 +2,12 @@
 *    Based on Vanilla consumer for MiniNDN
 *
 *    André Dexheimer Carneiro 02/11/2020
+*   
+*    Usage: consumer <interest> <hostName> <payload> <timestamp>
+*
+*    The consumer will send as many interests as needed to get the specified payload, considering that the maximum 
+*    payload per NDN packet is 8800 bytes.
+*
 */
 #include <ndn-cxx/face.hpp>
 #include <iostream>
@@ -27,7 +33,7 @@ class Consumer
       void onData(const Interest&, const Data& data)       const;
       void onNack(const Interest&, const lp::Nack& nack)   const;
       void onTimeout(const Interest& interest)             const;
-      void logResult(float sTimeDiff, const char* pResult, std::string strTimestamp) const;
+      void logResult(float sTimeDiff, const char* pResult, std::string strInterest, std::string strTimestamp) const;
       void logResultWithSize(float sTimeDiff, const char* pResult, std::string strInterest, std::string strTimestamp, size_t nSize) const;
       void consumePacket(std::string strInterest);
 
@@ -171,7 +177,7 @@ void Consumer::onData(const Interest& interest, const Data& data) const
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::onNack(const Interest&, const lp::Nack& nack) const
+void Consumer::onNack(const Interest& interest, const lp::Nack& nack) const
 {
    float sTimeDiff;
    std::chrono::steady_clock::time_point dtEnd;
@@ -179,7 +185,7 @@ void Consumer::onNack(const Interest&, const lp::Nack& nack) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "NACK", m_strTimestamp);
+   logResult(sTimeDiff, "NACK", interest.getName().toUri(), m_strTimestamp);
 
    std::cout << "[Consumer::onNack] Received Nack interest=" << m_strInterest <<
       ";Reason=" << nack.getReason() << "Delay=" << sTimeDiff << std::endl;
@@ -200,7 +206,7 @@ void Consumer::onTimeout(const Interest& interest) const
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - m_dtBegin).count();
 
-   logResult(sTimeDiff, "TIMEOUT", m_strTimestamp);
+   logResult(sTimeDiff, "TIMEOUT", interest.getName().toUri(), m_strTimestamp);
 
    std::cout << "[Consumer::onTimeout] Timeout for interest=" << m_strInterest << "Delay="
       << sTimeDiff << std::endl;
@@ -211,7 +217,7 @@ void Consumer::onTimeout(const Interest& interest) const
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::logResult(float sTimeDiff, const char* pResult, std::string strTimestamp) const
+void Consumer::logResult(float sTimeDiff, const char* pResult, std::string strInterest, std::string strTimestamp) const
 {
    FILE* pFile;
 

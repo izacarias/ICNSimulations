@@ -2,6 +2,15 @@
 *   Based on vanilla producer for MiniNDN
 *
 *   André Dexheimer Carneiro 02/11/2020
+*
+*   Usage 1: producer <interest> <lstTTLs>
+*   Usage 2: producer <interest> <default_payload>
+*
+*   The default payload will only be used when the packet payload is not expressed in a interet in the format 
+*   C2Data-%d-Type%d-%db where C2Data-<ID>-Type<Type>-<payload>b. 
+*
+*   The packet type is used to set the TTL value if a list is specified as a command line parameter.
+*
 */
 
 #include <ndn-cxx/face.hpp>
