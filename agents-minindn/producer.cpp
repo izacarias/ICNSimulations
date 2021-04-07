@@ -28,7 +28,7 @@ static std::string getRandomByteString(std::size_t length);
 class Producer
 {
   public:
-    void run(std::string strFilter, std::vector<int> lstTTLs, std::vector<int> lstPayloads);
+    void run(std::string strFilter, std::vector<int> lstTTLs);
 
   private:
     void onInterest(const InterestFilter&, const Interest& interest);
@@ -36,12 +36,11 @@ class Producer
     void printTypesConfig();
   
     int getTTLMsFromType(int nType);
-    int getPayloadBytesFromType(int nType);
 
   private:
     Face           m_face;
     KeyChain       m_keyChain;
-    std::vector<int> m_lstTTLs, m_lstPayloads;
+    std::vector<int> m_lstTTLs;
 };
 
 // --------------------------------------------------------------------------------
@@ -49,18 +48,18 @@ class Producer
 //
 //
 // --------------------------------------------------------------------------------
-void Producer::run(std::string strFilter, std::vector<int> lstTTLs, std::vector<int> lstPayloads)
+void Producer::run(std::string strFilter, std::vector<int> lstTTLs)
 {
+  fprintf(stderr, "[Producer::run] Begin\n");
+
   if (strFilter.length() == 0){
     // No specific filter set
     strFilter = "/exampleApp/blup";
   }
-  fprintf(stderr, "[Producer::run] Begin\n");
 
-  m_lstTTLs     = lstTTLs;
-  m_lstPayloads = lstPayloads;
+  m_lstTTLs = lstTTLs;
 
-  fprintf(stderr, "[Producer::run] Producer for filter=%s with TTLs=%ld and Payloads=%ld\n", strFilter.c_str(), m_lstTTLs.size(), m_lstPayloads.size());
+  fprintf(stderr, "[Producer::run] Producer for filter=%s with TTLs=%ld\n", strFilter.c_str(), m_lstTTLs.size());
   printTypesConfig();
 
   // strInterest = '/' + c_strAppName + '/' + str(producer) + '/' + strInterest
@@ -81,18 +80,17 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   std::string strPacket;
   std::string strContent;
 
-  std::cout << "[Producer::onInterest] >> I: " << interest << std::endl;
-
-  strPacket = interest.getName().toUri();
-  nType     = 0;
-  nID       = -1;
-  sscanf(basename((char*) strPacket.c_str()), "C2Data-%d-Type%d", &nID, &nType);
+  strPacket    = interest.getName().toUri();
+  nPayloadSize = 0;
+  nType        = 0;
+  nID          = -1;
+  sscanf(basename((char*) strPacket.c_str()), "C2Data-%d-Type%d-%db", &nID, &nType, &nPayloadSize);
   printf("[Producer::onInterest] Interest for packet=%s\n", strPacket.c_str());
 
-  // Determine TTL
-  nTTLMs      = getTTLMsFromType(nType);
-  // Determine Payload
-  nPayloadSize = getPayloadBytesFromType(nType);
+  // Determine TTL and payload
+  nTTLMs = getTTLMsFromType(nType);
+  if (nPayloadSize == 0)
+    nPayloadSize = g_nDefaultPayload;
 
   printf("[Producer::onInterest] nType=%d; nID=%d; TTLms=%d; PayloadSize=%d\n", nType, nID, nTTLMs, nPayloadSize);  
   
@@ -148,21 +146,6 @@ int Producer::getTTLMsFromType(int nType)
 }
 
 // --------------------------------------------------------------------------------
-//  getPayloadBytesFromType
-//
-//
-// --------------------------------------------------------------------------------
-int Producer::getPayloadBytesFromType(int nType)
-{
-  int nPayload = g_nDefaultPayload;
-  if ((nType > 0) && ((uint) nType <= m_lstPayloads.size())){
-    // The starting value for nType is 1
-    nPayload = m_lstPayloads[nType-1];
-  }
-  return nPayload;
-}
-
-// --------------------------------------------------------------------------------
 //  printTypesConfig
 //
 //
@@ -170,11 +153,10 @@ int Producer::getPayloadBytesFromType(int nType)
 void Producer::printTypesConfig()
 {
   unsigned int i;
-  int nPayload, nTTL;
+  int nTTL;
   for (i = 1; i <= m_lstTTLs.size(); i++){
     nTTL = getTTLMsFromType(i);
-    nPayload = getPayloadBytesFromType(i);
-    printf("[Producer::printTypesConfig] Type %d - TTL %d - PayloadSize %d\n", i, nTTL, nPayload);
+    printf("[Producer::printTypesConfig] Type %d - TTL %d\n", i, nTTL);
   }
 }
 
@@ -215,7 +197,7 @@ static std::string getRandomByteString(std::size_t length)
 int main(int argc, char** argv)
 {
   std::string      strFilter;
-  std::vector<int> lstTTLs, lstPayloads, lstParameters;
+  std::vector<int> lstTTLs;
   unsigned int i;
   int j;
   bool bDefaultPayloadSet=false;
@@ -241,30 +223,15 @@ int main(int argc, char** argv)
       for (j = 2; j < argc; j++){
         if (strcmp(argv[j], "&") != 0){
           // Ignore char used to run producer in the background
-          lstParameters.push_back(atoi(argv[j]));
+          lstTTLs.push_back(atoi(argv[j]));
         }      
-      }
-    }
-
-    // Create TTL and Payload lists from the parameters
-    if (lstParameters.size() % 2 == 0){
-      // Even size, divide parameters into two lists: TTL and payload values
-      for (i=0; i < lstParameters.size()/2; i++){
-        lstTTLs.push_back(lstParameters[i]);
-        lstPayloads.push_back(lstParameters[i + lstParameters.size()/2]);
-      }
-    }
-    else{
-      // Odd size, use parameters as TTL values only
-      for (i = 0; i < lstParameters.size(); i++){
-        lstTTLs.push_back(lstParameters[i]);
       }
     }
   }
 
   try {
     ndn::examples::Producer producer;
-    producer.run(strFilter, lstTTLs, lstPayloads);
+    producer.run(strFilter, lstTTLs);
     fprintf(stderr, "[main] End");
     return 0;
   }
