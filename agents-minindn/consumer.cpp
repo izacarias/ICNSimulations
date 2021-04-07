@@ -21,7 +21,7 @@ namespace examples {
 class Consumer
 {
    public:
-      void run(std::string strInterest, std::string strNode, std::string strTimestamp, std::vector<int> lstPayloads);
+      void run(std::string strInterest, std::string strNode, std::string strTimestamp, int nPayload);
 
    private:
       void onData(const Interest&, const Data& data)       const;
@@ -29,7 +29,6 @@ class Consumer
       void onTimeout(const Interest& interest)             const;
       void logResult(float sTimeDiff, const char* pResult, std::string strTimestamp) const;
       void logResultWithSize(float sTimeDiff, const char* pResult, std::string strInterest, std::string strTimestamp, size_t nSize) const;
-      int  getPayloadBytesFromType(int nType);
       void consumePacket(std::string strInterest);
 
    private:
@@ -39,7 +38,6 @@ class Consumer
       std::string m_strLogPath;
       std::string m_strTimestamp;
       std::chrono::steady_clock::time_point m_dtBegin;
-      std::vector<int> m_lstPayloads;
 };
 
 // --------------------------------------------------------------------------------
@@ -47,21 +45,21 @@ class Consumer
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::run(std::string strInterest, std::string strNode, std::string strTimestamp, std::vector<int> lstPayloads)
+void Consumer::run(std::string strInterest, std::string strNode, std::string strTimestamp, int nPayload)
 {
    Name     interestName;
    Interest interest;
    std::string strPacketInterest;
-   int nID, nType, nPackets, nPayload, nPacketPayload, i;
+   int nPackets, nPacketPayload, i;
    std::vector<std::thread> lstThreads;
    std::thread threadBuffer;
    char strBuf[200];
+   bool bHasLeftover=false;
 
    ////////////////////////////////////////////////
    // Read and validate input parameters
    m_strHostName  = strNode;
    m_strTimestamp = strTimestamp;
-   m_lstPayloads  = lstPayloads;
 
    if (strInterest.length() > 0)
       m_strInterest = strInterest;
@@ -73,16 +71,15 @@ void Consumer::run(std::string strInterest, std::string strNode, std::string str
    else
       m_strLogPath = "/tmp/minindn/default_consumerLog.log";
 
-   fprintf(stdout, "[Consumer::run] Running consumer with Interest=%s; HostName=%s; Timestamp=%s; NumPayloads=%ld\n", m_strInterest.c_str(), m_strHostName.c_str(), m_strTimestamp.c_str(), m_lstPayloads.size());
+   fprintf(stdout, "[Consumer::run] Running consumer with Interest=%s; HostName=%s; Timestamp=%s\n", m_strInterest.c_str(), m_strHostName.c_str(), m_strTimestamp.c_str());
 
    ///////////////////////////////////////////////
    // Determine number of packets based on data type
-   nType = -1;
-   sscanf(basename((char*) m_strInterest.c_str()), "C2Data-%d-Type%d", &nID, &nType);
-   nPayload = getPayloadBytesFromType(nType);
    nPackets = nPayload / N_MAX_PACKET_BYTES;
-   if ((nPayload % N_MAX_PACKET_BYTES) > 0)
+   if ((nPayload % N_MAX_PACKET_BYTES) > 0){
+      bHasLeftover = true;
       nPackets++;
+   }
 
    fprintf(stdout, "[Consumer::run] About to instantiate %d threads for a total of %d bytes\n", nPackets, nPayload);
 
@@ -90,7 +87,7 @@ void Consumer::run(std::string strInterest, std::string strNode, std::string str
    // Launch a thread for each packet
    for (i = 0; i < nPackets; i++){
 
-      if (i+1 == nPackets){
+      if ((i+1 == nPackets) && (bHasLeftover)){
          // Last packet
          nPacketPayload = nPayload % N_MAX_PACKET_BYTES;
       }
@@ -148,21 +145,6 @@ void Consumer::consumePacket(std::string strInterest){
 
    // pocessEvents will block until the requested data is received or a timeout occurs
    face.processEvents();
-}
-
-// --------------------------------------------------------------------------------
-//  getPayloadBytesFromType
-//
-//
-// --------------------------------------------------------------------------------
-int Consumer::getPayloadBytesFromType(int nType)
-{
-  int nPayload = N_DEFAULT_PAYLOAD_BYTES;
-  if ((nType > 0) && ((uint) nType <= m_lstPayloads.size())){
-    // The starting value for nType is 1
-    nPayload = m_lstPayloads[nType-1];
-  }
-  return nPayload;
 }
 
 // --------------------------------------------------------------------------------
@@ -277,40 +259,35 @@ void Consumer::logResultWithSize(float sTimeDiff, const char* pResult, std::stri
 
 int main(int argc, char** argv){
    
-   int i;
+   int nPayload;
    std::string strInterest;
    std::string strNodeName;
    std::string strTimestamp;
-   std::vector<int> lstPayloads;
 
    // Assign default values
-   strInterest     = "";
-   strNodeName     = "";
-   strTimestamp    = "";
+   strInterest  = "";
+   strNodeName  = "";
+   strTimestamp = "0";
+   nPayload     = N_DEFAULT_PAYLOAD_BYTES;  
 
    // Command line parameters
+   // Usage: consumer <interest> <hostName> <payload> <timestamp>
    // Parameter [1] interest filter
    if (argc > 1)
       strInterest = argv[1];
    // Parameter [2] host name
    if (argc > 2)
       strNodeName = argv[2];
-   // Parameter [3] timestamp of start time
+   // Parameter [3] payload
    if (argc > 3)
-      strTimestamp = argv[3];
-   // Parameter [4...] list of payload values
-   if (argc > 4){
-      for (i = 4; i < argc; i++){
-        if (strcmp(argv[i], "&") != 0){
-          // Ignore char used to run the program in the background
-          lstPayloads.push_back(atoi(argv[i]));
-        }
-      }
-   }
+      nPayload = atoi(argv[3]);
+   // Parameter [4] timestamp of start time
+   if (argc > 4)
+      strTimestamp = argv[4];
 
    try {
       ndn::examples::Consumer consumer;
-      consumer.run(strInterest, strNodeName, strTimestamp, lstPayloads);
+      consumer.run(strInterest, strNodeName, strTimestamp, nPayload);
       return 0;
    }
    catch (const std::exception& e) {

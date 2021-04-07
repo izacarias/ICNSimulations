@@ -198,7 +198,6 @@ int main(int argc, char** argv)
 {
   std::string      strFilter;
   std::vector<int> lstTTLs;
-  unsigned int i;
   int j;
   bool bDefaultPayloadSet=false;
 
@@ -206,6 +205,8 @@ int main(int argc, char** argv)
 
   strFilter = "";
 
+  // Usage: producer <interest> <lstTTLs>
+  // Usage: producer <interest> <default_payload>
   // Parameter [1] interest filter
   if (argc > 1)
     strFilter = argv[1];
