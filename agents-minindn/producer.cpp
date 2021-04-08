@@ -43,6 +43,7 @@ class Producer
     void onInterest(const InterestFilter&, const Interest& interest);
     void onRegisterFailed(const Name& prefix, const std::string& reason);
     void printTypesConfig();
+    void log(char* strMessage);
   
     int getTTLMsFromType(int nType);
 
@@ -50,6 +51,7 @@ class Producer
     Face           m_face;
     KeyChain       m_keyChain;
     std::vector<int> m_lstTTLs;
+    std::string    m_strLogPath;
 };
 
 // --------------------------------------------------------------------------------
@@ -59,7 +61,18 @@ class Producer
 // --------------------------------------------------------------------------------
 void Producer::run(std::string strFilter, std::vector<int> lstTTLs)
 {
-  fprintf(stderr, "[Producer::run] Begin\n");
+  char strBuffer1[120], strBuffer2[120];
+
+  fprintf(stderr, "[Producer::run] Begin filter=%s\n", strFilter.c_str());
+
+  if (strFilter.length() > 0){
+    sscanf(strFilter.c_str(), "/%s", strBuffer1);
+    snprintf(strBuffer2, sizeof(strBuffer2), "/tmp/minindn/%s/producerLog.log", strBuffer1);
+    m_strLogPath = strBuffer2;
+    fprintf(stdout, "[Producer::run] log filname=%s\n", m_strLogPath.c_str());
+  }
+  else
+    m_strLogPath = "/tmp/minindn/default_producerLog.log";
 
   if (strFilter.length() == 0){
     // No specific filter set
@@ -88,6 +101,7 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   int nType, nID, nPayloadSize, nTTLMs;
   std::string strPacket;
   std::string strContent;
+  char strBuffer[100];
 
   strPacket    = interest.getName().toUri();
   nPayloadSize = 0;
@@ -95,6 +109,9 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   nID          = -1;
   sscanf(basename((char*) strPacket.c_str()), "C2Data-%d-Type%d-%db", &nID, &nType, &nPayloadSize);
   printf("[Producer::onInterest] Interest for packet=%s\n", strPacket.c_str());
+
+  snprintf(strBuffer, sizeof(strBuffer), "Got interest=%s", strPacket.c_str());
+  log(strBuffer);
 
   // Determine TTL and payload
   nTTLMs = getTTLMsFromType(nType);
@@ -135,8 +152,32 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   // Return Data packet to the requester
   std::cout << "[Producer::onInterest] << D: " << *data << std::endl;
   m_face.put(*data);
+
+  snprintf(strBuffer, sizeof(strBuffer), "Sent data for interest=%s", strPacket.c_str());
+  log(strBuffer);
   // free((void*) pPayload);
   std::cout << "[Producer::onInterest] End"  << std::endl;
+}
+
+// --------------------------------------------------------------------------------
+//  log
+//
+//
+// --------------------------------------------------------------------------------
+void Producer::log(char* strMessage)
+{
+   FILE* pFile;
+
+  // Write results to files
+  pFile = fopen(m_strLogPath.c_str(), "a");
+
+  if (pFile){
+      fprintf(pFile, "%s\n", strMessage);
+      fclose(pFile);
+  }
+  else{
+      std::cout << "[Producer::log] ERROR opening output file" << std::endl;
+  }
 }
 
 // --------------------------------------------------------------------------------

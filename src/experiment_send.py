@@ -38,13 +38,13 @@ c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
 c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 1.5*60
+c_sExperimentTimeSec = 5*60
 
 c_nCacheSizeDefault = 0
 
 c_nNLSRSleepSec   = 40
-c_strNLSRLogLevel = 'DEBUG'
-c_strNFDLogLevel  = 'DEBUG'
+c_strNLSRLogLevel = 'NONE'
+c_strNFDLogLevel  = 'NONE'
 
 g_bIsMockExperiment  = False
 g_bExperimentModeSet = False
@@ -55,7 +55,7 @@ g_dtLastProducerCheck     = None
 g_nProducerCheckPeriodSec = 10
 g_bShowMiniNDNCli         = True
 
-logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
+logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
@@ -139,8 +139,8 @@ class RandomTalks():
 
             # In some setups, producer hosts might be killed by the OS for an unknown reason
             # This makes sure producers are running correctly during the simulation
-            self.checkRunningProducers()
-            self.instantiateConsumer(pConsumer, pDataPackage.getInterest())
+            # self.checkRunningProducers()
+            self.instantiateConsumer(pConsumer, pDataPackage)
             nDataIndex += 1
 
          if (nDataIndex < len(self.lstDataQueue)):
@@ -197,38 +197,30 @@ class RandomTalks():
       """
       Issues MiniNDN commands to instantiate a producer
       """
-      ############################################################################
-      # The experiment uses the default advertisements estabilished by NLSR, these advertisements were found lowering
-      # NLSR log level to debug. Previously, advertise commands were issued in each producer, however this would cause
-      # a bunch of NACKs were the should not be.
-      # strCmdAdvertise = 'nlsrc advertise %s' % strFilter
-      # pHost.cmd(strCmdAdvertise)
-      # logging.debug('[RandomTalks.instantiateProducer] AdvertiseCmd: ' + strCmdAdvertise)
       global g_bIsMockExperiment
       if (pHost):
-         if (self.strTTLValues != 'None') and (self.strPayloadValues != 'None'):
-            strFilter      = RandomTalks.getFilterByHostname(str(pHost))
-            strCmdProducer = 'producer %s %s %s &' % (strFilter, self.strTTLValues, self.strPayloadValues)
+         if (self.strTTLValues != 'None'):
+            strFilter = RandomTalks.getFilterByHostname(str(pHost))
+            # Producer program usage: producer <interest> <lstTTLs>
+            strCmdProducer = 'producer %s %s &' % (strFilter, self.strTTLValues)
             if (not g_bIsMockExperiment):
-               # pHost.cmd(strCmdProducer)
                getPopen(pHost, strCmdProducer)
             logging.debug('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmdProducer)
          else:
-            logging.error('[RandomTalks.instantiateProducer] Uninitialized values strTTLValues=%s, strPayloadValues=%s' % (self.strTTLValues, self.strPayloadValues))
+            logging.error('[RandomTalks.instantiateProducer] Uninitialized values strTTLValues=%s' % self.strTTLValues)
       else:
          logging.critical('[RandomTalks.instantiateProducer] Producer is nil!')
       
-   def instantiateConsumer(self, pHost, strInterest):
+   def instantiateConsumer(self, pHost, pDataPackage):
       """
       Issues MiniNDN commands to set up a consumer for a data package
       """
       global g_bIsMockExperiment
       if (pHost):
-         # Usage of the consumer program: consumer <interest> <consumerName> <floatTimestamp>
+         # Consumer program usage: consumer <interest> <hostName> <payload> <timestamp>
          sTimestamp     = curDatetimeToFloat()
-         strCmdConsumer = 'consumer %s %s %f &' % (strInterest, str(pHost), sTimestamp)
+         strCmdConsumer = 'consumer %s %s %d %f &' % (pDataPackage.getInterest(), str(pHost), pDataPackage.nPayloadSize, sTimestamp)
          if (not g_bIsMockExperiment):
-            # pHost.cmd(strCmdConsumer)
             getPopen(pHost, strCmdConsumer)
          logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
       else:

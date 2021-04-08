@@ -226,7 +226,7 @@ void Consumer::logResult(float sTimeDiff, const char* pResult, std::string strIn
       pFile = fopen(m_strLogPath.c_str(), "a");
 
       if (pFile){
-         fprintf(pFile, "%s;%.4f;%s;%s\n", m_strInterest.c_str(), sTimeDiff, pResult, strTimestamp.c_str());
+         fprintf(pFile, "%s;%.4f;%s;%s\n", strInterest.c_str(), sTimeDiff, pResult, strTimestamp.c_str());
          fclose(pFile);
       }
       else{
