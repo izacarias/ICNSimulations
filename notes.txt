@@ -55,6 +55,12 @@ caches
 - Humano: 8GB -> 32GB (tipo carão de memória)
 - Veículo: 5TB -> 10TB
 
+1 cache = 8000 bytes = 7KB
+Drone   8GB -> 32GB 
+Humano  8GB -> 32GB
+Sensor  4GB -> 8GB
+Veículo 500 -> 10TB
+
 cabeçalho
 
 - Variando o cabeçalho e a taxa de perda nos enlaces, vale mais a pena procurar pelos valores do WIFI IMAX (ou algo parecido), que é o protocolo usado no militar
@@ -93,3 +99,19 @@ Reunião 03/12
 - Descobrir como funciona o MiniNDN com SDN, especialmente ao que se deve a switches, para atualizar a figura 7. A figura 7 apresenta aquelas gambiarras do nomes/faces/oftsoftswitch.
 - Gerar topologia aleatória e mudar aos poucos com alguns parâmetros mais realistas talvez.
 - Colocar taxa de perda nos enlaces
+
+10/04/2021
+
+Documentação do NFD: https://users.cs.fiu.edu/~afanasyev/assets/papers/tr-afanasyev2018nfd-dev-guide.pdf 
+
+[forwarding.l2_learning ] Same port for packet from 02:00:00:00:03:00 -> 02:00:00:00:00:00 on 00-00-00-00-00-02|4096.3.  Drop.
+
+
+11/04/2021
+
+Gráficos
+delay = end to end delay
+- delay X number of nodes
+- delay X percentage of cache available
+- data traffic (GB?) X number of nodes
+- delay X data flows

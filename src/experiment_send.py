@@ -37,10 +37,10 @@ c_strAppName         = 'C2Data'
 c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
-c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 1.5*60
-
-c_nCacheSizeDefault = 0
+c_sConsumerCooldownSec = 0.8
+c_nSleepThresholdMs    = 100
+c_sExperimentTimeSec   = 5*60
+c_nCacheSizeDefault    = 0
 
 c_nNLSRSleepSec   = 40
 c_strNLSRLogLevel = 'NONE'
@@ -73,6 +73,7 @@ class RandomTalks():
       self.strPayloadValues = 'None'
       self.lstDataQueue     = lstDataQueue
       self.nBytesConsumed   = 0
+      self.hshConsumers     = {}
 
    def setup(self):
       """
@@ -80,6 +81,10 @@ class RandomTalks():
       """
       logging.info('[RandomTalks.setup] Setting up new experiment')
       self.nBytesConsumed = 0
+      
+      self.hshConsumers = {}
+      for pHost in self.lstHosts:
+         self.hshConsumers[str(pHost)] = datetime(1,1,1,0,0)
 
       # Get TTLs from data manager
       self.strTTLValues     = self.pDataManager.getTTLValuesParam()
@@ -223,11 +228,17 @@ class RandomTalks():
       global g_bIsMockExperiment
       if (pHost):
          # Consumer program usage: consumer <interest> <hostName> <payload> <timestamp>
+         sSecSinceLast = (datetime.now() - self.hshConsumers[str(pHost)]).total_seconds()
+         if (sSecSinceLast < c_sConsumerCooldownSec):
+            logging.info('[RandomTalks.instantiateConsumer] Will wait seconds=%.2f' % (c_sConsumerCooldownSec - sSecSinceLast))
+            time.sleep(c_sConsumerCooldownSec - sSecSinceLast)
+
          sTimestamp     = curDatetimeToFloat()
          strCmdConsumer = 'consumer %s %s %d %f &' % (pDataPackage.getInterest(), str(pHost), pDataPackage.nPayloadSize, sTimestamp)
          if (not g_bIsMockExperiment):
             getPopen(pHost, strCmdConsumer)
-         
+
+         self.hshConsumers[str(pHost)] = datetime.now()
          self.nBytesConsumed += pDataPackage.nPayloadSize
          logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
       else:
