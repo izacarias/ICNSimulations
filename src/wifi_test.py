@@ -11,9 +11,6 @@ import subprocess
 from time import sleep
 # from icnexperiment.result_analysis import *
 
-# This experiment uses the singleap topology and is intended to be a basic
-# test case where we see if two nodes can send interests to each other.
-# from icnexperiment.data_generation import curDatetimeToFloat
 
 c_bShowCli = True
 
@@ -47,24 +44,21 @@ def runExperiment():
                 Nfdc.createFace(pHostOrig, pHostDest.IP())
                 Nfdc.registerRoute(pHostOrig, interestFilterForHost(pHostDest), pHostDest.IP())
 
-        # hshProducers[str(pHostOrig)] = getPopen(pHostOrig, 'producer %s' % interestFilterForHost(pHostOrig))
+        getPopen(pHostOrig, 'producer %s &' % interestFilterForHost(pHostOrig))
+
+
+    # cons = ndnwifi.net.stations['h0']
+    # getPopen(cons, 'consumer-with-timer h0')
             
     # Start the CLI
     if (c_bShowCli):
         MiniNDNWifiCLI(ndnwifi.net)
+        
     ndnwifi.net.stop()
     ndnwifi.cleanUp()
 
 def interestFilterForHost(pHost):
     return '/%s' % (str(pHost))
-
-def curDatetimeToFloat():
-    """
-    Returns datetime as a float value
-    """
-    dtEpoch = datetime.utcfromtimestamp(0)
-    dtNow   = datetime.now()
-    return (dtNow - dtEpoch).total_seconds()
 
 if __name__ == '__main__':
     try:

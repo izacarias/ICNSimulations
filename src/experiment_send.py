@@ -38,7 +38,7 @@ c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
 c_nSleepThresholdMs  = 100
-c_sExperimentTimeSec = 5*60
+c_sExperimentTimeSec = 1.5*60
 
 c_nCacheSizeDefault = 0
 
@@ -55,7 +55,7 @@ g_dtLastProducerCheck     = None
 g_nProducerCheckPeriodSec = 10
 g_bShowMiniNDNCli         = True
 
-logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
@@ -72,12 +72,14 @@ class RandomTalks():
       self.strTTLValues     = 'None'
       self.strPayloadValues = 'None'
       self.lstDataQueue     = lstDataQueue
+      self.nBytesConsumed   = 0
 
    def setup(self):
       """
       Setup experiment
       """
       logging.info('[RandomTalks.setup] Setting up new experiment')
+      self.nBytesConsumed = 0
 
       # Get TTLs from data manager
       self.strTTLValues     = self.pDataManager.getTTLValuesParam()
@@ -100,13 +102,13 @@ class RandomTalks():
 
    def run(self):
       """
-      Experiment routine
+      Experiment routine. Returns tuple (dtBegin, dtEnd).
       """
       logging.info('[RandomTalks.run] Begin, maxExperimentTimeSec=%f' % c_sExperimentTimeSec)
 
       # Internal parameters
-      dtInitialTime  = datetime.now()
-      dtCurTime      = None
+      dtBegin        = datetime.now()
+      dtNow          = None
       dtDelta        = timedelta()
       nDataIndex     = 0
       sElapsedTimeMs = 0
@@ -116,8 +118,8 @@ class RandomTalks():
       while (((sElapsedTimeMs/1000) < c_sExperimentTimeSec) and (nDataIndex < len(self.lstDataQueue))):
          # Send data until the end of the experiment time
          # Sweep queue and send data according to the elapsed time
-         dtCurTime      = datetime.now()
-         dtDelta        = dtCurTime - dtInitialTime
+         dtNow      = datetime.now()
+         dtDelta        = dtNow - dtBegin
          sElapsedTimeMs = dtDelta.microseconds/1000 + dtDelta.seconds*1000
          nIteration    += 1
          logging.debug('[RandomTalks.run] New iteration with sElapsedTimeMs=%s; dtDelta=%s' % (sElapsedTimeMs, str(dtDelta)))
@@ -126,10 +128,11 @@ class RandomTalks():
             # Send data
             pDataBuff = self.lstDataQueue[nDataIndex]
             
-            sTimeDiffMs = sElapsedTimeMs - pDataBuff[0]
- 	    sTimeDiffSum += sTimeDiffMs
-            sTimeDiffAvg = float(sTimeDiffSum)/(nDataIndex+1)
-	    if (sTimeDiffMs > 5):
+            sTimeDiffMs   = sElapsedTimeMs - pDataBuff[0]
+            sTimeDiffSum += sTimeDiffMs
+            sTimeDiffAvg  = float(sTimeDiffSum)/(nDataIndex+1)
+	    
+            if (sTimeDiffMs > 5):
                logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; elapsedSec=%s; timeDiffMs=%s, timeDiffAvg=%.2f' % (nDataIndex, len(self.lstDataQueue)-1, sElapsedTimeMs/1000.0, sTimeDiffMs, sTimeDiffAvg))
 
             # Instantiate consumer and producer host associated in the data package
@@ -139,6 +142,7 @@ class RandomTalks():
 
             # In some setups, producer hosts might be killed by the OS for an unknown reason
             # This makes sure producers are running correctly during the simulation
+            # As of 03/2021 this is not happening anymore. Possibly because of the call to getPopen(pHost, strCmdConsumer) instead of pHost.cmd (??)
             # self.checkRunningProducers()
             self.instantiateConsumer(pConsumer, pDataPackage)
             nDataIndex += 1
@@ -158,6 +162,7 @@ class RandomTalks():
 
       # Close log file
       logging.info('[RandomTalks.run] Experiment done in %s seconds log written to %s' % (sElapsedTimeMs/1000, c_strLogFile))
+      return (dtBegin, datetime.now())
  
    def checkRunningProducers(self):
       """
@@ -222,6 +227,8 @@ class RandomTalks():
          strCmdConsumer = 'consumer %s %s %d %f &' % (pDataPackage.getInterest(), str(pHost), pDataPackage.nPayloadSize, sTimestamp)
          if (not g_bIsMockExperiment):
             getPopen(pHost, strCmdConsumer)
+         
+         self.nBytesConsumed += pDataPackage.nPayloadSize
          logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
       else:
          logging.critical('[RandomTalks.instantiateConsumer] Host is nil! strInterest=%s' % strInterest)
@@ -350,10 +357,11 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=True):
    logging.info('[runExperiment] Cache set for vehicles=%d, size=%d' % (len(lstVehicleHosts), c_nVehicleCacheSize))
 
    # Advertise faces
+   logging.info('[runExperiment] Setting up faces for %d hosts' % len(lstHosts))
    for pHostOrig in lstHosts:
       for pHostDest in lstHosts:
          if (pHostDest != pHostOrig):
-            logging.debug('[runExperiment] Register, pHostOrig=%s; pHostDest=%s\n' % (str(pHostOrig), str(pHostDest)))
+            logging.debug('[runExperiment] Register, pHostOrig=%s; pHostDest=%s' % (str(pHostOrig), str(pHostDest)))
             Nfdc.createFace(pHostOrig, pHostDest.IP())
             Nfdc.registerRoute(pHostOrig, RandomTalks.getFilterByHostname(str(pHostDest)), pHostDest.IP())
 
@@ -373,13 +381,16 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=True):
    logging.info('[runExperiment] Begin experiment')
    Experiment = RandomTalks(lstHosts, lstDataQueue)
    try:
+      logging.info('[runExperiment] Running pingall ...')
+      ndn.net.pingAll()
+      logging.info('[runExperiment] Pingall done')
       Experiment.setup()
-      Experiment.run()
+      (dtBegin, dtEnd) = Experiment.run()
    except Exception as e:
       logging.error('[runExperiment] An exception was raised during the experiment: %s' % str(e))
       raise
 
-   logging.info('[runExperiment] End experiment')
+   logging.info('[runExperiment] End of experiment, TimeElapsed=%s; KBytesConsumed=%.2f' % (str(dtEnd-dtBegin), float(Experiment.nBytesConsumed)/1024))
 
    if (g_bShowMiniNDNCli):
       if (bWifi):

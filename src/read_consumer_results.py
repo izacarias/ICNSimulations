@@ -30,7 +30,7 @@ def main():
     logging.info('[main] Reading consumer logs from path=%s' % (strPath))
     hshNodes = {}
     if (os.path.isdir(strPath)):
-        hshNodes = readConsumerLogs(strPath)
+        (hshNodes, lstTransmissions) = readConsumerLogs(strPath)
     else:
         logging.critical('[main] Directory=%s does not exist!')
 
@@ -60,6 +60,21 @@ def main():
         for nType in range(1, 7):
             if (nType in hshTransTimes):
                 logging.info('[main] Transmission time for type=%d; average=%f ms' % (nType, hshTransTimes[nType]))
+
+        # Experiment duration and bytes sent
+        nTotalPayload = 0
+        dtTotalTime   = datetime(1, 1, 1, 0, 0)
+        dtBegin       = None
+        dtEnd         = None
+        for pTrans in lstTransmissions:
+            nTotalPayload += pTrans.nPayload
+            dtBegin = pTrans.dtDate if (dtBegin is None) or (pTrans.dtDate <= dtBegin) else dtBegin
+            dtEnd   = pTrans.dtDate if (dtEnd is None) or (pTrans.dtDate >= dtEnd) else dtEnd
+
+        logging.info('[main] len=%d; dtBegin=%s; dtEnd=%s' % (len(lstTransmissions), dtBegin.strftime('%Y/%m/%d %H:%M:%S'), dtBegin.strftime('%Y/%m/%d %H:%M:%S')))
+
+        logging.info('[main] Experiment duration=%s; KBytesConsumed=%.2f; avg KBytes/sec=%.2f' % (str(dtEnd-dtBegin), float(nTotalPayload)/1024, (float(nTotalPayload)/1024)/(dtEnd-dtBegin).total_seconds()))
+        
 
         # # Basic info for each type
         # hshTypes = basicInfoPerType(hshNodes)

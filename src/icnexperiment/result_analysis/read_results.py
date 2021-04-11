@@ -17,10 +17,12 @@ c_strConsumerLog = 'consumerLog.log'
 def readConsumerLogs(strPath):
     """
     Reads the consumer logs in each nodes' directory.
-    Returns a dictionary containing the transmission list for each hostname.
+    Returns a tuple containing the same Transmission objects organized in two distinct ways.
+    (hshNodes, lstTransmissions) where hshNodes is a dictionary containing lists of transmissins per consumer name.
     """
     # Save all directories as node names
     lstNodes = listdir(strPath)
+    lstTransmissions = list()
     hshNodes = {}
 
     # Visit nodes (directories) one by one
@@ -34,21 +36,22 @@ def readConsumerLogs(strPath):
                 if (pFile):
                     logging.debug('[readConsumerLogs] reading results for node=%s ------------------------------------------' % (strConsumer))
                     # Process each line for a transmission
-                    lstTransmissions  = []
+                    lstHostTransmissions  = []
                     for strLine in pFile:
                         newTrans = Transmission.fromString(strLine, strConsumer)
+                        lstHostTransmissions.append(newTrans)
                         lstTransmissions.append(newTrans)
                         logging.debug('[readConsumerLogs] Read new transmission=%s' % newTrans)
                     
-                    if (len(lstTransmissions) > 0):
-                        hshNodes[strConsumer] = lstTransmissions
+                    if (len(lstHostTransmissions) > 0):
+                        hshNodes[strConsumer] = lstHostTransmissions
                     pFile.close()
                 else:
                     logging.error('[readConsumerLogs] Error reading information for node=' + strConsumer)
             else:
                 logging.error('[readConsumerLogs] could not find log=%s for node=%s' % (c_strConsumerLog, strConsumer))
 
-    return hshNodes
+    return (hshNodes, lstTransmissions)
 
 def avgTransTime(hshNodes):
     """

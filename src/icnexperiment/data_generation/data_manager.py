@@ -26,13 +26,13 @@ class DataManager:
         ################################################
         # Control data
         self.lstDataTypes.append(C2DataType(nTTL=10*1000/nFactor,   nPeriodSec=60/nFactor, nType=1, nSize=1024, sRatioMaxReceivers=0.2))   # INTEREST 1
-        self.lstDataTypes.append(C2DataType(nTTL=1*60*1000/nFactor, nPeriodSec=60/nFactor, nType=2, nSize=1024, sRatioMaxReceivers=0.2))   # INTEREST 2
+        self.lstDataTypes.append(C2DataType(nTTL=1*60*1000/nFactor, nPeriodSec=60/nFactor, nType=2, nSize=2*1024, sRatioMaxReceivers=0.2))   # INTEREST 2
         ################################################
         # Operational data
-        self.lstDataTypes.append(C2DataType(nTTL=2*60*1000/nFactor,  nPeriodSec=2*60/nFactor,  nType=3, nSize=5*1024, sRatioMaxReceivers=0.4))   # INTEREST 3
-        self.lstDataTypes.append(C2DataType(nTTL=5*60*1000/nFactor,  nPeriodSec=5*60/nFactor,  nType=4, nSize=5*1024, sRatioMaxReceivers=0.4))   # INTEREST 4
-        self.lstDataTypes.append(C2DataType(nTTL=10*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=5, nSize=5*1024*1024, sRatioMaxReceivers=0.4))   # INTEREST 5
-        self.lstDataTypes.append(C2DataType(nTTL=20*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=6, nSize=10*1025*1024, sRatioMaxReceivers=0.4))   # INTEREST 6
+        self.lstDataTypes.append(C2DataType(nTTL=2*60*1000/nFactor,  nPeriodSec=2*60/nFactor,  nType=3, nSize=3*1024, sRatioMaxReceivers=0.4))   # INTEREST 3
+        self.lstDataTypes.append(C2DataType(nTTL=5*60*1000/nFactor,  nPeriodSec=5*60/nFactor,  nType=4, nSize=4*1024, sRatioMaxReceivers=0.4))   # INTEREST 4
+        self.lstDataTypes.append(C2DataType(nTTL=10*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=5, nSize=5*1024, sRatioMaxReceivers=0.4))   # INTEREST 5
+        self.lstDataTypes.append(C2DataType(nTTL=20*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=6, nSize=6*1024, sRatioMaxReceivers=0.4))   # INTEREST 6
 
     def avgPayloadSize(self):
         nAvg = 0

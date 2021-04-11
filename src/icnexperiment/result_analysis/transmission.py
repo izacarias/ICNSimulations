@@ -10,7 +10,7 @@ from icnexperiment.generics import floatToDatetime
 
 class Transmission:
 
-    def __init__(self, strConsumer, strInterest, delayUs, strStatus, timeSinceEpoch, nPayload=-1):
+    def __init__(self, strConsumer, strInterest, delayUs, strStatus, timeSinceEpoch, nPayload=0):
         self.strInterest = strInterest
         self.sDelayUs    = float(delayUs)
         self.dtDate      = floatToDatetime(float(timeSinceEpoch))
@@ -19,7 +19,7 @@ class Transmission:
         self.strProd     = ''
         self.nDataID     = -1
         self.nDataType   = -1
-        self.nPayload    = nPayload
+        self.nPayload    = int(nPayload)
         self.processInterestFilter()
 
         # if (not self.processInterestFilter()):
