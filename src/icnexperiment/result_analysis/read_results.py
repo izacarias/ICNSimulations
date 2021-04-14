@@ -62,7 +62,7 @@ def avgTransTime(hshNodes):
     nTotalTrans  = 0
     for strNode in hshNodes:
         for pTrans in hshNodes[strNode]:
-            if (pTrans.strStatus == 'DATA'):
+            if (pTrans.isData()):
                 nTotalTrans  += 1
                 sTotalTimeMs += pTrans.sDelayUs/1000.0
     
@@ -73,6 +73,24 @@ def avgTransTime(hshNodes):
         sAvgTime = 0
     logging.info('[avgTransTime] average=%s, transmissions=%d' % (sAvgTime, nTotalTrans))
     return sAvgTime
+
+def stdDeviationTransTime(lstTransmissions, sAvg=-1):
+
+    if (sAvg < 0):
+        # Calculate average
+        sDelaySum = 0.0
+        nSamples  = 0
+        for pTrans in lstTransmissions:
+            if (pTrans.isData()):
+                sDelaySum += pTrans.sDelayUs
+                nSamples  += 1
+        sAvg = 0.0
+        if (nSamples > 0):
+            sAvg = sDelaySum/nSamples
+    
+    # Calculate standard deviation
+
+
 
 def avgTransTimePerType(hshNodes):
     """

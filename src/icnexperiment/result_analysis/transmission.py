@@ -41,7 +41,10 @@ class Transmission:
             self.nDataID   = int(pMatch.group(2))
             self.nDataType = int(pMatch.group(3))
             return True
-        return False     
+        return False
+
+    def isData(self):
+        return (self.strStatus == 'DATA')
     
     @staticmethod
     def fromString(strLine, strConsumer):
@@ -56,12 +59,12 @@ class Transmission:
             lstContents.remove('')
             
         if (len(lstContents) >= 5):
-            newTrans = Transmission(strConsumer, lstContents[0], lstContents[1], lstContents[2], lstContents[3], lstContents[4])
+            newTrans = Transmission(strConsumer, strInterest=lstContents[0], delayUs=lstContents[1], strStatus=lstContents[2], timeSinceEpoch=lstContents[3], nPayload=lstContents[4])
         elif (len(lstContents) == 4):
-            newTrans = Transmission(strConsumer, lstContents[0], lstContents[1], lstContents[2], lstContents[3])
+            newTrans = Transmission(strConsumer, strInterest=lstContents[0], delayUs=lstContents[1], strStatus=lstContents[2], timeSinceEpoch=lstContents[3])
         elif (len(lstContents) == 3):
             # No timeSinceEpoch
-            newTrans = Transmission(strConsumer, lstContents[0], lstContents[1], lstContents[2], 0)
+            newTrans = Transmission(strConsumer, strInterest=lstContents[0], delayUs=lstContents[1], strStatus=lstContents[2], 0)
         else:
             raise Exception('[Transmission.fromString] Line with less than 3 fields line=%s' % strLine)
         return newTrans
