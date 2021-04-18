@@ -64,7 +64,7 @@ class Transmission:
             newTrans = Transmission(strConsumer, strInterest=lstContents[0], delayUs=lstContents[1], strStatus=lstContents[2], timeSinceEpoch=lstContents[3])
         elif (len(lstContents) == 3):
             # No timeSinceEpoch
-            newTrans = Transmission(strConsumer, strInterest=lstContents[0], delayUs=lstContents[1], strStatus=lstContents[2], 0)
+            newTrans = Transmission(strConsumer, strInterest=lstContents[0], delayUs=lstContents[1], strStatus=lstContents[2], timeSinceEpoch=0)
         else:
             raise Exception('[Transmission.fromString] Line with less than 3 fields line=%s' % strLine)
         return newTrans
