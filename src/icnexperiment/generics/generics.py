@@ -47,6 +47,10 @@ def readHostNamesFromTopoFile(sTopoPath):
                 bNodeSection = False
                 continue
 
+            if (strLine.strip() == '[switches]'):
+                bNodeSection = False
+                continue
+
             # Attempt to read hostnames which displays the following standard
             # b1: _ cache=0 radius=0.6 angle=3.64159265359
             if (bNodeSection):

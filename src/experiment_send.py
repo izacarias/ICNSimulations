@@ -37,9 +37,9 @@ c_strAppName         = 'C2Data'
 c_strLogFile         = c_strLogDir + 'experiment_send.log'
 c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
-c_sConsumerCooldownSec = 0.8
+c_sConsumerCooldownSec = 0.0
 c_nSleepThresholdMs    = 100
-c_sExperimentTimeSec   = 5*60
+c_sExperimentTimeSec   = 200
 c_nCacheSizeDefault    = 0
 
 c_nNLSRSleepSec   = 40
@@ -52,7 +52,7 @@ g_bSDNEnabled        = False
 g_strNetworkType     = ''
 
 g_dtLastProducerCheck     = None
-g_nProducerCheckPeriodSec = 10
+g_nProducerCheckPeriodSec = 5
 g_bShowMiniNDNCli         = True
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
@@ -138,7 +138,7 @@ class RandomTalks():
             sTimeDiffAvg  = float(sTimeDiffSum)/(nDataIndex+1)
 	    
             if (sTimeDiffMs > 5):
-               logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; elapsedSec=%s; timeDiffMs=%s, timeDiffAvg=%.2f' % (nDataIndex, len(self.lstDataQueue)-1, sElapsedTimeMs/1000.0, sTimeDiffMs, sTimeDiffAvg))
+               logging.info('[RandomTalks.run] About to send data nDataIndex=%d/%d; elapsedSec=%s; timeDiffMs=%s, timeDiffAvg=%.2f, MBytesConsumed=%.3f' % (nDataIndex, len(self.lstDataQueue)-1, sElapsedTimeMs/1000.0, sTimeDiffMs, sTimeDiffAvg, self.nBytesConsumed/(1024.0*1024.0)))
 
             # Instantiate consumer and producer host associated in the data package
             pDataPackage = pDataBuff[1]
@@ -148,7 +148,7 @@ class RandomTalks():
             # In some setups, producer hosts might be killed by the OS for an unknown reason
             # This makes sure producers are running correctly during the simulation
             # As of 03/2021 this is not happening anymore. Possibly because of the call to getPopen(pHost, strCmdConsumer) instead of pHost.cmd (??)
-            # self.checkRunningProducers()
+            self.checkRunningProducers()
             self.instantiateConsumer(pConsumer, pDataPackage)
             nDataIndex += 1
 
@@ -234,12 +234,16 @@ class RandomTalks():
             time.sleep(c_sConsumerCooldownSec - sSecSinceLast)
 
          sTimestamp     = curDatetimeToFloat()
-         strCmdConsumer = 'consumer %s %s %d %f &' % (pDataPackage.getInterest(), str(pHost), pDataPackage.nPayloadSize, sTimestamp)
-         if (not g_bIsMockExperiment):
-            getPopen(pHost, strCmdConsumer)
+         strCmdConsumer = 'consumer %s %s %d %f &' % (self.getFilterByHostname(pDataPackage.strOrig) + pDataPackage.getPackageName(), str(pHost), pDataPackage.nPayloadSize, sTimestamp)
 
-         self.hshConsumers[str(pHost)] = datetime.now()
-         self.nBytesConsumed += pDataPackage.nPayloadSize
+         try:
+            if (not g_bIsMockExperiment):
+               getPopen(pHost, strCmdConsumer)
+
+            self.hshConsumers[str(pHost)] = datetime.now()
+            self.nBytesConsumed += pDataPackage.nPayloadSize
+         except Exception as err:
+            logging.error('[RandomTalks.instantiateConsumer] Exception when starting consumer process for host %s: %s' % (str(pHost), str(err)))
          logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
       else:
          logging.critical('[RandomTalks.instantiateConsumer] Host is nil! strInterest=%s' % strInterest)
@@ -260,8 +264,8 @@ class RandomTalks():
       Creates interest filter base on the producer`s name
       """
       # return '/' + c_strAppName + '/' + strName + '/'
-      return '/%s' % (strName)
-      # return '/ndn/%s-site/%s/' % (strName, strName)
+      # return '/%s' % (strName)
+      return '/ndn/%s-site/%s/' % (strName, strName)
 
    @staticmethod
    def getHostnameFromFilter(strInterestFilter):
@@ -296,6 +300,19 @@ def runMock(strTopoPath, lstDataQueue):
    Experiment.setup()
    Experiment.run()
 
+def setStationIPs(pStation, strIP):
+   # pStation.setIP(strIP, intf='%s-wlan1' % str(pStation))
+   try:
+      pStation.setIP(strIP, intf='%s-eth0' % str(pStation))
+      pStation.setIP(strIP, intf='%s-eth1' % str(pStation))
+      pStation.setIP(strIP, intf='%s-eth2' % str(pStation))
+      pStation.setIP(strIP, intf='%s-eth3' % str(pStation))
+      pStation.setIP(strIP, intf='%s-eth4' % str(pStation))
+      pStation.setIP(strIP, intf='%s-eth5' % str(pStation))
+      pStation.setIP(strIP, intf='%s-eth6' % str(pStation))
+   except:
+      return
+
 # ---------------------------------------- runExperiment
 def runExperiment(strTopoPath, lstDataQueue, bWifi=True):
    """
@@ -303,13 +320,14 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=True):
    """
    global g_bShowMiniNDNCli, g_bSDNEnabled
    logging.info('[runExperiment] Running MiniNDN experiment')
-   Minindn.cleanUp()
-   Minindn.verifyDependencies()
 
    if (bWifi):
       MiniNDNClass = MinindnWifi
    else:
       MiniNDNClass = Minindn
+   
+   Minindn.cleanUp()
+   Minindn.verifyDependencies()
 
    ######################################################
    # Start MiniNDN and set controller, if any
@@ -317,27 +335,33 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=True):
       ndn = MiniNDNClass(topoFile=strTopoPath, controller=RemoteController)
    else:
       ndn = MiniNDNClass(topoFile=strTopoPath)
+   
    ndn.start()
 
    # Wifi topology uses stations instead of hosts, the idea is the same
    if (bWifi):
-      lstHosts = ndn.net.stations
+      lstHosts = ndn.net.stations + ndn.net.hosts
+
+      # for pStation in ndn.net.stations:
+      #    strIP = pStation.IP() + '/24'
+      #    setStationIPs(pStation, strIP)
+      #    logging.info('[runExperiment] station=%s, IP=%s' % (str(pStation), strIP))
+
+      if (ndn.net.aps is not None) and (len(ndn.net.aps) > 0):
+         # Connect all APs to the remote controller
+         # This should be done regardless of SDN, otherwise packets will not be routed
+         logging.info('[runExperiment] Setting up access points...')
+         nApId = 1
+         for pAp in ndn.net.aps:
+            strApId = '1000000000' + str(nApId).zfill(6)
+            subprocess.call(['ovs-vsctl', 'set-controller', str(pAp), 'tcp:127.0.0.1:6633'])
+            subprocess.call(['ovs-vsctl', 'set', 'bridge', str(pAp), 'other-config:datapath-id='+strApId])
+            nApId += 1
+
+            # TODO: Add priority based rules to APs if g_bSDNEnabled
+            # ovs-ofctl add-flow <ap_name> dl_type=0x0800
    else:
       lstHosts = ndn.net.hosts
-
-   if (ndn.net.aps is not None):
-      # Connect all APs to the remote controller
-      # This should be done regardless of SDN, otherwise packets will not be routed
-      logging.info('[runExperiment] Setting up access points...')
-      nApId = 1
-      for pAp in ndn.net.aps:
-         strApId = '1000000000' + str(nApId).zfill(6)
-         subprocess.call(['ovs-vsctl', 'set-controller', str(pAp), 'tcp:127.0.0.1:6633'])
-         subprocess.call(['ovs-vsctl', 'set', 'bridge', str(pAp), 'other-config:datapath-id='+strApId])
-         nApId += 1
-
-         # TODO: Add priority based rules to APs if g_bSDNEnabled
-         # ovs-ofctl add-flow <ap_name> dl_type=0x0800
 
    #######################################################
    # Initialize NFD and set cache size based on host type
@@ -393,7 +417,7 @@ def runExperiment(strTopoPath, lstDataQueue, bWifi=True):
    Experiment = RandomTalks(lstHosts, lstDataQueue)
    try:
       logging.info('[runExperiment] Running pingall ...')
-      ndn.net.pingAll()
+      # ndn.net.pingAll()
       logging.info('[runExperiment] Pingall done')
       Experiment.setup()
       (dtBegin, dtEnd) = Experiment.run()
@@ -416,10 +440,10 @@ def setICNCache():
    Sets cache for ICN hosts.
    """
    global c_nHumanCacheSize, c_nDroneCacheSize, c_nSensorCacheSize, c_nVehicleCacheSize
-   c_nHumanCacheSize   = c_nCacheSizeDefault
-   c_nDroneCacheSize   = c_nCacheSizeDefault
-   c_nSensorCacheSize  = c_nCacheSizeDefault
-   c_nVehicleCacheSize = c_nCacheSizeDefault
+   c_nHumanCacheSize   = 8000
+   c_nDroneCacheSize   = 6000
+   c_nSensorCacheSize  = 4000
+   c_nVehicleCacheSize = 80000
    logging.info('[setICNCache] Set, human=%d, drone=%d, sensor=%d, vehicle=%d' % (c_nHumanCacheSize, c_nDroneCacheSize, c_nSensorCacheSize, c_nVehicleCacheSize))
 
 # ---------------------------------------- setIPCache
@@ -526,7 +550,7 @@ def main():
       runMock(strTopologyPath, lstDataQueue)
    else:
       if (g_bMinindnLibsImported):
-         runExperiment(strTopologyPath, lstDataQueue)
+         runExperiment(strTopologyPath, lstDataQueue, bWifi=False)
       else:
          logging.error('[main] Experiment can not run because MiniNDN libraries could not be imported')
 

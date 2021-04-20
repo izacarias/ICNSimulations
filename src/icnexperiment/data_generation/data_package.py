@@ -33,8 +33,14 @@ class DataPackage:
         # strInterest = '/'+ c_strAppName + '/' + self.strOrig + '/C2Data-'
         # strInterest = strInterest + str(self.nID) + '-Type' + str(self.nType)
 
-        # strInterest  = '/ndn/%s-site/%s' % (self.strOrig, self.strOrig)
-        strInterest  = '/%s' % (self.strOrig)
+        strInterest  = '/ndn/%s-site/%s' % (self.strOrig, self.strOrig)
+        # strInterest  = '/%s' % (self.strOrig)
         strInterest += '/C2Data-%d-Type%d' % (self.nID, self.nType)
 
         return strInterest
+
+    def getPackageName(self):
+        strInterest = 'C2Data-%d-Type%d' % (self.nID, self.nType)
+
+        return strInterest
+
