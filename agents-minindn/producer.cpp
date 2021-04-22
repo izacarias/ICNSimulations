@@ -24,8 +24,9 @@
 
 #define STR_APPNAME             "C2Data"
 #define N_DEFAULT_TTL_MS        10000
+#define N_DEFAULT_PAYLOAD_BYTES 1000
 
-int g_nDefaultPayload = 100;
+int g_nDefaultPayload = 8000;
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
@@ -116,7 +117,7 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   // Determine TTL and payload
   nTTLMs = getTTLMsFromType(nType);
   if (nPayloadSize == 0)
-    nPayloadSize = g_nDefaultPayload;
+    nPayloadSize = N_DEFAULT_PAYLOAD_BYTES;
 
   printf("[Producer::onInterest] nType=%d; nID=%d; TTLms=%d; PayloadSize=%d\n", nType, nID, nTTLMs, nPayloadSize);  
   

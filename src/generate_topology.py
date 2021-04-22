@@ -15,12 +15,20 @@ from icnexperiment.dir_config import c_strLogDir
 # ---------------------------------------------------------------------- Constants
 c_strLogFile = c_strLogDir + 'generate_topology.log'
 c_nNodeLinks = 3
-c_nHumans    = 3
-c_nSensors   = 3
-c_nDrones    = 3
-c_nVehicles  = 3
-c_nMaxX      = 1000000
-c_nMaxY      = 1000000
+c_nSensors   = 18
+c_nDrones    = 22
+c_nHumans    = 16
+c_nVehicles  = 4
+c_nMaxX      = 10000
+c_nMaxY      = 10000
+
+"""
+        20 40 60 80 100 nodes
+Sensors  4 10 18 25  31
+UAVs     8 14 22 25  38
+Humans   6 12 16 25  25
+Vehicles 2  4  4  5   6
+"""
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -30,7 +38,7 @@ def printUsage():
 
 def main():
 
-    bWifi = True    # By default, always generate wifi topology
+    bWifi = False    # By default, always generate wifi topology
     # Read command line parameter
     if (len(sys.argv) == 1):
         printUsage()

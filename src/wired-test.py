@@ -11,6 +11,7 @@ from minindn.helpers.nfdc import Nfdc
 from minindn.helpers.ndnpingclient import NDNPingClient
 import subprocess
 from time import sleep
+from datetime import datetime
 # from icnexperiment.result_analysis import *
 
 c_bShowCli = True
@@ -20,12 +21,49 @@ c_strNLSRLogLevel = 'NONE'
 def runExperiment():
     setLogLevel('info')
 
+
+    dtBegin = datetime.now()
     info("Starting network")
-    ndn = Minindn(topoFile='/home/vagrant/icnsimulations/topologies/wired-topo8.conf')
-    
+    ndn = Minindn(topoFile='/home/vagrant/icnsimulations/topologies/wired-topo60.conf')
+    # ndn = Minindn(topoFile='/home/vagrant/icnsimulations/topologies/wired-switch.conf', controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6633))
+
     ndn.start()
-        
-    info("Starting NFD\n")
+
+    # Properly connect switches to the SDN controller
+    nApId = 1
+    for pSwitch in ndn.net.switches:
+        info('Setting up switch=%s\n' % str(pSwitch))
+        strApId = '1000000000' + str(nApId).zfill(6)
+        subprocess.call(['ovs-vsctl', 'set-controller', str(pSwitch), 'tcp:127.0.0.1:6633'])
+        subprocess.call(['ovs-vsctl', 'set', 'bridge', str(pSwitch), 'other-config:datapath-id='+strApId])
+        nApId += 1
+
+    # Properly set IPs for all interfaces
+    # nNextIP = 10
+    # lstIntfSet = []
+    # for pNode in ndn.net.switches + ndn.net.hosts:
+    #     lstIntf = pNode.intfList()
+    #     for pIntf in lstIntf:
+    #         strIntf = pIntf.name
+    #         if (strIntf != 'lo') and (strIntf not in lstIntfSet):
+    #             strIP = '10.0.0.' + str(nNextIP) + '/24'
+    #             info('Node=%s; Interface=%s; IP=%s\n' % (str(pNode), strIntf, strIP))
+    #             pNode.setIP(strIP, intf=pIntf)
+    #             nNextIP += 1
+    #             lstIntfSet.append(strIntf)
+
+    '''
+    Node=sw1; Interface=sw1-eth1; IP=10.0.0.10/24
+    Node=sw1; Interface=sw1-eth2; IP=10.0.0.11/24
+    Node=sw2; Interface=sw2-eth1; IP=10.0.0.12/24
+    Node=sw2; Interface=sw2-eth2; IP=10.0.0.13/24
+    Node=d0; Interface=d0-eth0; IP=10.0.0.14/24
+    Node=d0; Interface=d0-eth1; IP=10.0.0.15/24
+    Node=h0; Interface=h0-eth0; IP=10.0.0.16/24
+    Node=v0; Interface=v0-eth0; IP=10.0.0.17/24
+    '''
+
+    info("Starting NFD and NLSR\n")
     sleep(2)
 
     nfds  = AppManager(ndn, ndn.net.hosts, Nfd, logLevel=c_strNFDLogLevel)
@@ -34,29 +72,32 @@ def runExperiment():
     # Create faces linking every node and instantiate producers
     info("Creating faces and instantiating producers...\n")
     hshProducers = {}
+    nHostsSet = 1
     for pHostOrig in ndn.net.hosts:
-        info('Register, pHostOrig=%s\n' % (str(pHostOrig)))
+        info('Register, pHostOrig=%s %d/%d\n' % (str(pHostOrig), nHostsSet, len(ndn.net.hosts)))
         for pHostDest in ndn.net.hosts:
             if (pHostDest != pHostOrig):
                 Nfdc.createFace(pHostOrig, pHostDest.IP())
-                Nfdc.registerRoute(pHostOrig, interestFilterForHost(pHostDest), pHostDest.IP())
+                # Nfdc.registerRoute(pHostOrig, interestFilterForHost(pHostDest), pHostDest.IP())
 
         getPopen(pHostOrig, 'producer %s &' % interestFilterForHost(pHostOrig))
+        nHostsSet += 1
 
     nPeriodMs = 700
-    nMaxPackets = 100000
+    nMaxPackets = 1000
     for pHost in ndn.net.hosts:
         getPopen(pHost, 'consumer-with-timer %s %d %d' % (str(pHost), nPeriodMs, nMaxPackets))
-
-    # sleep(nPeriodMs/1000.0*nMaxPackets)
-    info('Sleeping...\n')
+    
     # sleep(nPeriodMs/1000.0 * nMaxPackets)
-    # sleep(20)
+    
 
     # runLegacyConsumers(nPeriodMs, nMaxPackets, ndn.net.hosts)
 
     # cons = ndnwifi.net.stations['h0']
     # getPopen(cons, 'consumer-with-timer h0')
+
+    dtDelta = datetime.now() - dtBegin
+    info('Done setting up, took %.2f seconds\n' % dtDelta.total_seconds())
             
     # Start the CLI
     if (c_bShowCli):

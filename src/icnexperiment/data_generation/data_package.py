@@ -41,6 +41,8 @@ class DataPackage:
 
     def getPackageName(self):
         strInterest = 'C2Data-%d-Type%d' % (self.nID, self.nType)
-
         return strInterest
+
+    def toTextLine(self):
+        return 'Type=%d;Id=%d;Payload=%d;Prod=%s;Cons=%s' % (self.nType, self.nID, self.nPayloadSize, self.strOrig, self.strDest)
 

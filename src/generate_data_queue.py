@@ -46,10 +46,11 @@ def main():
         logging.debug('[main] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
 
     # Store the resulting data queue using pickle
-    bStatus = DataManager.saveDataQueueToFile(lstDataQueue, strTopologyPath)
+    # bStatus = DataManager.saveDataQueueToFile(lstDataQueue, strTopologyPath)
+    DataManager.saveDataToTextFile(lstDataQueue, strTopologyPath)
 
-    if (not bStatus):
-        logging.error('[main] Could not save data queue for topo file=' + strTopologyPath)
+    # if (not bStatus):
+    #     logging.error('[main] Could not save data queue for topo file=' + strTopologyPath)
 
     logging.info('[main] Done!')
 

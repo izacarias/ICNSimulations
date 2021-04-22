@@ -142,7 +142,7 @@ class DataManager:
         """
         Stores a data queue using pickle
         """
-        strPath = DataManager.queueFileNameForFromTopo(strTopoFilePath)
+        strPath = DataManager.pickleFileNameForFromTopo(strTopoFilePath)
         bResult = False
         with open(strPath, 'wb') as pFile:
             pickle.dump(lstQueue, pFile)
@@ -155,7 +155,7 @@ class DataManager:
         """
         Loads a data queue using pickle
         """
-        strPath  = DataManager.queueFileNameForFromTopo(strTopoFilePath)
+        strPath  = DataManager.pickleFileNameForFromTopo(strTopoFilePath)
         lstQueue = None
         with open(strPath, 'rb') as pFile:
             logging.info('[DataManager.loadDataQueueFromFile] Reading data queue from path=%s' % strPath)
@@ -163,7 +163,23 @@ class DataManager:
         return lstQueue
 
     @staticmethod
-    def queueFileNameForFromTopo(strTopoFilePath):
+    def saveDataToTextFile(lstData, strTopoFilePath):
+        """
+        Saves the data queue into a text file
+        """
+        strPath  = DataManager.textFileNameForFromTopo(strTopoFilePath)
+        pFile = open(strPath, 'w')
+        if (not pFile):
+            logging.error('[DataManager.saveDataToTextFile] Error opening output file=%s' % strPath)
+            return False
+        
+        for (nTime, pPackage) in lstData:
+            strLine = '%d;%s\n' % (nTime, pPackage.toTextLine())
+            pFile.write(strLine)
+        pFile.close()        
+
+    @staticmethod
+    def pickleFileNameForFromTopo(strTopoFilePath):
         """
         Returns the designated pickle file path
         """
@@ -176,4 +192,20 @@ class DataManager:
             strDirName += '/'
         
         strPath = strDirName + 'queue_' + strTopoName + '.pkl'
+        return strPath
+
+    @staticmethod
+    def textFileNameForFromTopo(strTopoFilePath):
+        """
+        Returns the designated text file path
+        """
+        strTopoName = basename(strTopoFilePath)
+        if (strTopoName.endswith('.conf')):
+            strTopoName = strTopoName[:-5]
+
+        strDirName = dirname(strTopoFilePath)
+        if (strDirName != '') and (strDirName[-1] != '/'):
+            strDirName += '/'
+        
+        strPath = strDirName + 'queue_' + strTopoName + '.txt'
         return strPath

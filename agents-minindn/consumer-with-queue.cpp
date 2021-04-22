@@ -1,9 +1,6 @@
 /*
-*    Based on Vanilla consumer for MiniNDN
 *
-*    André Dexheimer Carneiro 02/11/2020
-*   
-*    Usage: consumer <interest> <hostName> <payload> <timestamp>
+*    André Dexheimer Carneiro 21/14/2021
 *
 *    The consumer will send as many interests as needed to get the specified payload, considering that the maximum 
 *    payload per NDN packet is 8800 bytes.
@@ -15,9 +12,19 @@
 #include <ctime>
 #include <libgen.h>
 #include <thread>
+#include <stdio.h>
 
 #define N_DEFAULT_PAYLOAD_BYTES 8000
 #define N_MAX_PACKET_BYTES      8000
+
+typedef struct {
+    int nTimeMs;
+    int nType;
+    int nId;
+    int nPayload;
+    char strProd[10];
+    char strCons[10];
+} C2_DATA;
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
@@ -27,7 +34,7 @@ namespace examples {
 class Consumer
 {
    public:
-      void run(std::string strInterest, std::string strNode, std::string strTimestamp, int nPayload);
+      void run(std::string strNode, std::string strTimestamp, std::string strQueueFileName);
 
    private:
       void onData(const Interest&, const Data& data)       const;
@@ -36,6 +43,7 @@ class Consumer
       void logResult(float sTimeDiff, const char* pResult, std::string strInterest, std::string strTimestamp) const;
       void logResultWithSize(float sTimeDiff, const char* pResult, std::string strInterest, std::string strTimestamp, size_t nSize) const;
       void consumePacket(std::string strInterest);
+      std::vector<C2_DATA> readDataQueue(std::string strHostName, std::string strFilePath);
 
    private:
       Face m_face;
@@ -51,79 +59,27 @@ class Consumer
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::run(std::string strInterest, std::string strNode, std::string strTimestamp, int nPayload)
+void Consumer::run(std::string strNode, std::string strTimestamp, std::string strQueueFileName)
 {
-   Name     interestName;
-   Interest interest;
-   std::string strPacketInterest;
-   int nPackets, nPacketPayload, i;
-   std::vector<std::thread> lstThreads;
-   std::thread threadBuffer;
-   char strBuf[200];
-   bool bHasLeftover=false;
+   uint i;
+   std::vector<C2_DATA> lstData;
+   C2_DATA dataBuff;
 
    ////////////////////////////////////////////////
    // Read and validate input parameters
    m_strHostName  = strNode;
    m_strTimestamp = strTimestamp;
-
-   if (strInterest.length() > 0)
-      m_strInterest = strInterest;
-   else
-      m_strInterest = "/example/testApp/randomDataAndre";
-
-   if (m_strHostName.length() > 0)
-      m_strLogPath = "/tmp/minindn/" + m_strHostName + "/consumerLog.log";
-   else
-      m_strLogPath = "/tmp/minindn/default_consumerLog.log";
-
-   fprintf(stdout, "[Consumer::run] Running consumer with Interest=%s; HostName=%s; Timestamp=%s\n", m_strInterest.c_str(), m_strHostName.c_str(), m_strTimestamp.c_str());
-
-   ///////////////////////////////////////////////
-   // Determine number of packets based on data type
-   nPackets = nPayload / N_MAX_PACKET_BYTES;
-   if ((nPayload % N_MAX_PACKET_BYTES) > 0){
-      bHasLeftover = true;
-      nPackets++;
+   
+   fprintf(stdout, "[Consumer::run] Running consumer with HostName=%s; QueueFile=%s\n", m_strHostName.c_str(), strQueueFileName.c_str());
+   
+   lstData = readDataQueue(strNode, strQueueFileName);
+   for (i = 0; i < lstData.size(); i++){
+      dataBuff = lstData[i];
+      fprintf(stdout, "[Consumer::run] %d, Type=%d, ID=%d, Payload=%d, Prod=%s, Cons=%s\n", dataBuff.nTimeMs, dataBuff.nType, dataBuff.nId, dataBuff.nPayload, dataBuff.strProd, dataBuff.strCons);
    }
 
-   fprintf(stdout, "[Consumer::run] About to instantiate %d threads for a total of %d bytes\n", nPackets, nPayload);
-
-   ///////////////////////////////////////////////
-   // Launch a thread for each packet
-   for (i = 0; i < nPackets; i++){
-
-      if ((i+1 == nPackets) && (bHasLeftover)){
-         // Last packet
-         nPacketPayload = nPayload % N_MAX_PACKET_BYTES;
-      }
-      else{
-         // Any other packet
-         nPacketPayload = N_MAX_PACKET_BYTES;
-      }
-
-      /////////////////////////////////////////////////
-      // Get start time before expressInterest, end time will be captured by onData/onNack/onTimeout callback
-      m_dtBegin = std::chrono::steady_clock::now();
-         
-      snprintf(strBuf, sizeof(strBuf), "%s-%db-%dof%d", m_strInterest.c_str(), nPacketPayload, i+1, nPackets);
-      strPacketInterest = strBuf;
-      fprintf(stdout, "[Consumer::run] Starting thread %d/%d for interest=%s\n", i+1, nPackets, strPacketInterest.c_str());
-      lstThreads.push_back(std::thread(&Consumer::consumePacket, this, strPacketInterest));
-   }
-
-   fprintf(stdout, "[Consumer::run] Waiting for %d threads on interest=%s\n", nPackets, m_strInterest.c_str());
-   for (i = 0; i < (int) lstThreads.size(); i++){
-      lstThreads[i].join();
-   }
-
-   // m_face.expressInterest(interest, bind(&Consumer::onData, this,   _1, _2),
-   //    bind(&Consumer::onNack, this, _1, _2), bind(&Consumer::onTimeout, this, _1));
-
-   // // pocessEvents will block until the requested data is received or a timeout occurs
-   // m_face.processEvents();
-
-   fprintf(stdout, "[Consumer::run] Done\n");
+   fprintf(stdout, "[Consumer::run] Read a total of %d data packages\n", lstData.size());
+   return;
 }
 
 // --------------------------------------------------------------------------------
@@ -213,6 +169,44 @@ void Consumer::onTimeout(const Interest& interest) const
 }
 
 // --------------------------------------------------------------------------------
+//   readDataQueue
+//
+//
+// --------------------------------------------------------------------------------
+std::vector<C2_DATA> Consumer::readDataQueue(std::string strHostName, std::string strFilePath)
+{
+    FILE* pFile;
+    char  pLineBuff[1000];
+    std::vector<C2_DATA> lstData;
+    C2_DATA dataBuff;
+    int nLine, nRead;
+
+    pFile = fopen(strFilePath.c_str(), "r");
+    if (pFile != NULL) {
+        nLine = 0;
+        nRead = 0;
+        // while (fgets(pLineBuff, sizeof(pLineBuff), pFile) != NULL){
+        while (nRead != -1){
+            // Format '%d;Type=%d;Id=%d;Payload=%d;Prod=%s;Cons=%s'
+            // %s reads space delimited strings, so it had to be replaced with %[^;]
+            // fprintf(stdout, "Read line=%s", pLineBuff);
+            nLine++;
+            nRead = fscanf(pFile, "%d;Type=%d;Id=%d;Payload=%d;Prod=%[^;];Cons=%s", &dataBuff.nTimeMs, &dataBuff.nType, &dataBuff.nId, &dataBuff.nPayload, dataBuff.strProd, dataBuff.strCons);
+            if ((nRead == 6) && (strcmp(strHostName.c_str(), dataBuff.strCons) == 0)){
+                // Success, add to queue
+                lstData.push_back(dataBuff);
+            }
+        }
+        fprintf(stdout, "[Consumer::readDataQueue] Done reading file, read %d lines\n", nLine);
+        fclose(pFile);
+    }
+    else{
+        fprintf(stdout, "[Consumer::readDataQueue] Could not open file=%s for editing\n", strFilePath.c_str());
+    }
+    return lstData;
+}
+
+// --------------------------------------------------------------------------------
 //   logResult
 //
 //
@@ -264,36 +258,31 @@ void Consumer::logResultWithSize(float sTimeDiff, const char* pResult, std::stri
 } // namespace ndn
 
 int main(int argc, char** argv){
-   
-   int nPayload;
-   std::string strInterest;
+
    std::string strNodeName;
    std::string strTimestamp;
+   std::string strFileName;
 
-   // Assign default values
-   strInterest  = "";
    strNodeName  = "";
-   strTimestamp = "0";
-   nPayload     = N_DEFAULT_PAYLOAD_BYTES;  
+   strTimestamp = "";
+   strFileName  = "";
 
-   // Command line parameters
-   // Usage: consumer <interest> <hostName> <payload> <timestamp>
-   // Parameter [1] interest filter
-   if (argc > 1)
-      strInterest = argv[1];
-   // Parameter [2] host name
-   if (argc > 2)
-      strNodeName = argv[2];
-   // Parameter [3] payload
+   if (argc > 2){
+      strNodeName = argv[1];
+      strFileName = argv[2];
+   }
+   else{
+      fprintf(stdout, "[main] Usage: consumer-with-queue <hostname> <queueFile> <?timestamp>\n");
+      return -1;
+   }
+
+   // Optional argument, timestamp
    if (argc > 3)
-      nPayload = atoi(argv[3]);
-   // Parameter [4] timestamp of start time
-   if (argc > 4)
-      strTimestamp = argv[4];
+      strTimestamp = argv[3];
 
    try {
       ndn::examples::Consumer consumer;
-      consumer.run(strInterest, strNodeName, strTimestamp, nPayload);
+      consumer.run(strNodeName, strTimestamp, strFileName);
       return 0;
    }
    catch (const std::exception& e) {

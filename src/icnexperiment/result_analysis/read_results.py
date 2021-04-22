@@ -12,7 +12,7 @@ from os import listdir
 from .transmission import Transmission
 
 # Constants ----------------------------------------------------
-c_strConsumerLog = 'consumerLog.log'
+c_strConsumerLog = 'consumer.log'
 
 def readConsumerLogs(strPath):
     """
