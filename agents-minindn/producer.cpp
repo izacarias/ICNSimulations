@@ -44,7 +44,7 @@ class Producer
     void onInterest(const InterestFilter&, const Interest& interest);
     void onRegisterFailed(const Name& prefix, const std::string& reason);
     void printTypesConfig();
-    void log(char* strMessage);
+    void log(const char* strMessage);
   
     int getTTLMsFromType(int nType);
 
@@ -64,13 +64,16 @@ void Producer::run(std::string strFilter, std::vector<int> lstTTLs)
 {
   char strBuffer1[120], strBuffer2[120];
 
+  snprintf(strBuffer1, sizeof(strBuffer1), "[Producer::run] Begin with filter=%s\n", strFilter.c_str());
+  log(strBuffer1);
   fprintf(stderr, "[Producer::run] Begin filter=%s\n", strFilter.c_str());
 
   if (strFilter.length() > 0){
-    sscanf(strFilter.c_str(), "/%s", strBuffer1);
-    snprintf(strBuffer2, sizeof(strBuffer2), "/tmp/minindn/%s/producerLog.log", strBuffer1);
+    sscanf(strFilter.c_str(), "/ndn/%[^-]-site", strBuffer1);
+
+    snprintf(strBuffer2, sizeof(strBuffer2), "/tmp/minindn/%s/producer.log", strBuffer1);
     m_strLogPath = strBuffer2;
-    fprintf(stdout, "[Producer::run] log filname=%s\n", m_strLogPath.c_str());
+    fprintf(stdout, "[Producer::run] log filname=%s; buffer=%s\n", m_strLogPath.c_str(), strBuffer1);
   }
   else
     m_strLogPath = "/tmp/minindn/default_producerLog.log";
@@ -90,6 +93,7 @@ void Producer::run(std::string strFilter, std::vector<int> lstTTLs)
   m_face.setInterestFilter(strFilter, bind(&Producer::onInterest, this, _1, _2), nullptr, bind(&Producer::onRegisterFailed, this, _1, _2));
   m_face.processEvents();
   fprintf(stderr, "[Producer::run] End\n");
+  log("[Producer::run] End");
 }
 
 // --------------------------------------------------------------------------------
@@ -103,6 +107,7 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   std::string strPacket;
   std::string strContent;
   char strBuffer[100];
+  Block blockPayload;
 
   strPacket    = interest.getName().toUri();
   nPayloadSize = 0;
@@ -126,11 +131,17 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   // pPayload = (char*) malloc(nPayloadSize);
   // data->setContent(reinterpret_cast<const uint8_t*>(pPayload), nPayloadSize);
 
+  // Create payload
+  auto b = make_shared<Buffer>();
+  b->assign(nPayloadSize, 'a');
+  blockPayload = Block(tlv::Content, std::move(b));
+
   // Create packet for interest
   auto data  = make_shared<Data>(interest.getName());
-  strContent = getRandomByteString(nPayloadSize);
-  data->setContent(reinterpret_cast<const uint8_t*>(strContent.data()), strContent.length());
+  // strContent = getRandomByteString(nPayloadSize);
+  // data->setContent(reinterpret_cast<const uint8_t*>(strContent.data()), strContent.length());
   data->setFreshnessPeriod(boost::chrono::milliseconds(nTTLMs));
+  data->setContent(blockPayload);
   m_keyChain.sign(*data);
 
   /////////////////////////////////////////////////////////////////////////////
@@ -154,6 +165,7 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
   std::cout << "[Producer::onInterest] << D: " << *data << std::endl;
   m_face.put(*data);
 
+  // Log for debug purposes
   snprintf(strBuffer, sizeof(strBuffer), "Sent data for interest=%s", strPacket.c_str());
   log(strBuffer);
   // free((void*) pPayload);
@@ -165,7 +177,7 @@ void Producer::onInterest(const InterestFilter&, const Interest& interest)
 //
 //
 // --------------------------------------------------------------------------------
-void Producer::log(char* strMessage)
+void Producer::log(const char* strMessage)
 {
    FILE* pFile;
 

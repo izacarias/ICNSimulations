@@ -7,6 +7,7 @@ PARENT_PATH=$(dirname "${BASH_SOURCE[0]}")
 cp $PARENT_PATH/producer.cpp $MININDN_DIR/ndn-src/ndn-cxx/examples/
 cp $PARENT_PATH/consumer.cpp $MININDN_DIR/ndn-src/ndn-cxx/examples/
 cp $PARENT_PATH/consumer-with-timer.cpp $MININDN_DIR/ndn-src/ndn-cxx/examples/
+cp $PARENT_PATH/consumer-with-queue.cpp $MININDN_DIR/ndn-src/ndn-cxx/examples/
 
 # Gambi
 cd $PARENT_PATH; cd ..; ./build.sh
