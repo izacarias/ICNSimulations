@@ -15,8 +15,8 @@ from datetime import datetime
 # from icnexperiment.result_analysis import *
 
 c_bShowCli = True
-c_strNFDLogLevel = 'NONE'
-c_strNLSRLogLevel = 'NONE'
+c_strNFDLogLevel  = 'DEBUG'
+c_strNLSRLogLevel = 'DEBUG'
 
 def runExperiment():
     setLogLevel('info')
@@ -24,19 +24,17 @@ def runExperiment():
 
     dtBegin = datetime.now()
     info("Starting network")
-    ndn = Minindn(topoFile='/home/vagrant/icnsimulations/topologies/wired-topo60.conf')
+    ndn = Minindn(topoFile='/home/vagrant/icnsimulations/topologies/wired-topo4.conf')
     # ndn = Minindn(topoFile='/home/vagrant/icnsimulations/topologies/wired-switch.conf', controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6633))
 
     ndn.start()
 
     # Properly connect switches to the SDN controller
-    nApId = 1
-    for pSwitch in ndn.net.switches:
-        info('Setting up switch=%s\n' % str(pSwitch))
-        strApId = '1000000000' + str(nApId).zfill(6)
-        subprocess.call(['ovs-vsctl', 'set-controller', str(pSwitch), 'tcp:127.0.0.1:6633'])
-        subprocess.call(['ovs-vsctl', 'set', 'bridge', str(pSwitch), 'other-config:datapath-id='+strApId])
-        nApId += 1
+    # nApId = 1
+    # for pSwitch in ndn.net.switches:
+    #     info('Setting up switch=%s\n3 vsctl', 'set-controller', str(pSwitch), 'tcp:127.0.0.1:6633'])
+    #     subprocess.call(['ovs-vsctl', 'set', 'bridge', str(pSwitch), 'other-config:datapath-id='+strApId])
+    #     nApId += 1
 
     # Properly set IPs for all interfaces
     # nNextIP = 10
@@ -78,24 +76,24 @@ def runExperiment():
         for pHostDest in ndn.net.hosts:
             if (pHostDest != pHostOrig):
                 Nfdc.createFace(pHostOrig, pHostDest.IP())
-                # Nfdc.registerRoute(pHostOrig, interestFilterForHost(pHostDest), pHostDest.IP())
+                Nfdc.registerRoute(pHostOrig, interestFilterForHost(pHostDest), pHostDest.IP())
 
         getPopen(pHostOrig, 'producer %s &' % interestFilterForHost(pHostOrig))
         nHostsSet += 1
 
-    nPeriodMs = 700
-    nMaxPackets = 1000
+    # nPeriodMs = 700
+    # nMaxPackets = 1000
+    # for pHost in ndn.net.hosts:
+    #     getPopen(pHost, 'consumer-with-timer %s %d %d' % (str(pHost), nPeriodMs, nMaxPackets  
+    
     for pHost in ndn.net.hosts:
-        getPopen(pHost, 'consumer-with-timer %s %d %d' % (str(pHost), nPeriodMs, nMaxPackets))
+        strCmd1 = 'export HOME=/tmp/minindn/%s; ' % str(pHost)
+        strCmd2 = 'consumer-with-queue %s /home/vagrant/icnsimulations/topologies/queue_wired-topo4.txt &' % (str(pHost))
+        strCmd  = strCmd1 + strCmd2
+        info('cmd: %s\n' % strCmd)
+        # pHost.cmd(strCmd)
+        getPopen(pHost, 'consumer-with-queue %s /home/vagrant/icnsimulations/topologies/queue_wired-topo4.txt &' % (str(pHost)))
     
-    # sleep(nPeriodMs/1000.0 * nMaxPackets)
-    
-
-    # runLegacyConsumers(nPeriodMs, nMaxPackets, ndn.net.hosts)
-
-    # cons = ndnwifi.net.stations['h0']
-    # getPopen(cons, 'consumer-with-timer h0')
-
     dtDelta = datetime.now() - dtBegin
     info('Done setting up, took %.2f seconds\n' % dtDelta.total_seconds())
             
@@ -105,23 +103,6 @@ def runExperiment():
         
     ndn.net.stop()
     ndn.cleanUp()
-
-def runLegacyConsumers(nPeriodMs, nMaxPackets, lstHosts):
-
-    dtBegin = datetime.now()
-    dtLast = None
-    nPackets = 0
-    nPacketCount = 0
-    while (nPackets < nMaxPackets):
-        dtStart = datetime.now()
-        if ((dtStart - dtLast).total_seconds()*1000.0 > nPeriodMs):
-            # Send packets
-            dtLast = datetime.now()
-            for pHost in lstHosts:
-                strProd = getRandomHostName(str(pHost), ndn.net.hosts)
-                strInterest = interestFilterForHost(strProd) + '/' + str(nPackets)
-                getPopen(pHost, 'consumer %s %d' % (strInterest, str(pHost)))    
-                nPackets += 1
 
 def getRandomHostName(strHost, lstHosts):
     nIndex = -1

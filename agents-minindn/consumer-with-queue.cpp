@@ -14,6 +14,7 @@
 #include <ctime>
 #include <libgen.h>
 #include <stdio.h>
+#include <sys/timeb.h>
 
 #define N_MAX_PACKET_BYTES      8000
 
@@ -46,6 +47,7 @@ class Consumer
       void onTimeout(const Interest& interest, const std::chrono::steady_clock::time_point& dtBegin)           const;
 
       void logResult(float sTimeDiff, const char* pResult, std::string strInterest, std::string strTimestamp, size_t nSize) const;
+      void log(const char* strMessage);
 
    private:
       // Explicitly create io_service object, which will be shared between Face and Scheduler
@@ -74,7 +76,11 @@ void Consumer::run(std::string strNode, std::string strTimestamp, std::string st
 {
    uint i;
    std::vector<C2_DATA> lstData;
+   std::string strLog;
    C2_DATA dataBuff;
+   char strBuff[200];
+   struct timeb start, end;
+   int nDiff;
 
    ////////////////////////////////////////////////
    // Read and validate input parameters
@@ -87,20 +93,41 @@ void Consumer::run(std::string strNode, std::string strTimestamp, std::string st
       m_strLogPath = "/tmp/minindn/consumer.log";
    
    fprintf(stdout, "[Consumer::run] Running consumer with HostName=%s; QueueFile=%s\n", m_strHostName.c_str(), strQueueFileName.c_str());
+   strLog = "[Consumer::run] Runing consumer " + m_strHostName + "; file=" + strQueueFileName + "; log=" + m_strLogPath;
+   log(strLog.c_str());
 
    lstData = readDataQueue(strNode, strQueueFileName);
    fprintf(stdout, "[Consumer::run] Read a total of %d data packages from file=%s\n", (int) lstData.size(), strQueueFileName.c_str());
+   snprintf(strBuff, sizeof(strBuff), "[Consumer::run] Read a total of %d data packages from file=%s", (int) lstData.size(), strQueueFileName.c_str());
+   log(strBuff);
 
    ///////////////////////////////////////////
    // Scheadule data to be consumed
+   // i = 0;
+   // ftime(&start);
+   // while(i < lstData.size()){   
+   //    ftime(&end);
+   //    nDiff = (int) (1000.0 * (end.time - start.time) + (end.millitm - start.millitm));
+   //    if (nDiff >= lstData[i].nTimeMs){
+   //       dataBuff = lstData[i];
+   //       fprintf(stdout, "[Consumer::run] Scheadule at %dms, Type=%d, ID=%d, Payload=%d, Prod=%s\n", dataBuff.nTimeMs, dataBuff.nType, dataBuff.nId, dataBuff.nPayload, dataBuff.strProd);
+   //       // snprintf(strBuff, sizeof(strBuff), "[Consumer::run] Scheadule at %dms, Type=%d, ID=%d, Payload=%d, Prod=%s", dataBuff.nTimeMs, dataBuff.nType, dataBuff.nId, dataBuff.nPayload, dataBuff.strProd);
+   //       // log(strBuff);
+   //       delayedInterest(dataBuff);
+   //       i++;
+   //    }
+   // }
    for (i = 0; i < lstData.size(); i++){
       dataBuff = lstData[i];
       fprintf(stdout, "[Consumer::run] Scheadule at %dms, Type=%d, ID=%d, Payload=%d, Prod=%s\n", dataBuff.nTimeMs, dataBuff.nType, dataBuff.nId, dataBuff.nPayload, dataBuff.strProd);
+      snprintf(strBuff, sizeof(strBuff), "[Consumer::run] Scheadule at %dms, Type=%d, ID=%d, Payload=%d, Prod=%s", dataBuff.nTimeMs, dataBuff.nType, dataBuff.nId, dataBuff.nPayload, dataBuff.strProd);
+      log(strBuff);
       m_scheduler.schedule(boost::chrono::milliseconds(dataBuff.nTimeMs), [this, dataBuff] { delayedInterest(dataBuff); });
    }
    
    // m_ioService.run() will block until all events finished or m_ioService.stop() is called
    m_ioService.run();
+   log("Done\n");
    return;
 }
 
@@ -221,6 +248,7 @@ std::vector<C2_DATA> Consumer::readDataQueue(std::string strHostName, std::strin
     std::vector<C2_DATA> lstData;
     C2_DATA dataBuff;
     int nLine, nRead;
+    char strBuff[200];
 
     pFile = fopen(strFilePath.c_str(), "r");
     if (pFile != NULL) {
@@ -267,6 +295,22 @@ void Consumer::logResult(float sTimeDiff, const char* pResult, std::string strIn
              << std::endl;
       }
    }
+}
+
+void Consumer::log(const char* strMessage)
+{
+   FILE* pFile;
+
+  // Write results to files
+  pFile = fopen(m_strLogPath.c_str(), "a");
+
+  if (pFile){
+      fprintf(pFile, "%s\n", strMessage);
+      fclose(pFile);
+  }
+  else{
+      std::cout << "[Producer::log] ERROR opening output file" << std::endl;
+  }
 }
 
 } // namespace examples
