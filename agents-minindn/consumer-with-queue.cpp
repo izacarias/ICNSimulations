@@ -120,10 +120,11 @@ void Consumer::run(std::string strNode, std::string strTimestamp, std::string st
    for (i = 0; i < lstData.size(); i++){
       dataBuff = lstData[i];
       fprintf(stdout, "[Consumer::run] Scheadule at %dms, Type=%d, ID=%d, Payload=%d, Prod=%s\n", dataBuff.nTimeMs, dataBuff.nType, dataBuff.nId, dataBuff.nPayload, dataBuff.strProd);
-      snprintf(strBuff, sizeof(strBuff), "[Consumer::run] Scheadule at %dms, Type=%d, ID=%d, Payload=%d, Prod=%s", dataBuff.nTimeMs, dataBuff.nType, dataBuff.nId, dataBuff.nPayload, dataBuff.strProd);
-      log(strBuff);
       m_scheduler.schedule(boost::chrono::milliseconds(dataBuff.nTimeMs), [this, dataBuff] { delayedInterest(dataBuff); });
    }
+
+   snprintf(strBuff, sizeof(strBuff), "[Consumer::run] Scheadule %d transmissions", lstData.size());
+   log(strBuff);
    
    // m_ioService.run() will block until all events finished or m_ioService.stop() is called
    m_ioService.run();

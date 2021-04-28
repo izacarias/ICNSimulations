@@ -58,6 +58,7 @@ class Consumer
       char* ndnRequestToStr(NDN_REQUEST request);
       char* userDataToStr(USER_DATA userData);
       void printUserData(USER_DATA userData);
+      void consumeWithCongestionControl(std::vector<NDN_REQUEST> lstRequests);
 
       void onData(const Interest&, const Data& data, const std::chrono::steady_clock::time_point& dtBegin)     const;
       void onNack(const Interest&, const lp::Nack& nack, const std::chrono::steady_clock::time_point& dtBegin) const;
@@ -118,11 +119,77 @@ void Consumer::run(std::string strNode, std::string strTimestamp, std::string st
       fprintf(stdout, "[Consumer::run] NDN request (%3d/%3d) = %s\n", i+1, (int)lstRequests.size(), ndnRequestToStr(lstRequests[i]));
    }
 
-   snprintf(strBuff, sizeof(strBuff), "[Consumer::run] Scheadule %d transmissions\n", (int) lstData.size());
-   log(strBuff);
+   consumeWithCongestionControl(lstRequests);
    
    log("Done\n");
    return;
+}
+
+// --------------------------------------------------------------------------------
+//   consumeWithCongestionControl
+//
+//
+// --------------------------------------------------------------------------------
+void Consumer::consumeWithCongestionControl(std::vector<NDN_REQUEST> lstRequests){
+
+   int nWindowSize, nWindowIntervalMs, nWindowSent, nTimeSinceBeginMs, nTemp;
+   std::chrono::steady_clock::time_point dtBegin, dtNow, dtWindowStart, dtWindowEnd;
+   bool bAllSent, bDepletionNotified;
+   uint nNextRequest;
+
+   // Constants set before the experiment
+   nWindowIntervalMs = 1;
+   nWindowSize = 3;
+
+   bDepletionNotified = false;
+   bAllSent      = false;
+   nWindowSent   = 0;
+   nNextRequest  = 0;
+   dtBegin       = std::chrono::steady_clock::now();
+   dtWindowStart = dtBegin;
+   dtWindowEnd   = dtWindowStart + std::chrono::milliseconds(nWindowIntervalMs);
+   while(!bAllSent){
+
+      dtNow = std::chrono::steady_clock::now();
+      if ((dtNow >= dtWindowStart) && (dtNow < dtWindowEnd)){
+         // Within time window, proceed to send
+         if (nWindowSent < nWindowSize){
+            // Within window cap, proceed to send
+            if (nNextRequest < lstRequests.size()){
+               nTimeSinceBeginMs = std::chrono::duration_cast<std::chrono::milliseconds>(dtNow - dtBegin).count();
+               if (lstRequests[nNextRequest].nTimeMs <= nTimeSinceBeginMs){
+                  // Packet is due to be consumed, send
+                  // expressInterest
+                  fprintf(stdout, "[consumeWithCongestionControl] Consume packet %s (%dms) at %dms\n", lstRequests[nNextRequest].strInterest, lstRequests[nNextRequest].nTimeMs, nTimeSinceBeginMs);
+                  nNextRequest += 1;
+                  nWindowSent  += 1;
+               }
+            }
+            else{
+               // The entire queue has been consumed
+               bAllSent = true;
+            }
+         }
+         else if (!bDepletionNotified){
+            fprintf(stdout, "[consumeWithCongestionControl] Window depleted %d/%d sent\n", nWindowSent, nWindowSize);
+            bDepletionNotified = true;
+         }
+      }
+      else{
+         // Window period has expired, start over
+         bDepletionNotified = false;
+         nWindowSent = 0;
+         dtWindowStart = dtNow;
+         dtWindowEnd = dtWindowStart + std::chrono::milliseconds(nWindowIntervalMs);
+         nTimeSinceBeginMs = std::chrono::duration_cast<std::chrono::milliseconds>(dtWindowStart - dtBegin).count();
+         nTemp = std::chrono::duration_cast<std::chrono::milliseconds>(dtWindowEnd - dtBegin).count();
+         fprintf(stdout, "[consumeWithCongestionControl] Starting new window from %dms to %dms -------------------------------------\n", nTimeSinceBeginMs, nTemp);
+      }
+   }
+
+   dtNow = std::chrono::steady_clock::now();
+   nTimeSinceBeginMs = std::chrono::duration_cast<std::chrono::milliseconds>(dtNow - dtBegin).count();
+   fprintf(stdout, "[consumeWithCongestionControl] Done in %dms\n", nTimeSinceBeginMs);
 }
 
 // --------------------------------------------------------------------------------
