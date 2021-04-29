@@ -19,6 +19,7 @@
 #include <libgen.h>
 #include <stdio.h>
 #include <sys/timeb.h>
+#include <math.h>
 
 #define N_MAX_PACKET_BYTES      8000
 
@@ -49,7 +50,6 @@ class Consumer
       void run(std::string strNode, std::string strTimestamp, std::string strQueueFileName);
 
    private:
-      void delayedInterest(USER_DATA dataBuff);
       std::vector<USER_DATA> readDataQueue(std::string strHostName, std::string strFilePath);
       
       std::vector<NDN_REQUEST> interestQueueForDataList(std::vector<USER_DATA> lstUserData);
@@ -60,9 +60,9 @@ class Consumer
       void printUserData(USER_DATA userData);
       void consumeWithCongestionControl(std::vector<NDN_REQUEST> lstRequests);
 
-      void onData(const Interest&, const Data& data, const std::chrono::steady_clock::time_point& dtBegin)     const;
+      void onData(const Interest&, const Data& data, const std::chrono::steady_clock::time_point& dtBegin);
       void onNack(const Interest&, const lp::Nack& nack, const std::chrono::steady_clock::time_point& dtBegin) const;
-      void onTimeout(const Interest& interest, const std::chrono::steady_clock::time_point& dtBegin)           const;
+      void onTimeout(const Interest& interest, const std::chrono::steady_clock::time_point& dtBegin);
 
       void logResult(float sTimeDiff, const char* pResult, std::string strInterest, std::string strTimestamp, size_t nSize) const;
       void log(const char* strMessage);
@@ -72,6 +72,8 @@ class Consumer
       std::string m_strHostName;
       std::string m_strLogPath;
       std::string m_strTimestamp;
+      int m_nWindowSize, m_nInterestLifetimeMs;
+      // unsigned long long m_nInterestLifetimeMs;
 };
 
 // --------------------------------------------------------------------------------
@@ -132,14 +134,20 @@ void Consumer::run(std::string strNode, std::string strTimestamp, std::string st
 // --------------------------------------------------------------------------------
 void Consumer::consumeWithCongestionControl(std::vector<NDN_REQUEST> lstRequests){
 
-   int nWindowSize, nWindowIntervalMs, nWindowSent, nTimeSinceBeginMs, nTemp;
+   int nWindowIntervalMs, nWindowSent, nTimeSinceBeginMs, nTemp;
    std::chrono::steady_clock::time_point dtBegin, dtNow, dtWindowStart, dtWindowEnd;
    bool bAllSent, bDepletionNotified;
    uint nNextRequest;
+   Name name;
+   Interest interest;
 
    // Constants set before the experiment
-   nWindowIntervalMs = 1;
-   nWindowSize = 3;
+   nWindowIntervalMs = 100;
+   m_nWindowSize = 5;
+   m_nInterestLifetimeMs = 4000;
+
+   // Maximum estimated transfer rate can be expressed as
+   // nWindowIntervalMs/1000.0 * m_nWindowSize * N_MAX_PACKET_BYTES = Bytes/sec
 
    bDepletionNotified = false;
    bAllSent      = false;
@@ -153,16 +161,31 @@ void Consumer::consumeWithCongestionControl(std::vector<NDN_REQUEST> lstRequests
       dtNow = std::chrono::steady_clock::now();
       if ((dtNow >= dtWindowStart) && (dtNow < dtWindowEnd)){
          // Within time window, proceed to send
-         if (nWindowSent < nWindowSize){
+         if (nWindowSent < m_nWindowSize){
             // Within window cap, proceed to send
             if (nNextRequest < lstRequests.size()){
                nTimeSinceBeginMs = std::chrono::duration_cast<std::chrono::milliseconds>(dtNow - dtBegin).count();
                if (lstRequests[nNextRequest].nTimeMs <= nTimeSinceBeginMs){
                   // Packet is due to be consumed, send
-                  // expressInterest
                   fprintf(stdout, "[consumeWithCongestionControl] Consume packet %s (%dms) at %dms\n", lstRequests[nNextRequest].strInterest, lstRequests[nNextRequest].nTimeMs, nTimeSinceBeginMs);
                   nNextRequest += 1;
                   nWindowSent  += 1;
+
+                  // Express interest for NDN data
+                  name     = Name(lstRequests[nNextRequest].strInterest);
+                  interest = Interest(name);
+                  interest.setCanBePrefix(false);
+                  interest.setMustBeFresh(true);
+                  interest.setInterestLifetime(time::milliseconds{m_nInterestLifetimeMs});
+
+                  // fprintf(stdout, "[consumeWithCongestionControl] before expressing\n");
+                  m_face.expressInterest(interest,
+                                       bind(&Consumer::onData, this, _1, _2, dtNow),
+                                       bind(&Consumer::onNack, this, _1, _2, dtNow),
+                                       bind(&Consumer::onTimeout, this, _1, dtNow));
+                  // fprintf(stdout, "[consumeWithCongestionControl] after expressing\n");
+                  m_face.processEvents();
+                  // fprintf(stdout, "[consumeWithCongestionControl] after processEvents\n");
                }
             }
             else{
@@ -171,7 +194,7 @@ void Consumer::consumeWithCongestionControl(std::vector<NDN_REQUEST> lstRequests
             }
          }
          else if (!bDepletionNotified){
-            fprintf(stdout, "[consumeWithCongestionControl] Window depleted %d/%d sent\n", nWindowSent, nWindowSize);
+            fprintf(stdout, "[consumeWithCongestionControl] Window depleted %d/%d sent\n", nWindowSent, m_nWindowSize);
             bDepletionNotified = true;
          }
       }
@@ -183,7 +206,7 @@ void Consumer::consumeWithCongestionControl(std::vector<NDN_REQUEST> lstRequests
          dtWindowEnd = dtWindowStart + std::chrono::milliseconds(nWindowIntervalMs);
          nTimeSinceBeginMs = std::chrono::duration_cast<std::chrono::milliseconds>(dtWindowStart - dtBegin).count();
          nTemp = std::chrono::duration_cast<std::chrono::milliseconds>(dtWindowEnd - dtBegin).count();
-         fprintf(stdout, "[consumeWithCongestionControl] Starting new window from %dms to %dms -------------------------------------\n", nTimeSinceBeginMs, nTemp);
+         // fprintf(stdout, "[consumeWithCongestionControl] Starting new window from %dms to %dms -------------------------------------\n", nTimeSinceBeginMs, nTemp);
       }
    }
 
@@ -300,73 +323,53 @@ void Consumer::printUserData(USER_DATA userData){
 }
 
 // --------------------------------------------------------------------------------
-//   delayedInterest
-//
-//
-// --------------------------------------------------------------------------------
-void Consumer::delayedInterest(USER_DATA dataBuff){
-
-   char strBuf[100], strPrefix[60];
-   int i, nPackets, nPacketPayload;
-   bool bHasLeftover;
-   Name interestName;
-   Interest interest;
-   std::chrono::steady_clock::time_point dtBegin;
-
-   snprintf(strPrefix, sizeof(strPrefix), "/ndn/%s-site/%s/C2Data-%d-Type%d", dataBuff.strProd, dataBuff.strProd, dataBuff.nId, dataBuff.nType);
-
-   // Determine number of packets necessary to fulfill the interest
-   nPackets     = dataBuff.nPayload / N_MAX_PACKET_BYTES;
-   bHasLeftover = false;
-   if ((dataBuff.nPayload % N_MAX_PACKET_BYTES) > 0){
-      bHasLeftover = true;
-      nPackets++;
-   }
-
-   // Express interest for all packets
-   for (i = 0; i < nPackets; i++){
-
-      if ((bHasLeftover) && (i+1 == nPackets)){
-         // Last packet
-         nPacketPayload = dataBuff.nPayload % N_MAX_PACKET_BYTES;
-      }
-      else{
-         // Any other packet
-         nPacketPayload = N_MAX_PACKET_BYTES;
-      }
-
-      snprintf(strBuf, sizeof(strBuf), "%s-%db-%dof%d", strPrefix, nPacketPayload, i+1, nPackets);
-      fprintf(stdout, "[Consumer::delayedInterest] Expressing interest=%s (%d/%d)\n", strBuf, i+1, nPackets);
-
-      dtBegin = std::chrono::steady_clock::now();
-      interestName = Name(strBuf);
-      interest     = Interest(interestName);
-      interest.setCanBePrefix(false);
-      interest.setMustBeFresh(true);
-      interest.setInterestLifetime(6_s);
-
-      m_face.expressInterest(interest,
-                           bind(&Consumer::onData, this, _1, _2, dtBegin),
-                           bind(&Consumer::onNack, this, _1, _2, dtBegin),
-                           bind(&Consumer::onTimeout, this, _1, dtBegin));
-   }
-}
-
-// --------------------------------------------------------------------------------
 //   onData
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::onData(const Interest& interest, const Data& data, const std::chrono::steady_clock::time_point& dtBegin) const
-{
-   float sTimeDiff;
+void Consumer::onData(const Interest& interest, const Data& data, const std::chrono::steady_clock::time_point& dtBegin){
+
+   float sDelayRtt;
    std::chrono::steady_clock::time_point dtEnd;
+   static int nSamples = 0, nWindowFrac=0;
+   static float sDelaySum = 0, sDelayAvg;
+   
+   int N_DELAY_SAMPLE_SIZE;
+
+   N_DELAY_SAMPLE_SIZE = 10;
 
    dtEnd     = std::chrono::steady_clock::now();
-   sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - dtBegin).count();
+   sDelayRtt = std::chrono::duration_cast<std::chrono::milliseconds>(dtEnd - dtBegin).count();
 
-   logResult(sTimeDiff, "DATA", interest.getName().toUri(), m_strTimestamp, data.getContent().value_size());
-   fprintf(stdout, "[Consumer::onData] Received data=%s; delay=%.2fms; size=%d bytes\n", interest.getName().toUri().c_str(), sTimeDiff/1000.0, (int) data.getContent().value_size());
+   // Adjust timeout limit according to the average transmission delay
+   nSamples  += 1;
+   sDelaySum += sDelayRtt;
+   if (nSamples == N_DELAY_SAMPLE_SIZE){
+      sDelayAvg = sDelaySum/N_DELAY_SAMPLE_SIZE;
+      nSamples  = 0;
+      sDelaySum = 0.0;
+      m_nInterestLifetimeMs = 3*sDelayAvg;
+      fprintf(stdout, "[onData] -------------------------------------- sDelayRTT=%.2f; sDelayAvg=%.2f; timeoutMs=%d; windowSize=%d\n", sDelayRtt, sDelayAvg, m_nInterestLifetimeMs, m_nWindowSize);
+   }
+
+   // Adjust window size according to this transmission delay
+   if (sDelayAvg > 0){
+      if (sDelayRtt < (1.1 * sDelayAvg)){
+         nWindowFrac += 2;
+         if (nWindowFrac == 10){
+            m_nWindowSize += 1;
+            nWindowFrac = 0;
+         }
+         // fprintf(stdout, "[onData] Increased window=%d\n", m_nWindowSize);
+      }
+      else if ((sDelayRtt > 1.5*sDelayAvg) && (m_nWindowSize > 2)){
+         m_nWindowSize -= 2;
+         // fprintf(stdout, "[onData] Decreased window=%d\n", m_nWindowSize);
+      }
+   }
+
+   logResult(sDelayRtt, "DATA", interest.getName().toUri(), m_strTimestamp, data.getContent().value_size());
+   fprintf(stdout, "[Consumer::onData] Received data=%s; delay=%.2fms; size=%d bytes\n", interest.getName().toUri().c_str(), sDelayRtt, (int) data.getContent().value_size());
 }
 
 // --------------------------------------------------------------------------------
@@ -374,8 +377,8 @@ void Consumer::onData(const Interest& interest, const Data& data, const std::chr
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::onNack(const Interest& interest, const lp::Nack& nack, const std::chrono::steady_clock::time_point& dtBegin) const
-{
+void Consumer::onNack(const Interest& interest, const lp::Nack& nack, const std::chrono::steady_clock::time_point& dtBegin) const{
+
    float sTimeDiff;
    std::chrono::steady_clock::time_point dtEnd;
 
@@ -391,18 +394,24 @@ void Consumer::onNack(const Interest& interest, const lp::Nack& nack, const std:
 //
 //
 // --------------------------------------------------------------------------------
-void Consumer::onTimeout(const Interest& interest, const std::chrono::steady_clock::time_point& dtBegin) const
-{
+void Consumer::onTimeout(const Interest& interest, const std::chrono::steady_clock::time_point& dtBegin){
+   
    float sTimeDiff;
    std::chrono::steady_clock::time_point dtEnd;
 
-   std::cout << "[Consumer::onTimeout] Timeout for " << interest << std::endl;
+   // std::cout << "[Consumer::onTimeout] Timeout for " << interest << std::endl;
 
    dtEnd     = std::chrono::steady_clock::now();
    sTimeDiff = std::chrono::duration_cast<std::chrono::microseconds>(dtEnd - dtBegin).count();
 
+   // Cut window size in half
+   if (m_nWindowSize > 1){
+      m_nWindowSize = ceil(m_nWindowSize/2);
+      fprintf(stdout, "[onTimeout] TIMEOUT - WINDOW REDUCED TO SIZE=%d\n", m_nWindowSize);
+   }
+
    logResult(sTimeDiff, "TIMEOUT", interest.getName().toUri(), m_strTimestamp, 0);
-   fprintf(stdout, "[Consumer::onTimeout] Received timeout for interest=%s; delay=%.2fms\n", interest.getName().toUri().c_str(), sTimeDiff/1000.0);   
+   // fprintf(stdout, "[Consumer::onTimeout] Received timeout for interest=%s; delay=%.2fms\n", interest.getName().toUri().c_str(), sTimeDiff/1000.0);   
 }
 
 // --------------------------------------------------------------------------------
