@@ -79,9 +79,9 @@ def topology():
                 'actions=output:in_port,normal"')
 
     info("*** Starting NFD processes\n")
-    nfd1 = sta1.popen("nfd")
-    nfd2 = sta2.popen("nfd")
-    nfd3 = sta3.popen("nfd")
+    nfd1 = sta1.popen("nfd --config /usr/local/etc/ndn/nfd.conf.sample")
+    nfd2 = sta2.popen("nfd --config /usr/local/etc/ndn/nfd.conf.sample")
+    nfd3 = sta3.popen("nfd --config /usr/local/etc/ndn/nfd.conf.sample")
 
     info("*** Creating faces and routes in sta1\n")
     sta1.cmd("nfdc face create udp://10.0.0.2")
