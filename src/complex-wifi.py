@@ -20,11 +20,19 @@ class Link(object):
       self.strNode2 = strNode2
       self.kwargs = kwargs
 
+   def toString(self):
+      strReturn = '<Link> %s <-> %s : %s' % (self.strNode1, self.strNode2, ['%s: %s' % (str(x), str(y)) for x, y in self.kwargs.items()])
+      return strReturn
+
 class Node(object):
 
    def __init__(self, strName, **kwargs):
       self.strName = strName
       self.kwargs = kwargs
+
+   def toString(self):
+      strReturn = '<Node> %s : %s' % (self.strName, ['%s: %s' % (str(x), str(y)) for x, y in self.kwargs.items()])
+      return strReturn
 
 class MyTopology(object):
 
@@ -34,7 +42,6 @@ class MyTopology(object):
       self.lstLinks = []
 
    def addStation(self, strName, **kwargs):
-      info('New station name=%s\n' % strName)
       self.lstStations.append(Node(strName, **kwargs))
 
    def addAccessPoint(self, strName, **kwargs):
@@ -46,9 +53,15 @@ class MyTopology(object):
    def toString(self):
       info('Stations (%d) ----------------\n' % len(self.lstStations))
       for pStation in self.lstStations:
-         info('%s: %s\n' % (pStation.strName, str(['%s: %s;' % (str(x), str(y)) for x, y in pStation.kwargs.items()])))
+         info(pStation.toString() + '\n')
+
       info('AccessPoints (%d) ----------------\n' % len(self.lstAccessPoints))
+      for pAp in self.lstAccessPoints:
+         info(pAp.toString() + '\n')
+         
       info('Links (%d) ----------------\n' % len(self.lstLinks))
+      for pLink in self.lstLinks:
+         info(pLink.toString() + '\n')
 
 def topology():
 
@@ -60,80 +73,57 @@ def topology():
                   privateDirs=privateDirs )
    "Create a network."
    net = Mininet_wifi(station=station)
+   
+   topo = processTopo(topoFile='/home/vagrant/icnsimulations/topologies/linear-topo3.conf')
+   topo.toString()
 
-   info("*** Creating nodes\n")
-   sta_arg = dict()
-   ap_arg = dict()
-   if '-v' in sys.argv:
-      sta_arg = {'nvif': 2}
-   else:
-      # isolate_clientes: Client isolation can be used to prevent low-level
-      # bridging of frames between associated stations in the BSS.
-      # By default, this bridging is allowed.
-      # OpenFlow rules are required to allow communication among nodes
-      ap_arg = {'client_isolation': True}
+   # Add access points
+   for topoAp in topo.lstAccessPoints:
+      net.addAccessPoint(topoAp.strName, protocols='OpenFlow13', ssid="simpletopo" + str(topoAp.strName), mode="g", channel="5", **topoAp.kwargs)
+   
+   # Add stations
+   for topoStation in topo.lstStations:
+      net.addStation(topoStation.strName, **topoStation.kwargs)
 
-   topo = processTopo(topoFile='/home/vagrant/icnsimulations/topologies/test-topo.conf')
-
-   hshAps = {}
-   for pAp in topo.lstAccessPoints:
-      hshAps[pAp.strName] = net.addAccessPoint(pAp.strName, protocols='OpenFlow13', ssid='simpletopo', mode='g', channel='5', kwargs=pAp.kwargs)
-      
-   hshStations = {}
-   for pStation in topo.lstStations:
-      hshStations[pStation.strName] = net.addStation(pStation.strName, kwargs=pStation.kwargs)
-
+   # Add controller
    c0 = net.addController('c0', controller=RemoteController, ip='127.0.0.1', port=6653)
 
    info("*** Configuring wifi nodes\n")
    net.configureWifiNodes()
 
    info("*** Associating Stations\n")
-   net.addLink(ap1, ap2)
-   net.addLink(ap2, ap3)
-   net.addLink(sta1, ap1)
-   net.addLink(sta2, ap2)
-   net.addLink(sta3, ap3)
+   for topoLink in topo.lstLinks:
+      pNode1 = findNodeByName(topoLink.strNode1, net.aps + net.stations)
+      pNode2 = findNodeByName(topoLink.strNode2, net.aps + net.stations)
+      if (pNode1 is None) or (pNode2 is None):
+         raise Exception('Could not find name in node list name1=%s name2=%s' % (topoLink.strNode1, topoLink.strNode2))
+      else:
+         net.addLink(pNode1, pNode2, **topoLink.kwargs)
 
    info("*** Starting network\n")
    net.build()
    c0.start()
-   ap1.start([c0])
-   ap2.start([c0])
-   ap3.start([c0])
-
-   if '-v' not in sys.argv:
-      ap1.cmd('ovs-ofctl add-flow ap1 "priority=0,arp,in_port=1,'
-               'actions=output:in_port,normal"')
-      ap1.cmd('ovs-ofctl add-flow ap1 "priority=0,icmp,in_port=1,'
-               'actions=output:in_port,normal"')
-      ap1.cmd('ovs-ofctl add-flow ap1 "priority=0,udp,in_port=1,'
-               'actions=output:in_port,normal"')
-      ap1.cmd('ovs-ofctl add-flow ap1 "priority=0,tcp,in_port=1,'
-               'actions=output:in_port,normal"')
+   for pAp in net.aps:
+      pAp.start([c0])
 
    info("*** Starting NFD processes\n")
-   nfd1 = sta1.popen("nfd")
-   nfd2 = sta2.popen("nfd")
-   nfd3 = sta3.popen("nfd")
+   lstNfdProcs = list()
+   for pStation in net.stations:
+      nfdProc = pStation.popen("nfd --config /usr/local/etc/ndn/nfd.conf.sample")
+      lstNfdProcs.append(nfdProc)
 
-   info("*** Creating faces and routes in sta1\n")
-   sta1.cmd("nfdc face create udp://10.0.0.2")
-   sta1.cmd("nfdc route add /sta2 udp://10.0.0.2")
-   sta1.cmd("nfdc route add /sta3 udp://10.0.0.2")
-
-   info("*** Creating faces and routes in sta2\n")
-   sta2.cmd("nfdc face create udp://10.0.0.3")
-   sta2.cmd("nfdc face create udp://10.0.0.1")
-   sta2.cmd("nfdc route add /sta3 udp://10.0.0.3")
+   info('Creating and registering faces\n')
+   for pStation in net.stations:
+      pStation.cmd("nfdc face create udp://" + pStation.IP())
+      for pStation2 in net.stations:
+         pStation.cmd('nfdc route add %s udp://%s' % (interestFilterForHost(pStation2.name), pStation2.IP()))
 
    info("*** Running CLI\n")
    CLI(net)
 
    info("*** Stopping NFD\n")
-   nfd1.kill()
-   nfd2.kill()
-   nfd3.kill()
+   for proc in lstNfdProcs:
+      proc.kill()
 
    info("*** Stopping network\n")
    net.stop()
@@ -174,7 +164,7 @@ def processTopo(topoFile):
             if key in ['range']:
                value = int(value)
             ap_params[key] = value
-      topo.addAccessPoint(name, **ap_params)
+         topo.addAccessPoint(name, **ap_params)
    except configparser.NoSectionError:
       debug("APs are optional")
       pass
@@ -200,8 +190,15 @@ def processTopo(topoFile):
 
    return topo
 
+def interestFilterForHost(strHost):
+   return '/%s' % strHost
+
+def findNodeByName(strName, lstNodes):
+   for pNode in lstNodes:
+      if (str(pNode) == strName):
+         return pNode
+   return None
+
 if __name__ == '__main__':
    setLogLevel('info')
-   # topo = processTopo(topoFile='/home/vagrant/icnsimulations/topologies/test-topo.conf')
-   # topo.toString()
    topology()
