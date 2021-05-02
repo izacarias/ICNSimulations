@@ -46,3 +46,13 @@ class DataPackage:
     def toTextLine(self):
         return 'Type=%d;Id=%d;Payload=%d;Prod=%s;Cons=%s' % (self.nType, self.nID, self.nPayloadSize, self.strOrig, self.strDest)
 
+    @staticmethod
+    def fromTextLine(strLine):
+        lstFields = strLine.split(';')
+        nType = lstFields[0].split('=')[1]
+        nID = lstFields[1].split('=')[1]
+        nPayloadSize = lstFields[2].split('=')[1]
+        strHost = lstFields[3].split('=')[1]
+        strDest = lstFields[4].split('=')[1]
+        newPackage = DataPackage(nType, nID, nPayloadSize, strHost, strDest)
+

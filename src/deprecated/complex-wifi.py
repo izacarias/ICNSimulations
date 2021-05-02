@@ -128,8 +128,9 @@ def topology():
    info('Creating and registering faces\n')
    for pStation in net.stations:
       for pStation2 in net.stations:
-         pStation.cmd("nfdc face create udp://" + pStation2.IP())
-         pStation.cmd('nfdc route add %s udp://%s' % (interestFilterForHost(pStation2.name), pStation2.IP()))
+         if (pStation != pStation2):
+            pStation.cmd("nfdc face create udp://" + pStation2.IP())
+            pStation.cmd('nfdc route add %s udp://%s' % (interestFilterForHost(pStation2.name), pStation2.IP()))
 
    info("*** Running CLI\n")
    CLI(net)

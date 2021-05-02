@@ -49,6 +49,7 @@ def main():
     # bStatus = DataManager.saveDataQueueToFile(lstDataQueue, strTopologyPath)
     DataManager.saveDataToTextFile(lstDataQueue, strTopologyPath)
 
+
     # if (not bStatus):
     #     logging.error('[main] Could not save data queue for topo file=' + strTopologyPath)
 

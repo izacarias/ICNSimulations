@@ -42,6 +42,7 @@ class RandomTalks():
       self.lstDataQueue     = lstDataQueue
       self.nBytesConsumed   = 0
       self.hshConsumers     = {}
+      self.strPayloadPath   = '/home/vagrant/mock_data'
 
    def setup(self):
       """
@@ -66,12 +67,12 @@ class RandomTalks():
       self.checkRunningProducers()
 
       # Log resulting data queue
-#      for nIndex, node in enumerate(self.lstDataQueue):
-#         logging.info('[RandomTalks.setup] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
+      for nIndex, node in enumerate(self.lstDataQueue):
+         logging.debug('[RandomTalks.setup] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
 
       # Log the current configuration for data_manager
-      logging.info('[RandomTalks.setup] Current data type configuration: \n%s' % self.pDataManager.info())
-      logging.info('[RandomTalks.setup] Note that this could be outdated since the data queue configuration is set when it is created!')
+      logging.debug('[RandomTalks.setup] Current data type configuration: \n%s' % self.pDataManager.info())
+      logging.debug('[RandomTalks.setup] Note that this could be outdated since the data queue configuration is set when it is created!')
 
    def run(self):
       """

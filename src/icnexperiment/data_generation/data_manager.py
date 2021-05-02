@@ -6,9 +6,10 @@ Created 25/09/2020 by Andre Dexheimer Carneiro
 """
 import logging
 import pickle
-from os.path import dirname, basename
+import subprocess as sb
+from os.path import dirname, basename, isfile
 
-from .c2_datatype import C2DataType
+from .c2_datatype import C2DataType, DataPackage
 
 # Constants --------------------------------
 c_strTopoFileSuffix = '.conf'
@@ -126,6 +127,12 @@ class DataManager:
         strTTLValues = strTTLValues[:-1]
         return strTTLValues
 
+    def getTTLForDataType(self, nType):
+        for pDataType in self.lstDataTypes:
+            if (pDataType.nType == nType):
+                return pDataType.nTTL
+        raise Exception('Data type=%d does not exist' % nType)
+
     def getPayloadValuesParam(self):
         """
         Returns a string listing the payload values for all available data types
@@ -136,6 +143,23 @@ class DataManager:
         # Remove last whitespace
         strPayloadValues = strPayloadValues[:-1]
         return strPayloadValues
+
+    @staticmethod
+    def createPayloadFiles(lstData, strBasePath):
+        lstPayloads = DataManager.getPayloadSizesFromQueue(lstData)
+        nFilesCreated = 0
+        for nPayloadSize in lstPayloads:
+            strFileName = DataManager.nameForPayloadFile(nPayloadSize, strBasePath)
+            if (not isfile(strFileName)):
+                strCmd = 'base64 /dev/urandom | head -c %d > %s' % (nPayloadSize, strFileName)
+                sb.popen(strCmd.split(' '))
+                nFilesCreated += 1
+                logging.info('[DataManager.createPayloadFiles] Created file %s' % strFileName)
+        logging.info('[DataManager.createPayloadFiles] Created %d files' % nFilesCreated)
+
+    @staticmethod
+    def nameForPayloadFile(nPayloadSize, strBasePath):
+        return strBasePath + '/' + 'file_' + int(nPayloadSize/1024) + 'K'
 
     @staticmethod
     def saveDataQueueToFile(lstQueue, strTopoFilePath):
@@ -163,6 +187,23 @@ class DataManager:
         return lstQueue
 
     @staticmethod
+    def loadDataQueueFromTextFile(strTopoFilePath):
+        """
+        Loads data queue from txt file.
+        """
+        strPath  = DataManager.textFileNameForFromTopo(strTopoFilePath)
+        lstData = list()
+        with open(strPath, 'r') as pFile:
+            lstLines = pFile.readlines()
+            for strLine in lstLines:
+                if (strLine.strip() != ''):
+                    lstFields = strLine.split(';', 1)
+                    nTimeMs = int(lstFields[0])
+                    pPackage = DataPackage.fromTextLine(lstFields[1])
+                    lstData.append([nTimeMs, pPackage])
+        return lstData
+
+    @staticmethod
     def saveDataToTextFile(lstData, strTopoFilePath):
         """
         Saves the data queue into a text file
@@ -176,6 +217,8 @@ class DataManager:
         for (nTime, pPackage) in lstData:
             strLine = '%d;%s\n' % (nTime, pPackage.toTextLine())
             pFile.write(strLine)
+
+        logging.info('[DataManager.saveDataToTextFile] Saved %d packages' % len(lstData))        
         pFile.close()        
 
     @staticmethod
@@ -209,3 +252,11 @@ class DataManager:
         
         strPath = strDirName + 'queue_' + strTopoName + '.txt'
         return strPath
+
+    @staticmethod
+    def getPayloadSizesFromQueue(lstData):
+        lstPayloads = list()
+        for pPackage in lstData:
+            if (pPackage.nPayloadSize not in lstPayloads):
+                lstPayloads.append(pPackage.nPayloadSize)
+        return lstPayloads
