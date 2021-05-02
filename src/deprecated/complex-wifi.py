@@ -74,11 +74,12 @@ def topology():
    "Create a network."
    net = Mininet_wifi(station=station)
    
-   topo = processTopo(topoFile='/home/vagrant/icnsimulations/topologies/linear-topo3.conf')
+   topo = processTopo(topoFile='/home/vagrant/icnsimulations/topologies/linear-topo3-sta.conf')
    topo.toString()
 
    # Add access points
    for topoAp in topo.lstAccessPoints:
+      topoAp.kwargs['client_isolation'] = True
       net.addAccessPoint(topoAp.strName, protocols='OpenFlow13', ssid="simpletopo" + str(topoAp.strName), mode="g", channel="5", **topoAp.kwargs)
    
    # Add stations
@@ -106,6 +107,18 @@ def topology():
    for pAp in net.aps:
       pAp.start([c0])
 
+   if '-v' not in sys.argv:
+      for pAp in net.aps:
+         info('Setting for ap=%s' % pAp.name)
+         pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,arp,in_port=1,'
+                  'actions=output:in_port,normal"')
+         pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,icmp,in_port=1,'
+                  'actions=output:in_port,normal"')
+         pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,udp,in_port=1,'
+                  'actions=output:in_port,normal"')
+         pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,tcp,in_port=1,'
+                  'actions=output:in_port,normal"')
+
    info("*** Starting NFD processes\n")
    lstNfdProcs = list()
    for pStation in net.stations:
@@ -114,8 +127,8 @@ def topology():
 
    info('Creating and registering faces\n')
    for pStation in net.stations:
-      pStation.cmd("nfdc face create udp://" + pStation.IP())
       for pStation2 in net.stations:
+         pStation.cmd("nfdc face create udp://" + pStation2.IP())
          pStation.cmd('nfdc route add %s udp://%s' % (interestFilterForHost(pStation2.name), pStation2.IP()))
 
    info("*** Running CLI\n")

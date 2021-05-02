@@ -48,7 +48,7 @@ def readHostNamesFromTopoFile(sTopoPath):
             if (bNodeSection):
                 lstFields = strLine.split(':')
 
-                if (len(lstFields) > 0) and (lstFields[0].strip() != '\n'):
+                if (len(lstFields) > 0) and (lstFields[0].strip() != ''):
                     lstHosts.append(lstFields[0])
 
     return lstHosts
