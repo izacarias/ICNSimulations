@@ -49,10 +49,10 @@ class DataPackage:
     @staticmethod
     def fromTextLine(strLine):
         lstFields = strLine.split(';')
-        nType = lstFields[0].split('=')[1]
-        nID = lstFields[1].split('=')[1]
-        nPayloadSize = lstFields[2].split('=')[1]
-        strHost = lstFields[3].split('=')[1]
-        strDest = lstFields[4].split('=')[1]
-        newPackage = DataPackage(nType, nID, nPayloadSize, strHost, strDest)
+        nType = int(lstFields[0].split('=')[1])
+        nID = int(lstFields[1].split('=')[1])
+        nPayloadSize = int(lstFields[2].split('=')[1])
+        strHost = lstFields[3].split('=')[1].strip()
+        strDest = lstFields[4].split('=')[1].strip()
+        return DataPackage(nType, nID, nPayloadSize, strHost, strDest)
 

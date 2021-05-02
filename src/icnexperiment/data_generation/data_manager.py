@@ -6,7 +6,7 @@ Created 25/09/2020 by Andre Dexheimer Carneiro
 """
 import logging
 import pickle
-import subprocess as sb
+import subprocess
 from os.path import dirname, basename, isfile
 
 from .c2_datatype import C2DataType, DataPackage
@@ -22,7 +22,7 @@ class DataManager:
         Constructor
         """
         self.lstDataTypes = []
-        nFactor           = 5
+        nFactor           = 2
         # Initialize known dataTypes
         ################################################
         # Control data
@@ -152,14 +152,14 @@ class DataManager:
             strFileName = DataManager.nameForPayloadFile(nPayloadSize, strBasePath)
             if (not isfile(strFileName)):
                 strCmd = 'base64 /dev/urandom | head -c %d > %s' % (nPayloadSize, strFileName)
-                sb.popen(strCmd.split(' '))
+                subprocess.Popen(strCmd, shell=True)
                 nFilesCreated += 1
-                logging.info('[DataManager.createPayloadFiles] Created file %s' % strFileName)
+                logging.info('[DataManager.createPayloadFiles] Created file with cmd=%s' % strCmd.split(' '))
         logging.info('[DataManager.createPayloadFiles] Created %d files' % nFilesCreated)
 
     @staticmethod
     def nameForPayloadFile(nPayloadSize, strBasePath):
-        return strBasePath + '/' + 'file_' + int(nPayloadSize/1024) + 'K'
+        return strBasePath + '/' + 'file_' + str(int(nPayloadSize/1024)) + 'K'
 
     @staticmethod
     def saveDataQueueToFile(lstQueue, strTopoFilePath):
@@ -256,7 +256,7 @@ class DataManager:
     @staticmethod
     def getPayloadSizesFromQueue(lstData):
         lstPayloads = list()
-        for pPackage in lstData:
+        for (nTimestamp, pPackage) in lstData:
             if (pPackage.nPayloadSize not in lstPayloads):
                 lstPayloads.append(pPackage.nPayloadSize)
         return lstPayloads

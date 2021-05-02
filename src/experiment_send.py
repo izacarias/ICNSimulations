@@ -44,7 +44,7 @@ c_nCacheSizeDefault    = 0
 
 c_nNLSRSleepSec   = 40
 c_strNLSRLogLevel = 'NONE'
-c_strNFDLogLevel  = 'NONE'
+c_strNFDLogLevel  = 'DEBUG'
 
 g_bIsMockExperiment  = False
 g_bExperimentModeSet = False
@@ -99,7 +99,7 @@ class RandomTalks():
       logging.info('[RandomTalks.setup] avgPayloadSize=%.3f' % sPayloadAvg)
 
       # Instantiate all producers
-      self.checkRunningProducers()
+      # self.checkRunningProducers()
 
       # Log the current configuration for data_manager
       logging.debug('[RandomTalks.setup] Current data type configuration: \n%s' % self.pDataManager.info())
@@ -149,6 +149,7 @@ class RandomTalks():
             # This makes sure producers are running correctly during the simulation
             # As of 03/2021 this is not happening anymore. Possibly because of the call to getPopen(pHost, strCmdConsumer) instead of pHost.cmd (??)
             # self.checkRunningProducers()
+            self.instantiateProducer(pProducer, pDataPackage)
             self.instantiateConsumer(pConsumer, pDataPackage)
             nDataIndex += 1
 
@@ -214,8 +215,10 @@ class RandomTalks():
          strFilter = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
          strFilePath = DataManager.nameForPayloadFile(pDataPackage.nPayloadSize, self.strPayloadPath)
          strCmd = 'ndnputchunks %s -f %d < %s' % (strFilter, nTTL, strFilePath)
-         getPopen(pHost, strCmd)
-         logging.debug('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmdProducer)
+         if (not g_bIsMockExperiment):
+            getPopen(pHost, strCmd)
+      
+         logging.info('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmd)
       else:
          logging.critical('[RandomTalks.instantiateProducer] Producer is nil!')
       
@@ -232,13 +235,14 @@ class RandomTalks():
             time.sleep(c_sConsumerCooldownSec - sSecSinceLast)
 
          strInterest = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
-         strCmdProducer = 'ndncatchunks %s' % strInterest
-         getPopen(pHost, strCmdProducer)
+         strCmd = 'ndncatchunks %s' % strInterest
+         if (not g_bIsMockExperiment):
+            getPopen(pHost, strCmd)
+
          self.nBytesConsumed += pDataPackage.nPayloadSize        
-         
-         logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
+         logging.info('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmd)
       else:
-         logging.critical('[RandomTalks.instantiateConsumer] Host is nil! strInterest=%s' % strInterest)
+         logging.critical('[RandomTalks.instantiateConsumer] Host is nil! host=%s' % str(pHost))
 
    def findHostByName(self, strHostName):
       """
@@ -268,7 +272,7 @@ class RandomTalks():
 
    @staticmethod
    def getChunksFilter(strProd, nType, nId):
-      return '%s/Type%dId%d/' % (RandomTalks.getFilterByHostname(strProd), nType, nId)
+      return '%sType%dId%d/' % (RandomTalks.getFilterByHostname(strProd), nType, nId)
 
 # ---------------------------------------- MockHost
 class MockHost():
