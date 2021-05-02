@@ -75,6 +75,7 @@ class RandomTalks():
       self.nBytesConsumed   = 0
       self.hshConsumers     = {}
       self.strPayloadPath   = '/home/vagrant/mock_data'
+      self.lstRunningPutChunks = []
 
    def setup(self):
       """
@@ -149,7 +150,10 @@ class RandomTalks():
             # This makes sure producers are running correctly during the simulation
             # As of 03/2021 this is not happening anymore. Possibly because of the call to getPopen(pHost, strCmdConsumer) instead of pHost.cmd (??)
             # self.checkRunningProducers()
-            self.instantiateProducer(pProducer, pDataPackage)
+            if(not self.isProducerRunning(pDataPackage)):
+               self.instantiateProducer(pProducer, pDataPackage)
+               time.sleep(0.2)
+
             self.instantiateConsumer(pConsumer, pDataPackage)
             nDataIndex += 1
 
@@ -204,6 +208,13 @@ class RandomTalks():
          # Update last check time
          g_dtLastProducerCheck = datetime.now()
 
+   def isProducerRunning(self, pDataPackage):
+      strFilter = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
+      if (strFilter in self.lstRunningPutChunks):
+         return True
+      else:
+         return False
+
    def instantiateProducer(self, pHost, pDataPackage):
       """
       Issues MiniNDN commands to instantiate a producer
@@ -216,8 +227,9 @@ class RandomTalks():
          strFilePath = DataManager.nameForPayloadFile(pDataPackage.nPayloadSize, self.strPayloadPath)
          strCmd = 'ndnputchunks %s -f %d < %s' % (strFilter, nTTL, strFilePath)
          if (not g_bIsMockExperiment):
-            getPopen(pHost, strCmd)
-      
+            getPopen(pHost, strCmd, shell=True)
+         
+         self.lstRunningPutChunks.append(strFilter)      
          logging.info('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmd)
       else:
          logging.critical('[RandomTalks.instantiateProducer] Producer is nil!')
@@ -237,10 +249,10 @@ class RandomTalks():
          strInterest = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
          strCmd = 'ndncatchunks %s' % strInterest
          if (not g_bIsMockExperiment):
-            getPopen(pHost, strCmd)
+            getPopen(pHost, strCmd, shell=True)
 
          self.nBytesConsumed += pDataPackage.nPayloadSize        
-         logging.info('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmd)
+         logging.info('[RandomTalks.instantiateConsumer] %s ConsumerCmd: %s' % (pHost.name, strCmd))
       else:
          logging.critical('[RandomTalks.instantiateConsumer] Host is nil! host=%s' % str(pHost))
 
@@ -280,6 +292,7 @@ class MockHost():
    def __init__(self, strName):
       # Shit
       self.strName = strName
+      self.name = strName
       self.params = {'params': {'homeDir': ''}}
 
    def __repr__(self):
