@@ -10,7 +10,7 @@ from icnexperiment.generics import floatToDatetime
 
 class Transmission:
 
-    def __init__(self, strConsumer, strInterest, delayUs, strStatus, timeSinceEpoch, nPayload=0):
+    def __init__(self, strConsumer, strInterest, delayUs, strStatus, timeSinceEpoch=0, nPayload=0):
         self.strInterest = strInterest
         self.sDelayUs    = float(delayUs)
         self.dtDate      = floatToDatetime(float(timeSinceEpoch))

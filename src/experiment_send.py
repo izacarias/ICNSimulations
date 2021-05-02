@@ -453,10 +453,10 @@ def setICNCache():
    Sets cache for ICN hosts.
    """
    global c_nHumanCacheSize, c_nDroneCacheSize, c_nSensorCacheSize, c_nVehicleCacheSize
-   c_nHumanCacheSize   = 8000
-   c_nDroneCacheSize   = 6000
-   c_nSensorCacheSize  = 4000
-   c_nVehicleCacheSize = 80000
+   c_nHumanCacheSize   = 80000
+   c_nDroneCacheSize   = 60000
+   c_nSensorCacheSize  = 40000
+   c_nVehicleCacheSize = 100000
    logging.info('[setICNCache] Set, human=%d, drone=%d, sensor=%d, vehicle=%d' % (c_nHumanCacheSize, c_nDroneCacheSize, c_nSensorCacheSize, c_nVehicleCacheSize))
 
 # ---------------------------------------- setIPCache

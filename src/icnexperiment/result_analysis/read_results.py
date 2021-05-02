@@ -8,11 +8,127 @@ import sys
 import logging
 from os.path import dirname, exists, isdir, isfile
 from os import listdir
+import re
 
 from .transmission import Transmission
 
 # Constants ----------------------------------------------------
 c_strConsumerLog = 'consumer.log'
+
+def readNFDLogs(strBasePath, lstData):
+    
+    # strBasePath contains the directories for each node
+    lstHosts = listdir(strBasePath)
+    hshNodes = {}
+
+    for strHost in lstHosts:
+        strNfdPath = strBasePath + '/' + strHost + '/log/nfd.log'
+
+        lstConsumerInterests = list()
+        for (nTimestamp, pPackage) in lstData:
+            if (pPackage.strDest == strHost):
+                lstConsumerInterests.append((pPackage.nType, pPackage.nID))
+
+        lstTransmissions = readTrasmissionsForHost(strHost, strNfdPath, lstConsumerInterests)
+        hshNodes[strHost] = lstTransmissions
+        logging.info('[readNFDLogs] Read %d transmissions for host=%s' % (len(lstTransmissions), strHost))
+        for pTrans in lstTransmissions:
+            logging.info('[readNFDLogs] cons=%s filter=%s, delay=%.2f' % (strHost, pTrans.strInterest, pTrans.sDelayUs))
+
+    # IP
+    # [avgTransTime] average=354.6803357109191, transmissions=126
+    # [main] Transmission time average=354.680336 ms
+
+    # [avgTransTime] average=270.53809373275095, transmissions=115
+    # [main] Transmission time average=270.538094 ms
+
+    return hshNodes
+
+def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
+
+    lstTransmissions = list()
+    lstIncomingData  = list()
+    lstIncomingNack  = list()
+    lstOutgoingInterest = list()
+    pFile = open(strNfdPath, 'r')
+    if (pFile):
+        lstLines = pFile.readlines()
+        for strLine in lstLines:
+            nPos = strLine.find('onIncomingData matching')
+            if (nPos > 0):
+                '''
+                1619980266.382936 DEBUG: [nfd.Forwarder] onIncomingData matching=/localhost/nfd/rib/register/h7%07%1E%08%08localhop%08%03ndn%08%04nlsr%08%04sync%23%01%0Ai%02%01%17o%01%80j%01%0Al%01%02m%08%7F%FF%FF%FF%FF%FF%FF%FF/%00%00%01y.Y%2B%90/%EER%DD%85Jul%DC/%16%2B%1B%01%03%1C%26%07%24%08%09localhost%08%08operator%08%03KEY%08%08%11%F7%0DA%28%A0%93s/%17H0F%02%21%00%E6%C3%09%F9%2B%BB%CF-%AA%8C%D7%1E%B5_%0C%DB%9F%97%CC%E0%5EM%E3Yz%8C%0F%B6%FF%C4z%02%02%21%00%80%1D%01%00%0CC%9F%EC%CD%C5%9E%86%F7%C3%16G%5CL%3A%15%02%2Fp%09%90%17%AFTy%E0r%07
+                '''
+                sTimestamp = float(strLine.split('DEBUG')[0])
+                strWord = 'matching='
+                nPos = strLine.find(strWord)
+                if (nPos > 0):
+                    strFilter = strLine[nPos+len(strWord):].strip()
+                    lstIncomingData.append([sTimestamp, strFilter, False]) 
+                    logging.info('[nfd] cons=%s IncomingData interest=%s, time=%.3f' % (strHost, strFilter, sTimestamp))
+                else:
+                    raise Exception('No %s in line=%s' % (strWord, strLine))
+                continue
+
+            nPos = strLine.find('onIncomingNack')
+            if (nPos > 0):
+                '''
+                1619967955.552597 DEBUG: [nfd.Forwarder] onIncomingNack in=(278,0) nack=/ndn/h0-site/h0/Type1Id0/v=1619967955034/seg=1~None OK  
+                '''
+                sTimestamp = float(strLine.split('DEBUG')[0])
+                strWord = 'nack='
+                nPos = strLine.find(strWord)
+                if (nPos > 0):
+                    strFilter = strLine[nPos+len(strWord):].strip()
+                    strWord = '~'
+                    nPos = strFilter.find(strWord)
+                    if (nPos > 0):
+                        strFilter = strFilter[0:nPos].strip()
+                    lstIncomingNack.append((sTimestamp, strFilter)) 
+                else:
+                    raise Exception('No %s in line=%s' % (strWord, strLine))
+                continue              
+    
+            nPos = strLine.find('onOutgoingInterest')
+            if (nPos > 0):
+                '''
+                1619978727.726135 DEBUG: [nfd.Forwarder] onOutgoingInterest out=261 interest=/localhost/nfd/rib/register/h%27%07%12%08%03ndn%08%07s0-site%08%02s0i%02%01%17o%01%80j%01%14l%01%02m%04%007%15%90/%00%00%01y.A%B1%40/s%95s%FCO%0D~%03/%16%2B%1B%01%03%1C%26%07%24%08%09localhost%08%08operator%08%03KEY%08%08%11%F7%0DA%28%A0%93s/%17F0D%02%20d%A8%F8%FBvZ%13%3AJ%D8N%C3%DA%B4o%3C%D9b%EF%87%E1W%F3%00%EEP%E7s%ED%F2%90m%02%20%2BD%BC%28%81X%A2%1C%A8f.j%19_%9E%871%CDw%07R%F8%9B%8F%B4%AEv1r%FE%8E%C5
+                '''
+                sTimestamp = float(strLine.split('DEBUG')[0])
+                strWord = 'interest='
+                nPos = strLine.find(strWord)
+                if (nPos > 0):
+                    strFilter = strLine[nPos + len(strWord):].strip()
+                    lstOutgoingInterest.append([sTimestamp, strFilter, False])
+                    logging.info('[nfd] cons=%s OutgoingInterest interest=%s, time=%.3f' % (strHost, strFilter, sTimestamp))
+                else:
+                    raise Exception('No %s in line=%s' % (strWord, strLine))
+                continue
+        pFile.close()  
+
+    print('[readTransmissionsForHost] host=%s, nacks=%d' % (strHost, len(lstIncomingNack)))
+    for [sEnd, strInterest, strLineData] in lstIncomingData:
+        logging.info('[nfd] cons=%s incoming data for interest=%s, at=%.2f' % (strHost, strInterest, sEnd))
+        pMatch = re.match('.+\/Type([0-9])Id([0-9]+)\/', strInterest)
+        if (pMatch):
+            nType = int(pMatch.group(1))
+            nId   = int(pMatch.group(2))
+            if ((nType, nId) in lstConsumedInterests):
+                # Found consumed interest, calculate delay
+                for nIndex in range(len(lstOutgoingInterest)):
+                    # logging.info('interest=%s; interest2=%s' % (strInterest, strInterest2))
+                    [sBegin, strInterest2, bUsed] = lstOutgoingInterest[nIndex]
+                    if (strInterest == strInterest2) and (sEnd >= sBegin) and (not bUsed):
+                        sDelay = (sEnd - sBegin)*1000000 # Convert seconds to us
+                        lstTransmissions.append(Transmission(strHost, strInterest, sDelay, 'DATA'))
+                        # logging.info('strLineData=%s\nstrLineInterest=%s' % (strLineData, strLineInt))
+                        logging.info('[nfd] cons=%s match for interest=%s, sBegin=%.2f, sEnd=%.2f' % (strHost, strInterest, sBegin, sEnd))
+                        lstOutgoingInterest[nIndex][2] = True
+                        break
+            else:
+                logging.info('[nfd] cons=%s not my data, filter=%s' % (strHost, strInterest))
+
+    return lstTransmissions    
 
 def readConsumerLogs(strPath):
     """
@@ -89,8 +205,6 @@ def stdDeviationTransTime(lstTransmissions, sAvg=-1):
             sAvg = sDelaySum/nSamples
     
     # Calculate standard deviation
-
-
 
 def avgTransTimePerType(hshNodes):
     """

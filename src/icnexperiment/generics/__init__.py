@@ -1,1 +1,1 @@
-from .generics import floatToDatetime, curDatetimeToFloat, readHostNamesFromTopoFile
+from .generics import floatToDatetime, curDatetimeToFloat
