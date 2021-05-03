@@ -15,10 +15,10 @@ from icnexperiment.dir_config import c_strLogDir
 # ---------------------------------------------------------------------- Constants
 c_strLogFile = c_strLogDir + 'generate_topology.log'
 c_nNodeLinks = 3
-c_nSensors   = 2
-c_nDrones    = 2
-c_nHumans    = 2
-c_nVehicles  = 2
+c_nSensors   = 10
+c_nDrones    = 14
+c_nHumans    = 12
+c_nVehicles  = 4
 c_nMaxX      = 10000
 c_nMaxY      = 10000
 

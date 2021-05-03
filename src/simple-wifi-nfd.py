@@ -10,7 +10,8 @@ from mininet.log import setLogLevel, info
 from mininet.node import RemoteController
 from mn_wifi.node import Station
 from mn_wifi.cli import CLI
-from mn_wifi.net import Mininet_wifiz
+from mn_wifi.net import Mininet_wifi
+import subprocess
 
 
 def topology():
@@ -23,6 +24,7 @@ def topology():
                     privateDirs=privateDirs )
     "Create a network."
     net = Mininet_wifi(station=station)
+    hshNodeTypes = {'sta1': 'human', 'sta2': 'drone', 'sta3': 'vehicle'}
 
     info("*** Creating nodes\n")
     sta_arg = dict()
@@ -68,6 +70,9 @@ def topology():
     ap2.start([c0])
     ap3.start([c0])
 
+    info("*** Setting priorities\n")
+    setNodePriorities(net.aps, hshNodeTypes)
+
     if '-v' not in sys.argv:
         ap1.cmd('ovs-ofctl add-flow ap1 "priority=0,arp,in_port=1,'
                 'actions=output:in_port,normal"')
@@ -79,9 +84,25 @@ def topology():
                 'actions=output:in_port,normal"')
 
     info("*** Starting NFD processes\n")
-    nfd1 = sta1.popen("nfd --config /usr/local/etc/ndn/nfd.conf.sample")
-    nfd2 = sta2.popen("nfd --config /usr/local/etc/ndn/nfd.conf.sample")
-    nfd3 = sta3.popen("nfd --config /usr/local/etc/ndn/nfd.conf.sample")
+
+    lstNfdProcs = list()
+    lstLogFiles = list()
+    nCacheSize = 6000
+    strNFDLogLevel = 'DEBUG'
+    for pStation in net.stations:
+        strHomeDir = '/tmp/%s/' % pStation.name
+        strConfFile = strHomeDir + 'nfd.conf'
+        strLogFile = strHomeDir + 'nfd.log'
+        pStation.cmd('cp /usr/local/etc/ndn/nfd.conf.sample %s' % strConfFile)
+        pStation.cmd('infoedit -f {} -s log.default_level -v {}'.format(strConfFile, strNFDLogLevel))
+        pStation.cmd('infoedit -f {} -s tables.cs_max_packets -v {}'.format(strConfFile, nCacheSize))
+        logfile = open(strLogFile, 'w')
+        proc = pStation.popen("nfd --config %s" % (strConfFile), shell=True, stdout=logfile, stderr=logfile)
+        lstLogFiles.append(logfile)
+        lstNfdProcs.append(proc)
+            
+    # nfd2 = sta2.popen("nfd --config /tmp/sta2/nfd.conf")
+    # nfd3 = sta3.popen("nfd --config /tmp/sta3/nfd.conf")
 
     info("*** Creating faces and routes in sta1\n")
     sta1.cmd("nfdc face create udp://10.0.0.2")
@@ -97,13 +118,41 @@ def topology():
     CLI(net)
 
     info("*** Stopping NFD\n")
-    nfd1.kill()
-    nfd2.kill()
-    nfd3.kill()
+    for proc in lstNfdProcs:
+        proc.kill()
+
+    for pFile in lstLogFiles:
+        pFile.close()
 
     info("*** Stopping network\n")
     net.stop()
 
+def setNodePriorities(lstAps, hshNodeTypes):
+    strPrefix = 'sta'
+    nMaxBandKb = 10000
+    for pAp in lstAps:
+        strStation = strPrefix + pAp.name[-1]
+        strType = hshNodeTypes[strStation]
+        strIface = pAp.name + '-wlan1'
+
+        if (strType == 'human'):
+            nBand = nMaxBandKb
+        elif (strType == 'vehicle'):
+            nBand = int(0.75 * nMaxBandKb)
+        elif (strType == 'drone'):
+            nBand = int(0.5 * nMaxBandKb)
+        else:
+            raise Exception('Unrecognized host type=%s' % strType)
+
+        print('[setNodePriorities] interface=%s set to %d kbps' % (strIface, nBand))
+        subprocess.Popen('ovs-vsctl set interface %s ingress_policing_rate=%d' % (strIface, nBand), shell=True)
+        subprocess.Popen('ovs-vsctl set interface %s ingress_policing_burst=%d' % (strIface, nBand/10), shell=True)
+
+def getStationByName(strName, lstStations):
+    for pStation in lstStations:
+        if (pStation.name == strName):
+            return pStation
+    return None
 
 if __name__ == '__main__':
     setLogLevel('info')

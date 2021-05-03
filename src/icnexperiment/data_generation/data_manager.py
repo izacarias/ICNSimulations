@@ -22,18 +22,18 @@ class DataManager:
         Constructor
         """
         self.lstDataTypes = []
-        nFactor           = 2
+        nFactor           = 5
         # Initialize known dataTypes
         ################################################
         # Control data
-        self.lstDataTypes.append(C2DataType(nTTL=10*1000/nFactor,   nPeriodSec=60/nFactor, nType=1, nSize=16000, sRatioMaxReceivers=1.0))   # INTEREST 1
-        self.lstDataTypes.append(C2DataType(nTTL=1*60*1000/nFactor, nPeriodSec=60/nFactor, nType=2, nSize=32000, sRatioMaxReceivers=1.0))   # INTEREST 2
+        self.lstDataTypes.append(C2DataType(nTTL=10*1000/nFactor,   nPeriodSec=60/nFactor, nType=1024, nSize=1024, sRatioMaxReceivers=1.0))   # INTEREST 1
+        self.lstDataTypes.append(C2DataType(nTTL=1*60*1000/nFactor, nPeriodSec=60/nFactor, nType=1024*50, nSize=32000, sRatioMaxReceivers=1.0))   # INTEREST 2
         ################################################
         # Operational data
-        self.lstDataTypes.append(C2DataType(nTTL=2*60*1000/nFactor,  nPeriodSec=2*60/nFactor,  nType=3, nSize=32000, sRatioMaxReceivers=1.0))   # INTEREST 3
-        self.lstDataTypes.append(C2DataType(nTTL=5*60*1000/nFactor,  nPeriodSec=5*60/nFactor,  nType=4, nSize=32000, sRatioMaxReceivers=1.0))   # INTEREST 4
-        self.lstDataTypes.append(C2DataType(nTTL=10*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=5, nSize=64000, sRatioMaxReceivers=1.0))   # INTEREST 5
-        self.lstDataTypes.append(C2DataType(nTTL=20*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=6, nSize=64000, sRatioMaxReceivers=1.0))   # INTEREST 6
+        self.lstDataTypes.append(C2DataType(nTTL=2*60*1000/nFactor,  nPeriodSec=2*60/nFactor,  nType=3, nSize=1024*1024*1, sRatioMaxReceivers=1.0))  # INTEREST 3
+        self.lstDataTypes.append(C2DataType(nTTL=5*60*1000/nFactor,  nPeriodSec=5*60/nFactor,  nType=4, nSize=1024*1024*5, sRatioMaxReceivers=1.0))   # INTEREST 4
+        self.lstDataTypes.append(C2DataType(nTTL=10*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=5, nSize=1024*1024*20, sRatioMaxReceivers=1.0))   # INTEREST 5
+        self.lstDataTypes.append(C2DataType(nTTL=20*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=6, nSize=1024*1024*50, sRatioMaxReceivers=1.0))   # INTEREST 6
 
     def avgPayloadSize(self):
         nAvg = 0

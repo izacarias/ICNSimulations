@@ -39,7 +39,7 @@ c_strTopologyFile    = c_strTopologyDir + 'default-topology.conf'
 
 c_sConsumerCooldownSec = 0.0
 c_nSleepThresholdMs    = 100
-c_sExperimentTimeSec   = 200
+c_sExperimentTimeSec   = 250
 c_nCacheSizeDefault    = 0
 
 c_nNLSRSleepSec   = 40
