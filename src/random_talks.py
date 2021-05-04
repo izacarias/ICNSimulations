@@ -43,6 +43,7 @@ class RandomTalks():
       self.nBytesConsumed   = 0
       self.hshConsumers     = {}
       self.strPayloadPath   = '/home/vagrant/mock_data'
+      self.lstRunningPutChunks = []
 
    def setup(self):
       """
@@ -59,16 +60,15 @@ class RandomTalks():
       self.strTTLValues     = self.pDataManager.getTTLValuesParam()
       self.strPayloadValues = self.pDataManager.getPayloadValuesParam()
 
+      # Create payload mock files
+      DataManager.createPayloadFiles(self.lstDataQueue, self.strPayloadPath)
+
       # Get average payload size from DataManager. This will be used to set cache sizes in the future
       sPayloadAvg = self.pDataManager.avgPayloadSize()
       logging.info('[RandomTalks.setup] avgPayloadSize=%.3f' % sPayloadAvg)
 
       # Instantiate all producers
-      self.checkRunningProducers()
-
-      # Log resulting data queue
-      for nIndex, node in enumerate(self.lstDataQueue):
-         logging.debug('[RandomTalks.setup] Node[' + str(nIndex) + ']: ' + str(node[0]) + ', ' + str(node[1]))
+      # self.checkRunningProducers()
 
       # Log the current configuration for data_manager
       logging.debug('[RandomTalks.setup] Current data type configuration: \n%s' % self.pDataManager.info())
@@ -118,6 +118,10 @@ class RandomTalks():
             # This makes sure producers are running correctly during the simulation
             # As of 03/2021 this is not happening anymore. Possibly because of the call to getPopen(pHost, strCmdConsumer) instead of pHost.cmd (??)
             # self.checkRunningProducers()
+            if(not self.isProducerRunning(pDataPackage)):
+               self.instantiateProducer(pProducer, pDataPackage)
+               time.sleep(0.2)
+
             self.instantiateConsumer(pConsumer, pDataPackage)
             nDataIndex += 1
 
@@ -135,7 +139,7 @@ class RandomTalks():
                time.sleep(nNextStopMs/1000.0)
 
       # Close log file
-      logging.info('[RandomTalks.run] Experiment done in %s seconds log written to %s' % (sElapsedTimeMs/1000, c_strLogFile))
+      logging.info('[RandomTalks.run] Experiment done in %s seconds' % (sElapsedTimeMs/1000))
       return (dtBegin, datetime.now())
  
    def checkRunningProducers(self):
@@ -172,21 +176,30 @@ class RandomTalks():
          # Update last check time
          g_dtLastProducerCheck = datetime.now()
 
-   def instantiateProducer(self, pHost):
+   def isProducerRunning(self, pDataPackage):
+      strFilter = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
+      if (strFilter in self.lstRunningPutChunks):
+         return True
+      else:
+         return False
+
+   def instantiateProducer(self, pHost, pDataPackage):
       """
       Issues MiniNDN commands to instantiate a producer
       """
       global g_bIsMockExperiment
       if (pHost):
-         if (self.strTTLValues != 'None'):
-            strFilter = RandomTalks.getFilterByHostname(str(pHost))
-            # Producer program usage: producer <interest> <lstTTLs>
-            strCmdProducer = 'producer %s %s &' % (strFilter, self.strTTLValues)
-            if (not g_bIsMockExperiment):
-               getPopen(pHost, strCmdProducer)
-            logging.debug('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmdProducer)
-         else:
-            logging.error('[RandomTalks.instantiateProducer] Uninitialized values strTTLValues=%s' % self.strTTLValues)
+
+         nTTL = self.pDataManager.getTTLForDataType(pDataPackage.nType)
+         strFilter = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
+         strFilePath = DataManager.nameForPayloadFile(pDataPackage.nPayloadSize, self.strPayloadPath)
+         strCmd = 'ndnputchunks %s -f %d < %s' % (strFilter, nTTL, strFilePath)
+         if (not g_bIsMockExperiment):
+            # getPopen(pHost, strCmd, shell=True)
+            proc = pHost.popen(strCmd, shell=True)
+         
+         self.lstRunningPutChunks.append(strFilter)      
+         logging.info('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmd)
       else:
          logging.critical('[RandomTalks.instantiateProducer] Producer is nil!')
       
@@ -202,20 +215,16 @@ class RandomTalks():
             logging.info('[RandomTalks.instantiateConsumer] Will wait seconds=%.2f' % (c_sConsumerCooldownSec - sSecSinceLast))
             time.sleep(c_sConsumerCooldownSec - sSecSinceLast)
 
-         sTimestamp     = curDatetimeToFloat()
-         strCmdConsumer = 'consumer %s %s %d %f &' % (self.getFilterByHostname(pDataPackage.strOrig) + pDataPackage.getPackageName(), str(pHost), pDataPackage.nPayloadSize, sTimestamp)
+         strInterest = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
+         strCmd = 'ndncatchunks %s' % strInterest
+         if (not g_bIsMockExperiment):
+            # getPopen(pHost, strCmd, shell=True)
+            proc = pHost.popen(strCmd, shell=True)
 
-         try:
-            if (not g_bIsMockExperiment):
-               getPopen(pHost, strCmdConsumer)
-
-            self.hshConsumers[str(pHost)] = datetime.now()
-            self.nBytesConsumed += pDataPackage.nPayloadSize
-         except Exception as err:
-            logging.error('[RandomTalks.instantiateConsumer] Exception when starting consumer process for host %s: %s' % (str(pHost), str(err)))
-         logging.debug('[RandomTalks.instantiateConsumer] ConsumerCmd: ' + strCmdConsumer)
+         self.nBytesConsumed += pDataPackage.nPayloadSize        
+         logging.info('[RandomTalks.instantiateConsumer] %s ConsumerCmd: %s' % (pHost.name, strCmd))
       else:
-         logging.critical('[RandomTalks.instantiateConsumer] Host is nil! strInterest=%s' % strInterest)
+         logging.critical('[RandomTalks.instantiateConsumer] Host is nil! host=%s' % str(pHost))
 
    def findHostByName(self, strHostName):
       """
@@ -242,3 +251,7 @@ class RandomTalks():
       Returns a hostname read from an interest filter
       """
       return strInterestFilter.split('/')[-2]
+
+   @staticmethod
+   def getChunksFilter(strProd, nType, nId):
+      return '%sType%dId%d/' % (RandomTalks.getFilterByHostname(strProd), nType, nId)

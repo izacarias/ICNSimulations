@@ -74,7 +74,7 @@ def topology():
    "Create a network."
    net = Mininet_wifi(station=station)
    
-   topo = processTopo(topoFile='/home/vagrant/icnsimulations/topologies/linear-topo3-sta.conf')
+   topo = processTopo(topoFile='/home/vagrant/icnsimulations/topologies/wifi-topo12-noloop.conf')
    topo.toString()
 
    # Add access points
@@ -107,17 +107,17 @@ def topology():
    for pAp in net.aps:
       pAp.start([c0])
 
-   if '-v' not in sys.argv:
-      for pAp in net.aps:
-         info('Setting for ap=%s' % pAp.name)
-         pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,arp,in_port=1,'
-                  'actions=output:in_port,normal"')
-         pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,icmp,in_port=1,'
-                  'actions=output:in_port,normal"')
-         pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,udp,in_port=1,'
-                  'actions=output:in_port,normal"')
-         pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,tcp,in_port=1,'
-                  'actions=output:in_port,normal"')
+   # if '-v' not in sys.argv:
+   #    for pAp in net.aps:
+   #       info('Setting for ap=%s' % pAp.name)
+   #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,arp,in_port=1,'
+   #                'actions=output:in_port,normal"')
+   #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,icmp,in_port=1,'
+   #                'actions=output:in_port,normal"')
+   #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,udp,in_port=1,'
+   #                'actions=output:in_port,normal"')
+   #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,tcp,in_port=1,'
+   #                'actions=output:in_port,normal"')
 
    info("*** Starting NFD processes\n")
    lstNfdProcs = list()

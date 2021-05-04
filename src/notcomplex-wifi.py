@@ -8,6 +8,7 @@ import getopt
 from process_topology import Topology
 from icnexperiment.data_generation import DataManager
 from icnexperiment.dir_config import c_strLogDir
+from random_talks import RandomTalks
 
 # Create logging
 c_strLogFile = c_strLogDir + '/notcomplex-witi.log'
@@ -43,17 +44,26 @@ def main():
          strMode = 'icn_sdn'
 
    # Load data queue
-   # if (strTopoPath != ''):
-   #    lstDataQueue = DataManager.loadDataQueueFromTextFile(strTopoPath)
-   #    logging.info('[main] Data queue size=%d' % len(lstDataQueue))  
-   # else:
-   #    logging.error('[main] No topology file specified!')
-   #    showHelp()
-   #    exit(0)
+   if (strTopoPath != ''):
+      lstDataQueue = DataManager.loadDataQueueFromTextFile(strTopoPath)
+      logging.info('[main] Data queue size=%d' % len(lstDataQueue))  
+   else:
+      logging.error('[main] No topology file specified!')
+      showHelp()
+      exit(0)
 
    # Setup and run experiment
    topo = Topology.fromFile(strTopoPath)
    topo.create()
+   logging.info('[runExperiment] Begin experiment')
+   Experiment = RandomTalks(topo.net.stations, lstDataQueue)
+   try:
+      Experiment.setup()
+      (dtBegin, dtEnd) = Experiment.run()
+   except Exception as e:
+      logging.error('[runExperiment] An exception was raised during the experiment: %s' % str(e))
+      raise
+      
    topo.showCLI()
    topo.destroy()
 

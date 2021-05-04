@@ -24,6 +24,7 @@ class Topology(object):
       self.lstLinks = []
       # Mininet related
       self.lstNfdProcs = list()
+      self.lstLogFiles = list()
       self.net = None
 
    def addStation(self, strName, **kwargs):
@@ -84,68 +85,46 @@ class Topology(object):
       for pAp in self.net.aps:
          pAp.start([c0])
 
-      for pAp in self.net.aps:
-         if '-v' not in sys.argv:
-            logging.info('Setting for ap=%s' % pAp.name)
-            pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,arp,in_port=1,'
-                     'actions=output:in_port,normal"')
-            pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,icmp,in_port=1,'
-                     'actions=output:in_port,normal"')
-            pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,udp,in_port=1,'
-                     'actions=output:in_port,normal"')
-            pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,tcp,in_port=1,'
-                     'actions=output:in_port,normal"')
+      # for pAp in self.net.aps:
+      #    if '-v' not in sys.argv:
+      #       logging.info('Setting for ap=%s' % pAp.name)
+      #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,arp,in_port=1,'
+      #                'actions=output:in_port,normal"')
+      #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,icmp,in_port=1,'
+      #                'actions=output:in_port,normal"')
+      #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,udp,in_port=1,'
+      #                'actions=output:in_port,normal"')
+      #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,tcp,in_port=1,'
+      #                'actions=output:in_port,normal"')
 
       logging.info("[Topology.create] Starting NFD processes")
+      self.lstLogFiles = list()
+      self.lstNfdProcs = list()
+      nCacheSize = 60000
+      strNFDLogLevel = 'DEBUG'
       for pStation in self.net.stations:
-         nfdProc = pStation.popen("nfd --config /usr/local/etc/ndn/nfd.conf.sample")
-         self.lstNfdProcs.append(nfdProc)
+         strHomeDir = '/tmp/%s/' % pStation.name
+         strConfFile = strHomeDir + 'nfd.conf'
+         strLogFile = strHomeDir + 'nfd.log'
+         pStation.cmd('cp /usr/local/etc/ndn/nfd.conf.sample %s' % strConfFile)
+         time.sleep(1)
+         pStation.cmd('infoedit -f {} -s log.default_level -v {}'.format(strConfFile, strNFDLogLevel))
+         pStation.cmd('infoedit -f {} -s tables.cs_max_packets -v {}'.format(strConfFile, nCacheSize))
+         logfile = open(strLogFile, 'w')
+         proc = pStation.popen("nfd --config %s" % (strConfFile), shell=True, stdout=logfile, stderr=logfile)
+         self.lstLogFiles.append(logfile)
+         self.lstNfdProcs.append(proc)
 
-      '''
-      info("*** Creating faces and routes in sta1\n")
-      sta1.cmd("nfdc face create udp://10.0.0.2")
-      sta1.cmd("nfdc route add /sta2 udp://10.0.0.2")
-      sta1.cmd("nfdc route add /sta3 udp://10.0.0.2")
+      time.sleep(5)
 
-      info("*** Creating faces and routes in sta2\n")
-      sta2.cmd("nfdc face create udp://10.0.0.3")
-      sta2.cmd("nfdc face create udp://10.0.0.1")
-      sta2.cmd("nfdc route add /sta3 udp://10.0.0.3")
-      '''
-      '''
-      ap_v0 = Topology.findNodeByName('ap_v0', self.net.aps)
-      ap_d0 = Topology.findNodeByName('ap_d0', self.net.aps)
-      ap_h0 = Topology.findNodeByName('ap_h0', self.net.aps)
-      ap_s0 = Topology.findNodeByName('ap_s0', self.net.aps)
-      v0 = Topology.findNodeByName('v0', self.net.stations)
-      d0 = Topology.findNodeByName('d0', self.net.stations)
-      h0 = Topology.findNodeByName('h0', self.net.stations)
-      s0 = Topology.findNodeByName('s0', self.net.stations)
+      # for pStation in self.net.stations:
+      #    nfdProc = pStation.popen("nfd --config /usr/local/etc/ndn/nfd.conf.sample")
+      #    self.lstNfdProcs.append(nfdProc)
 
-      v0.cmd("nfdc face create udp://%s" % d0.IP())
-      v0.cmd("nfdc route add /v0 udp://%s" % d0.IP())
-      v0.cmd("nfdc route add /d0 udp://%s" % d0.IP())
-      v0.cmd("nfdc route add /h0 udp://%s" % d0.IP())
-      v0.cmd("nfdc route add /s0 udp://%s" % d0.IP())
-
-      d0.cmd("nfdc face create udp://%s" % v0.IP())
-      d0.cmd("nfdc face create udp://%s" % h0.IP())
-      d0.cmd("nfdc route add /h0 udp://%s" % h0.IP())
-      d0.cmd("nfdc route add /s0 udp://%s" % h0.IP())
-
-      h0.cmd("nfdc face create udp://%s" % d0.IP())
-      h0.cmd("nfdc face create udp://%s" % s0.IP())
-      h0.cmd("nfdc route add /s0 udp://%s" % s0.IP())
-
-      s0.cmd("nfdc face create udp://%s" % h0.IP())
-      '''
-      # time.sleep(10)
-      
       logging.info('[Topology.create] Creating and registering faces')
       for pStation in self.net.stations:
          for pStation2 in self.net.stations:
             if (pStation != pStation2):
-               print('IP=%s' % pStation2.IP())
                pStation.cmd('nfdc face create udp://' + pStation2.IP())
                pStation.cmd('nfdc route add %s udp://%s' % (interestFilterForHost(pStation2.name), pStation2.IP()))
 
@@ -153,6 +132,9 @@ class Topology(object):
       logging.info('')
       for proc in self.lstNfdProcs:
          proc.kill()
+
+      for pFile in self.lstLogFiles:
+         pFile.close()
 
       logging.info("*** Stopping network")
       self.net.stop()

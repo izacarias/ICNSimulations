@@ -15,12 +15,12 @@ from icnexperiment.dir_config import c_strLogDir
 # ---------------------------------------------------------------------- Constants
 c_strLogFile = c_strLogDir + 'generate_topology.log'
 c_nNodeLinks = 3
-c_nSensors   = 10
-c_nDrones    = 14
-c_nHumans    = 12
-c_nVehicles  = 4
-c_nMaxX      = 10000
-c_nMaxY      = 10000
+c_nSensors   = 2
+c_nDrones    = 2
+c_nHumans    = 2
+c_nVehicles  = 2
+c_nMaxX      = 100000
+c_nMaxY      = 100000
 
 """
         20 40 60 80 100 nodes
@@ -38,7 +38,7 @@ def printUsage():
 
 def main():
 
-    bWifi = False    # By default, always generate wifi topology
+    bWifi = True
     # Read command line parameter
     if (len(sys.argv) == 1):
         printUsage()
@@ -68,3 +68,32 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+'''
+TEMP
+[stations]
+sta1:  _ position=0,500,0
+sta2:  _ position=500,500,0
+sta3:  _ position=1000,500,0
+sta4:  _ position=500,0,0
+sta5:  _ position=1000,0,0
+
+[accessPoints]
+ap1:  _ position=0,501,0
+ap2:  _ position=500,501,0
+ap3:  _ position=1000,501,0
+ap4:  _ position=500,1,0
+ap5:  _ position=1000,1,0
+
+[links]
+ap1:ap2 _
+ap2:ap3 _
+ap2:ap4 _
+ap3:ap5 _
+sta1:ap1 _
+sta2:ap2 _
+sta3:ap3 _
+sta4:ap4 _
+sta5:ap5 _
+'''
