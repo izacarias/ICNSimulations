@@ -27,17 +27,25 @@ def main():
     if (len(sys.argv) > 1):
         strTopoPath = sys.argv[1]
     else:
-        logging.info('read_nfd_results.py <data_queue>')
+        logging.info('read_nfd_results.py <topofile>')
         exit(0)
 
     if (len(sys.argv) > 2):
         strPath = os.path.dirname(sys.argv[1])
     else:
-        strPath = '/tmp/minindn'
+        strPath = '/tmp'
 
     lstData = DataManager.loadDataQueueFromTextFile(strTopoPath)
 
-    hshNodes = readNFDLogs(strPath, lstData)
+    # Get hostnames from the data queue
+    lstHostNames = []
+    for [nTimestamp, pDataPackage] in lstData:
+        if (pDataPackage.strOrig not in lstHostNames):
+            lstHostNames.append(pDataPackage.strOrig)
+        if (pDataPackage.strDest not in lstHostNames):
+            lstHostNames.append(pDataPackage.strDest)
+
+    hshNodes = readNFDLogs(strPath, lstData, lstHostNames)
     
     if (len(hshNodes) > 0):
         sAvgTransTime = avgTransTime(hshNodes)

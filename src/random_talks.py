@@ -20,7 +20,7 @@ from icnexperiment.data_generation import DataManager, curDatetimeToFloat
 # ---------------------------------------- Constants
 c_sConsumerCooldownSec    = 0.0
 c_nSleepThresholdMs       = 100
-c_sExperimentTimeSec      = 200
+c_sExperimentTimeSec      = 100
 
 g_bIsMockExperiment       = False
 
@@ -44,6 +44,7 @@ class RandomTalks():
       self.hshConsumers     = {}
       self.strPayloadPath   = '/home/vagrant/mock_data'
       self.lstRunningPutChunks = []
+      self.hshPutchunksProcs = {}
 
    def setup(self):
       """
@@ -139,6 +140,7 @@ class RandomTalks():
                time.sleep(nNextStopMs/1000.0)
 
       # Close log file
+      # self.killAllProducers()
       logging.info('[RandomTalks.run] Experiment done in %s seconds' % (sElapsedTimeMs/1000))
       return (dtBegin, datetime.now())
  
@@ -176,20 +178,12 @@ class RandomTalks():
          # Update last check time
          g_dtLastProducerCheck = datetime.now()
 
-   def isProducerRunning(self, pDataPackage):
-      strFilter = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
-      if (strFilter in self.lstRunningPutChunks):
-         return True
-      else:
-         return False
-
    def instantiateProducer(self, pHost, pDataPackage):
       """
       Issues MiniNDN commands to instantiate a producer
       """
       global g_bIsMockExperiment
       if (pHost):
-
          nTTL = self.pDataManager.getTTLForDataType(pDataPackage.nType)
          strFilter = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
          strFilePath = DataManager.nameForPayloadFile(pDataPackage.nPayloadSize, self.strPayloadPath)
@@ -198,7 +192,10 @@ class RandomTalks():
             # getPopen(pHost, strCmd, shell=True)
             proc = pHost.popen(strCmd, shell=True)
          
-         self.lstRunningPutChunks.append(strFilter)      
+         if (pHost.name not in self.hshPutchunksProcs):
+            self.hshPutchunksProcs[pHost.name] = []
+         
+         self.addProducerProcess(pHost.name, proc, strFilter)
          logging.info('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmd)
       else:
          logging.critical('[RandomTalks.instantiateProducer] Producer is nil!')
@@ -226,6 +223,34 @@ class RandomTalks():
       else:
          logging.critical('[RandomTalks.instantiateConsumer] Host is nil! host=%s' % str(pHost))
 
+   def addProducerProcess(self, strHost, newProc, strInterest):
+      nMaxProcsPerHost = 30
+      if (strHost not in self.hshPutchunksProcs):
+         self.hshPutchunksProcs[strHost] = []
+      self.hshPutchunksProcs[strHost].append([newProc, strInterest])
+
+      if (len(self.hshPutchunksProcs[strHost]) > nMaxProcsPerHost):
+         # Kill and remove the oldest process
+         [oldProc, strOldInt] = self.hshPutchunksProcs[strHost].pop(0)
+         oldProc.kill()
+         logging.info('[RandomTalks.addProducerProcess] Remove old process from host=%s for interest=%s' % (strHost, strOldInt))
+      return
+
+   def isProducerRunning(self, pDataPackage):
+      bIsRunning = False
+      strFilter  = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
+      if (pDataPackage.strOrig in self.hshPutchunksProcs):
+         for [proc, strRunningFilter] in self.hshPutchunksProcs[pDataPackage.strOrig]:
+            if (strRunningFilter == strFilter):
+               bIsRunning = True
+               break
+      return bIsRunning
+
+   def killAllProducers(self):
+      for strHost in self.hshPutchunksProcs:
+         for [proc, strInterest] in self.hshPutchunksProcs[strHost]:
+            proc.kill()
+
    def findHostByName(self, strHostName):
       """
       Returns a host found in the host list.
@@ -242,8 +267,8 @@ class RandomTalks():
       Creates interest filter base on the producer`s name
       """
       # return '/' + c_strAppName + '/' + strName + '/'
-      # return '/%s' % (strName)
-      return '/ndn/%s-site/%s/' % (strName, strName)
+      return '/%s/' % (strName)
+      # return '/ndn/%s-site/%s/' % (strName, strName)
 
    @staticmethod
    def getHostnameFromFilter(strInterestFilter):

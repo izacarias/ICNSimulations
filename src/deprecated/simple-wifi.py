@@ -10,7 +10,7 @@ from mininet.log import setLogLevel, info
 from mininet.node import RemoteController
 from mn_wifi.node import Station
 from mn_wifi.cli import CLI
-from mn_wifi.net import Mininet_wifiz
+from mn_wifi.net import Mininet_wifi
 
 
 def topology():

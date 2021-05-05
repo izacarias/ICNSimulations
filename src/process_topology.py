@@ -12,9 +12,13 @@ from mininet.node import RemoteController
 from mn_wifi.node import Station
 from mn_wifi.cli import CLI
 from mn_wifi.net import Mininet_wifi
+from minindn.apps.nlsr import Nlsr
+from minindn.apps.app_manager import AppManager
 import configparser
 import logging
 import time
+import subprocess
+import random
 
 class Topology(object):
 
@@ -51,6 +55,9 @@ class Topology(object):
 
    def create(self):
 
+      # In preparation, kill any nfd processes that might be running
+      subprocess.Popen('killall -9 nfd', shell=True)
+
       privateDirs = [('/var/log', '/tmp/%(name)s/var/log'), ('/var/run', '/tmp/%(name)s/var/run'), ('/run', '/tmp/%(name)s/run'), '/var/mn']
       station = partial( Station, privateDirs=privateDirs )
       self.net = Mininet_wifi(station=station)
@@ -85,18 +92,6 @@ class Topology(object):
       for pAp in self.net.aps:
          pAp.start([c0])
 
-      # for pAp in self.net.aps:
-      #    if '-v' not in sys.argv:
-      #       logging.info('Setting for ap=%s' % pAp.name)
-      #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,arp,in_port=1,'
-      #                'actions=output:in_port,normal"')
-      #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,icmp,in_port=1,'
-      #                'actions=output:in_port,normal"')
-      #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,udp,in_port=1,'
-      #                'actions=output:in_port,normal"')
-      #       pAp.cmd('ovs-ofctl add-flow ' + pAp.name + ' "priority=0,tcp,in_port=1,'
-      #                'actions=output:in_port,normal"')
-
       logging.info("[Topology.create] Starting NFD processes")
       self.lstLogFiles = list()
       self.lstNfdProcs = list()
@@ -115,7 +110,7 @@ class Topology(object):
          self.lstLogFiles.append(logfile)
          self.lstNfdProcs.append(proc)
 
-      time.sleep(5)
+      # time.sleep(5)
 
       # for pStation in self.net.stations:
       #    nfdProc = pStation.popen("nfd --config /usr/local/etc/ndn/nfd.conf.sample")
@@ -124,9 +119,19 @@ class Topology(object):
       logging.info('[Topology.create] Creating and registering faces')
       for pStation in self.net.stations:
          for pStation2 in self.net.stations:
+            # sRand = random.randrange(9)
             if (pStation != pStation2):
                pStation.cmd('nfdc face create udp://' + pStation2.IP())
                pStation.cmd('nfdc route add %s udp://%s' % (interestFilterForHost(pStation2.name), pStation2.IP()))
+
+      for pStation in self.net.stations:
+         if ('params' not in pStation.params):
+            pStation.params['params'] = {}
+
+         if ('homeDir' not in pStation.params['params']):
+            pStation.params['params']['homeDir'] = '/tmp/' + pStation.name
+
+      nlsrs = AppManager(self.net.stations, Nlsr, logLevel='DEBUG')
 
    def destroy(self):
       logging.info('')

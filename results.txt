@@ -1,0 +1,57 @@
+wifi-topo12-noloop for 100 seconds
+
+cache at 60000 for everyone
+[readTransmissionsForHost] host=h1, nacks=65
+[readNFDLogs] Read 114 transmissions for host=h1
+[readTransmissionsForHost] host=d2, nacks=67
+[readNFDLogs] Read 162 transmissions for host=d2
+[readTransmissionsForHost] host=s1, nacks=45
+[readNFDLogs] Read 0 transmissions for host=s1
+[readTransmissionsForHost] host=h0, nacks=73
+[readNFDLogs] Read 162 transmissions for host=h0
+[readTransmissionsForHost] host=d0, nacks=65
+[readNFDLogs] Read 170 transmissions for host=d0
+[readTransmissionsForHost] host=h5, nacks=63
+[readNFDLogs] Read 160 transmissions for host=h5
+[readTransmissionsForHost] host=v0, nacks=72
+[readNFDLogs] Read 152 transmissions for host=v0
+[readTransmissionsForHost] host=h4, nacks=75
+[readNFDLogs] Read 162 transmissions for host=h4
+[readTransmissionsForHost] host=h2, nacks=66
+[readNFDLogs] Read 146 transmissions for host=h2
+[readTransmissionsForHost] host=h3, nacks=70
+[readNFDLogs] Read 154 transmissions for host=h3
+[readTransmissionsForHost] host=d1, nacks=63
+[readNFDLogs] Read 152 transmissions for host=d1
+[readTransmissionsForHost] host=s0, nacks=26
+[readNFDLogs] Read 0 transmissions for host=s0
+[avgTransTime] average=107.84245827362777, transmissions=1534
+[main] Transmission time average=107.842458 ms
+
+IP (???)
+[readTransmissionsForHost] host=h1, nacks=65
+[readNFDLogs] Read 114 transmissions for host=h1
+[readTransmissionsForHost] host=d2, nacks=66
+[readNFDLogs] Read 162 transmissions for host=d2
+[readTransmissionsForHost] host=s1, nacks=45
+[readNFDLogs] Read 0 transmissions for host=s1
+[readTransmissionsForHost] host=h0, nacks=73
+[readNFDLogs] Read 162 transmissions for host=h0
+[readTransmissionsForHost] host=d0, nacks=65
+[readNFDLogs] Read 170 transmissions for host=d0
+[readTransmissionsForHost] host=h5, nacks=63
+[readNFDLogs] Read 160 transmissions for host=h5
+[readTransmissionsForHost] host=v0, nacks=72
+[readNFDLogs] Read 152 transmissions for host=v0
+[readTransmissionsForHost] host=h4, nacks=75
+[readNFDLogs] Read 162 transmissions for host=h4
+[readTransmissionsForHost] host=h2, nacks=66
+[readNFDLogs] Read 146 transmissions for host=h2
+[readTransmissionsForHost] host=h3, nacks=70
+[readNFDLogs] Read 154 transmissions for host=h3
+[readTransmissionsForHost] host=d1, nacks=63
+[readNFDLogs] Read 152 transmissions for host=d1
+[readTransmissionsForHost] host=s0, nacks=26
+[readNFDLogs] Read 0 transmissions for host=s0
+[avgTransTime] average=107.64549794999064, transmissions=1534
+[main] Transmission time average=107.645498 ms

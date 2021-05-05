@@ -15,25 +15,26 @@ from .transmission import Transmission
 # Constants ----------------------------------------------------
 c_strConsumerLog = 'consumer.log'
 
-def readNFDLogs(strBasePath, lstData):
+def readNFDLogs(strBasePath, lstData, lstHostNames):
     
     # strBasePath contains the directories for each node
-    lstHosts = listdir(strBasePath)
+    lstDirs = listdir(strBasePath)
     hshNodes = {}
 
-    for strHost in lstHosts:
-        strNfdPath = strBasePath + '/' + strHost + '/log/nfd.log'
+    for strHost in lstDirs:
+        if (strHost in lstHostNames):
+            strNfdPath = strBasePath + '/' + strHost + '/nfd.log'
 
-        lstConsumerInterests = list()
-        for (nTimestamp, pPackage) in lstData:
-            if (pPackage.strDest == strHost):
-                lstConsumerInterests.append((pPackage.nType, pPackage.nID))
+            lstConsumerInterests = list()
+            for (nTimestamp, pPackage) in lstData:
+                if (pPackage.strDest == strHost):
+                    lstConsumerInterests.append((pPackage.nType, pPackage.nID))
 
-        lstTransmissions = readTrasmissionsForHost(strHost, strNfdPath, lstConsumerInterests)
-        hshNodes[strHost] = lstTransmissions
-        logging.info('[readNFDLogs] Read %d transmissions for host=%s' % (len(lstTransmissions), strHost))
-        for pTrans in lstTransmissions:
-            logging.info('[readNFDLogs] cons=%s filter=%s, delay=%.2f' % (strHost, pTrans.strInterest, pTrans.sDelayUs))
+            lstTransmissions = readTrasmissionsForHost(strHost, strNfdPath, lstConsumerInterests)
+            hshNodes[strHost] = lstTransmissions
+            logging.info('[readNFDLogs] Read %d transmissions for host=%s' % (len(lstTransmissions), strHost))
+            # for pTrans in lstTransmissions:
+            #     logging.info('[readNFDLogs] cons=%s filter=%s, delay=%.2f' % (strHost, pTrans.strInterest, pTrans.sDelayUs))
 
     # IP
     # [avgTransTime] average=354.6803357109191, transmissions=126
@@ -65,7 +66,7 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
                 if (nPos > 0):
                     strFilter = strLine[nPos+len(strWord):].strip()
                     lstIncomingData.append([sTimestamp, strFilter, False]) 
-                    logging.info('[nfd] cons=%s IncomingData interest=%s, time=%.3f' % (strHost, strFilter, sTimestamp))
+                    # logging.info('[nfd] cons=%s IncomingData interest=%s, time=%.3f' % (strHost, strFilter, sTimestamp))
                 else:
                     raise Exception('No %s in line=%s' % (strWord, strLine))
                 continue
@@ -100,15 +101,15 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
                 if (nPos > 0):
                     strFilter = strLine[nPos + len(strWord):].strip()
                     lstOutgoingInterest.append([sTimestamp, strFilter, False])
-                    logging.info('[nfd] cons=%s OutgoingInterest interest=%s, time=%.3f' % (strHost, strFilter, sTimestamp))
+                    # logging.info('[nfd] cons=%s OutgoingInterest interest=%s, time=%.3f' % (strHost, strFilter, sTimestamp))
                 else:
                     raise Exception('No %s in line=%s' % (strWord, strLine))
                 continue
         pFile.close()  
 
-    print('[readTransmissionsForHost] host=%s, nacks=%d' % (strHost, len(lstIncomingNack)))
+    logging.info('[readTransmissionsForHost] host=%s, nacks=%d' % (strHost, len(lstIncomingNack)))
     for [sEnd, strInterest, strLineData] in lstIncomingData:
-        logging.info('[nfd] cons=%s incoming data for interest=%s, at=%.2f' % (strHost, strInterest, sEnd))
+        # logging.info('[nfd] cons=%s incoming data for interest=%s, at=%.2f' % (strHost, strInterest, sEnd))
         pMatch = re.match('.+\/Type([0-9])Id([0-9]+)\/', strInterest)
         if (pMatch):
             nType = int(pMatch.group(1))
@@ -122,11 +123,11 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
                         sDelay = (sEnd - sBegin)*1000000 # Convert seconds to us
                         lstTransmissions.append(Transmission(strHost, strInterest, sDelay, 'DATA'))
                         # logging.info('strLineData=%s\nstrLineInterest=%s' % (strLineData, strLineInt))
-                        logging.info('[nfd] cons=%s match for interest=%s, sBegin=%.2f, sEnd=%.2f' % (strHost, strInterest, sBegin, sEnd))
+                        # logging.info('[nfd] cons=%s match for interest=%s, sBegin=%.2f, sEnd=%.2f' % (strHost, strInterest, sBegin, sEnd))
                         lstOutgoingInterest[nIndex][2] = True
                         break
-            else:
-                logging.info('[nfd] cons=%s not my data, filter=%s' % (strHost, strInterest))
+            # else:
+            #     logging.info('[nfd] cons=%s not my data, filter=%s' % (strHost, strInterest))
 
     return lstTransmissions    
 
