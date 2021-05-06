@@ -46,6 +46,7 @@ def main():
    # Load data queue
    if (strTopoPath != ''):
       lstDataQueue = DataManager.loadDataQueueFromTextFile(strTopoPath)
+      lstDataQueue = list()
       logging.info('[main] Data queue size=%d' % len(lstDataQueue))  
    else:
       logging.error('[main] No topology file specified!')
@@ -54,14 +55,14 @@ def main():
 
    # Setup and run experiment
    topo = Topology.fromFile(strTopoPath)
-   topo.create()
-   logging.info('[runExperiment] Begin experiment')
+   topo.create(strMode='icn_sdn')
+   logging.info('[main] Begin experiment')
    Experiment = RandomTalks(topo.net.stations, lstDataQueue)
    try:
       Experiment.setup()
       (dtBegin, dtEnd) = Experiment.run()
    except Exception as e:
-      logging.error('[runExperiment] An exception was raised during the experiment: %s' % str(e))
+      logging.error('[main] An exception was raised during the experiment: %s' % str(e))
       raise
       
    topo.showCLI()

@@ -33,7 +33,7 @@ def main():
     if (len(sys.argv) > 2):
         strPath = os.path.dirname(sys.argv[1])
     else:
-        strPath = '/tmp'
+        strPath = '/tmp/icnsimulations'
 
     lstData = DataManager.loadDataQueueFromTextFile(strTopoPath)
 
