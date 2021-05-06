@@ -12,12 +12,15 @@ import sys
 from icnexperiment.topology_generation import TopologyGenerator
 from icnexperiment.dir_config import c_strLogDir
 
+# TODO:
+    # Use sequential ap names (ap1, ap2, ap3, ...)
+    # Create link between every host and their respective ap (dont forget argument _)
 # ---------------------------------------------------------------------- Constants
 c_strLogFile = c_strLogDir + 'generate_topology.log'
 c_nNodeLinks = 3
-c_nSensors   = 2
-c_nDrones    = 2
-c_nHumans    = 2
+c_nSensors   = 4
+c_nDrones    = 8
+c_nHumans    = 6
 c_nVehicles  = 2
 c_nMaxX      = 100000
 c_nMaxY      = 100000

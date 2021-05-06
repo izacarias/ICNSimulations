@@ -32,9 +32,37 @@ def readNFDLogs(strBasePath, lstData, lstHostNames):
 
             lstTransmissions = readTrasmissionsForHost(strHost, strNfdPath, lstConsumerInterests)
             hshNodes[strHost] = lstTransmissions
-            logging.info('[readNFDLogs] Read %d transmissions for host=%s' % (len(lstTransmissions), strHost))
+            (nData, nNack, nTimeout) = countStatusForList(lstTransmissions)
+            sAvg = avgTransTimeForList(lstTransmissions)
+            logging.info('[readNFDLogs] Read %d transmissions for host=%s; DATA=%d; NACK=%d; avgDelay=%.2f ms' % (len(lstTransmissions), strHost, nData, nNack, sAvg/1000))
 
     return hshNodes
+
+def avgTransTimeForList(lstTransmissions):
+    sSum = 0.0
+    nSamples = 0
+    for pTrans in lstTransmissions:
+        if (pTrans.isData()):
+            nSamples += 1
+            sSum += pTrans.sDelayUs
+    if (nSamples > 0):
+        sAvg = sSum/nSamples
+    else:
+        sAvg = 0
+    return sAvg
+
+def countStatusForList(lstTransmissions):
+    nData = 0
+    nNack = 0
+    nTimeout = 0
+    for pTrans in lstTransmissions:
+        if (pTrans.isData()):
+            nData += 1
+        elif (pTrans.isNack()):
+            nNack += 1
+        elif (pTrans.isTimeout()):
+            nTimeout += 1
+    return (nData, nNack, nTimeout)
 
 def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
 
@@ -77,6 +105,7 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
                     if (nPos > 0):
                         strFilter = strFilter[0:nPos].strip()
                     lstIncomingNack.append((sTimestamp, strFilter)) 
+                    lstTransmissions.append(Transmission(strHost, strFilter, 0.0, 'NACK'))
                 else:
                     raise Exception('No %s in line=%s' % (strWord, strLine))
                 continue              
@@ -98,7 +127,7 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
                 continue
         pFile.close()  
 
-    logging.info('[readTransmissionsForHost] host=%s, nacks=%d' % (strHost, len(lstIncomingNack)))
+    # logging.info('[readTransmissionsForHost] host=%s, nacks=%d' % (strHost, len(lstIncomingNack)))
     for [sEnd, strInterest, bDataEventUsed] in lstIncomingData:
         # logging.info('[nfd] cons=%s incoming data for interest=%s, at=%.2f' % (strHost, strInterest, sEnd))
         nLastIntIndex = -1

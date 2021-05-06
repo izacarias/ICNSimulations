@@ -46,6 +46,12 @@ class Transmission:
     def isData(self):
         return (self.strStatus == 'DATA')
     
+    def isNack(self):
+        return (self.strStatus == 'NACK')
+
+    def isTimeout(self):
+        return (self.strStatus == 'TIMEOUT')
+    
     @staticmethod
     def fromString(strLine, strConsumer):
         """

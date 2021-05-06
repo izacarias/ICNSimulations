@@ -38,7 +38,11 @@ class Link:
         Returns Link string in MiniNDN topology file format
         ex. a1:b1 delay=10ms bw=1000
         """
-        strLine = '%s:%s delay=%dms bw=%d' % (self.origHost.Name(), self.destHost.Name(), self.nDelay, self.nBandwidth)
+        strLine = '%s:%s _' % (self.origHost.Name(), self.destHost.Name())
+        if (self.nDelay > 0):
+            strLine += ' delay=%dms' % self.nDelay
+        if (self.nBandwidth > 0):
+            strLine += ' bw=%d' % self.nBandwidth
         if (self.nLoss >= 1):
             strLine += ' loss=%d' % self.nLoss
         return strLine

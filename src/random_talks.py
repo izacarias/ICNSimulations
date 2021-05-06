@@ -20,10 +20,8 @@ from icnexperiment.data_generation import DataManager, curDatetimeToFloat
 # ---------------------------------------- Constants
 c_sConsumerCooldownSec    = 0.0
 c_nSleepThresholdMs       = 100
-c_sExperimentTimeSec      = 100
-
+c_sExperimentTimeSec      = 150
 g_bIsMockExperiment       = False
-
 g_dtLastProducerCheck     = None
 g_nProducerCheckPeriodSec = 5
 
@@ -119,6 +117,9 @@ class RandomTalks():
             # This makes sure producers are running correctly during the simulation
             # As of 03/2021 this is not happening anymore. Possibly because of the call to getPopen(pHost, strCmdConsumer) instead of pHost.cmd (??)
             # self.checkRunningProducers()
+            if ((sElapsedTimeMs/1000) > c_sExperimentTimeSec):
+               break
+
             if(not self.isProducerRunning(pDataPackage)):
                self.instantiateProducer(pProducer, pDataPackage)
                time.sleep(0.2)
@@ -187,7 +188,7 @@ class RandomTalks():
          nTTL = self.pDataManager.getTTLForDataType(pDataPackage.nType)
          strFilter = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
          strFilePath = DataManager.nameForPayloadFile(pDataPackage.nPayloadSize, self.strPayloadPath)
-         strCmd = 'ndnputchunks %s -f %d < %s' % (strFilter, nTTL, strFilePath)
+         strCmd = 'ndnputchunks %s -f %d < %s -q' % (strFilter, nTTL, strFilePath)
          if (not g_bIsMockExperiment):
             # getPopen(pHost, strCmd, shell=True)
             proc = pHost.popen(strCmd, shell=True)
@@ -213,7 +214,7 @@ class RandomTalks():
             time.sleep(c_sConsumerCooldownSec - sSecSinceLast)
 
          strInterest = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
-         strCmd = 'ndncatchunks %s' % strInterest
+         strCmd = 'ndncatchunks %s -q' % strInterest
          if (not g_bIsMockExperiment):
             # getPopen(pHost, strCmd, shell=True)
             proc = pHost.popen(strCmd, shell=True)
@@ -224,10 +225,11 @@ class RandomTalks():
          logging.critical('[RandomTalks.instantiateConsumer] Host is nil! host=%s' % str(pHost))
 
    def addProducerProcess(self, strHost, newProc, strInterest):
-      nMaxProcsPerHost = 30
+      nMaxProcsPerHost = 10
       if (strHost not in self.hshPutchunksProcs):
          self.hshPutchunksProcs[strHost] = []
       self.hshPutchunksProcs[strHost].append([newProc, strInterest])
+      logging.info('[RandomTalks.addProducerProcess] host=%s has %d putchunks processes' % (strHost, len(self.hshPutchunksProcs[strHost])))
 
       if (len(self.hshPutchunksProcs[strHost]) > nMaxProcsPerHost):
          # Kill and remove the oldest process

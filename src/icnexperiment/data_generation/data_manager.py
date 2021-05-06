@@ -40,7 +40,7 @@ class DataManager:
         nSum = 0
         for pDataType in self.lstDataTypes:
             nSum += pDataType.nPayloadSize
-        if (nAvg > 0):
+        if (len(self.lstDataTypes) > 0):
             nAvg = nSum/len(self.lstDataTypes)
         else:
             nAvg = 0

@@ -48,14 +48,19 @@ class TopologyGenerator:
         lstStations = TopologyGenerator.placeStationsRandomly(lstHosts, nMaxX, nMaxY, Station)
         # Place access points connecting to each station
         lstAccessPoints = []
+        nCount = 0
         for pStation in lstStations:
-            newAccessPoint = AccessPoint('ap_' + pStation.strName)
+            nCount += 1
+            newAccessPoint = AccessPoint('ap%d' % str(nCount))
             newAccessPoint.place(pStation.nX, pStation.nY + 1)
+            newLink = Link(pStation.strName, newAccessPoint.strName, nDelay=0, nBandwidth=0)
+            lstStationLinks.append(newLink)
             # Might need to check for duplicate coordinates here
             lstAccessPoints.append(newAccessPoint)
 
         # Create links connecting each node
-        lstLinks = TopologyGenerator.placeLinksBetweenNodes(lstAccessPoints, nNodeLinks)
+        lstApLinks = TopologyGenerator.placeLinksBetweenNodes(lstAccessPoints, nNodeLinks)
+        lstLinks = lstStationLinks + lstApLinks
         return Topology(lstStations, lstLinks, lstAccessPoints)
 
     @staticmethod

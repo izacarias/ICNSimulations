@@ -61,8 +61,13 @@ class Topology(object):
    def create(self, strMode='icn'):
 
       logging.info('[Topology.create] mode=%s' % strMode)
-      # In preparation, kill any nfd processes that might be running
+
+      # Preparation
+      # Kill any nfd processes that might be running
       subprocess.Popen('killall -9 nfd', shell=True)
+      # Remove anything in the host directories - does not seem necessary
+      # subprocess.Popen('rm -fr /tmp/icnsimulations')
+
 
       privateDirs = [('/var/log', '/tmp/%(name)s/var/log'), ('/var/run', '/tmp/%(name)s/var/run'), ('/run', '/tmp/%(name)s/run'), '/var/mn']
       station = partial( Station, privateDirs=privateDirs )
@@ -149,14 +154,14 @@ class Topology(object):
 
    def getPriorityByHostName(self, strHost):
       strType = Node.getHostTypeByName(strHost)
-      if (strType == 'human'):
+      if (strType == 'vehicle'):
          return 1.0
-      elif (strType == 'vehicle'):
-         return 0.6
       elif (strType == 'drone'):
+         return 0.75
+      elif (strType == 'human'):
          return 0.5
       elif (strType == 'sensor'):
-         return 0.5
+         return 0.25
       else:
          raise Exception('Unrecognizes host type %s for host=%s' % (strType, strHost))
 

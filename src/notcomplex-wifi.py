@@ -46,7 +46,7 @@ def main():
    # Load data queue
    if (strTopoPath != ''):
       lstDataQueue = DataManager.loadDataQueueFromTextFile(strTopoPath)
-      lstDataQueue = list()
+      # lstDataQueue = list()
       logging.info('[main] Data queue size=%d' % len(lstDataQueue))  
    else:
       logging.error('[main] No topology file specified!')
@@ -55,7 +55,7 @@ def main():
 
    # Setup and run experiment
    topo = Topology.fromFile(strTopoPath)
-   topo.create(strMode='icn_sdn')
+   topo.create(strMode=strMode)
    logging.info('[main] Begin experiment')
    Experiment = RandomTalks(topo.net.stations, lstDataQueue)
    try:
