@@ -284,6 +284,9 @@ class Topology(object):
       for pFile in self.lstLogFiles:
          pFile.close()
 
+      subprocess.Popen('killall -9 putchunks', shell=True)
+      subprocess.Popen('killall -9 catchunks', shell=True)
+
       logging.info("*** Stopping network")
       self.net.stop()
 

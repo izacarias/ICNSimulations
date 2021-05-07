@@ -16,8 +16,8 @@ class Link:
     Represents a Link element in the MiniNDN topology.
     """
 
-    c_nDefaultDelay     = 10
-    c_nDefaultBandWidth = 10
+    c_nDefaultDelay     = 2
+    c_nDefaultBandWidth = 50
     c_nDefaultLoss      = 0
 
     def __init__(self, origHost, destHost, nDelay=c_nDefaultDelay, nBandwidth=c_nDefaultBandWidth, nLoss=c_nDefaultLoss):

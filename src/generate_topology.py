@@ -18,10 +18,10 @@ from icnexperiment.dir_config import c_strLogDir
 # ---------------------------------------------------------------------- Constants
 c_strLogFile = c_strLogDir + 'generate_topology.log'
 c_nNodeLinks = 3
-c_nSensors   = 4
-c_nDrones    = 8
-c_nHumans    = 6
-c_nVehicles  = 2
+c_nSensors   = 25
+c_nDrones    = 25
+c_nHumans    = 25
+c_nVehicles  = 5
 c_nMaxX      = 100000
 c_nMaxY      = 100000
 
@@ -62,6 +62,8 @@ def main():
     else:
         pTopology = TopologyGenerator.createRandomTopo(lstHosts, nNodeLinks=c_nNodeLinks, nMaxX=c_nMaxX, nMaxY=c_nMaxY)
 
+    logging.info('[main] pTopology.lstLinks=%d' % len(pTopology.lstLinks))
+
     if (not pTopology.areAllNodesConnected()):
         logging.critical('[main] ATTENTION, NOT ALL NODES ARE CONNECTED!')
 
@@ -71,32 +73,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-'''
-TEMP
-[stations]
-sta1:  _ position=0,500,0
-sta2:  _ position=500,500,0
-sta3:  _ position=1000,500,0
-sta4:  _ position=500,0,0
-sta5:  _ position=1000,0,0
-
-[accessPoints]
-ap1:  _ position=0,501,0
-ap2:  _ position=500,501,0
-ap3:  _ position=1000,501,0
-ap4:  _ position=500,1,0
-ap5:  _ position=1000,1,0
-
-[links]
-ap1:ap2 _
-ap2:ap3 _
-ap2:ap4 _
-ap3:ap5 _
-sta1:ap1 _
-sta2:ap2 _
-sta3:ap3 _
-sta4:ap4 _
-sta5:ap5 _
-'''

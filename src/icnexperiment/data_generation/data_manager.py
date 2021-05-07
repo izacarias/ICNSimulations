@@ -31,7 +31,7 @@ class DataManager:
         ################################################
         # Operational data
         self.lstDataTypes.append(C2DataType(nTTL=2*60*1000/nFactor,  nPeriodSec=2*60/nFactor,  nType=3, nSize=1024*100, sRatioMaxReceivers=1.0))  # INTEREST 3
-        self.lstDataTypes.append(C2DataType(nTTL=5*60*1000/nFactor,  nPeriodSec=5*60/nFactor,  nType=4, nSize=1024*1024*500, sRatioMaxReceivers=1.0))   # INTEREST 4
+        self.lstDataTypes.append(C2DataType(nTTL=5*60*1000/nFactor,  nPeriodSec=5*60/nFactor,  nType=4, nSize=1024*1024*1, sRatioMaxReceivers=1.0))   # INTEREST 4
         self.lstDataTypes.append(C2DataType(nTTL=10*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=5, nSize=1024*1024*5, sRatioMaxReceivers=1.0))   # INTEREST 5
         self.lstDataTypes.append(C2DataType(nTTL=20*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=6, nSize=1024*1024*10, sRatioMaxReceivers=1.0))   # INTEREST 6
 

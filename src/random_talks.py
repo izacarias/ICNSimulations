@@ -20,7 +20,7 @@ from icnexperiment.data_generation import DataManager, curDatetimeToFloat
 # ---------------------------------------- Constants
 c_sConsumerCooldownSec    = 0.0
 c_nSleepThresholdMs       = 100
-c_sExperimentTimeSec      = 150
+c_sExperimentTimeSec      = 100
 g_bIsMockExperiment       = False
 g_dtLastProducerCheck     = None
 g_nProducerCheckPeriodSec = 5
@@ -41,8 +41,8 @@ class RandomTalks():
       self.nBytesConsumed   = 0
       self.hshConsumers     = {}
       self.strPayloadPath   = '/home/vagrant/mock_data'
-      self.lstRunningPutChunks = []
-      self.hshPutchunksProcs = {}
+      self.hshRunningProducers = {}
+      self.hshRunningConsumers = {}
 
    def setup(self):
       """
@@ -192,12 +192,9 @@ class RandomTalks():
          if (not g_bIsMockExperiment):
             # getPopen(pHost, strCmd, shell=True)
             proc = pHost.popen(strCmd, shell=True)
-         
-         if (pHost.name not in self.hshPutchunksProcs):
-            self.hshPutchunksProcs[pHost.name] = []
-         
-         self.addProducerProcess(pHost.name, proc, strFilter)
+
          logging.info('[RandomTalks.instantiateProducer] ProducerCmd: ' + strCmd)
+         self.addProducerProcess(pHost.name, proc.pid, strFilter)
       else:
          logging.critical('[RandomTalks.instantiateProducer] Producer is nil!')
       
@@ -221,36 +218,50 @@ class RandomTalks():
 
          self.nBytesConsumed += pDataPackage.nPayloadSize        
          logging.info('[RandomTalks.instantiateConsumer] %s ConsumerCmd: %s' % (pHost.name, strCmd))
+
+         self.addConsumerProcess(pHost.name, proc.pid)
       else:
          logging.critical('[RandomTalks.instantiateConsumer] Host is nil! host=%s' % str(pHost))
 
-   def addProducerProcess(self, strHost, newProc, strInterest):
-      nMaxProcsPerHost = 10
-      if (strHost not in self.hshPutchunksProcs):
-         self.hshPutchunksProcs[strHost] = []
-      self.hshPutchunksProcs[strHost].append([newProc, strInterest])
-      logging.info('[RandomTalks.addProducerProcess] host=%s has %d putchunks processes' % (strHost, len(self.hshPutchunksProcs[strHost])))
+   def addConsumerProcess(self, strHost, pid):
+      nMaxProcsPerHost = 25
+      if (strHost not in self.hshRunningConsumers):
+         self.hshRunningConsumers[strHost] = []
+      self.hshRunningConsumers[strHost].append(pid)
+      logging.info('[RandomTalks.addConsumerProcess] host=%s has %d catchunks processes' % (strHost, len(self.hshRunningConsumers[strHost])))
 
-      if (len(self.hshPutchunksProcs[strHost]) > nMaxProcsPerHost):
+      if (len(self.hshRunningConsumers[strHost]) > nMaxProcsPerHost):
+         oldPid = self.hshRunningConsumers[strHost].pop(0)
+         subprocess.Popen('kill -9 %s > /dev/null' % oldPid, shell=True)
+         logging.info('[RandomTalks.addConsumerProcess] Remove old process PID=%s from host %s' % (oldPid, strHost))
+
+   def addProducerProcess(self, strHost, pid, strInterest):
+      nMaxProcsPerHost = 20
+      if (strHost not in self.hshRunningProducers):
+         self.hshRunningProducers[strHost] = []
+      self.hshRunningProducers[strHost].append([pid, strInterest])
+      logging.info('[RandomTalks.addProducerProcess] host=%s has %d putchunks processes' % (strHost, len(self.hshRunningProducers[strHost])))
+
+      if (len(self.hshRunningProducers[strHost]) > nMaxProcsPerHost):
          # Kill and remove the oldest process
-         [oldProc, strOldInt] = self.hshPutchunksProcs[strHost].pop(0)
-         oldProc.kill()
-         logging.info('[RandomTalks.addProducerProcess] Remove old process from host=%s for interest=%s' % (strHost, strOldInt))
+         [oldPid, strOldInt] = self.hshRunningProducers[strHost].pop(0)
+         subprocess.Popen('kill -9 %s' % oldPid, shell=True)
+         logging.info('[RandomTalks.addProducerProcess] Remove old process PID=%s from host=%s for interest=%s' % (str(oldPid), strHost, strOldInt))
       return
 
    def isProducerRunning(self, pDataPackage):
       bIsRunning = False
       strFilter  = RandomTalks.getChunksFilter(pDataPackage.strOrig, pDataPackage.nType, pDataPackage.nID)
-      if (pDataPackage.strOrig in self.hshPutchunksProcs):
-         for [proc, strRunningFilter] in self.hshPutchunksProcs[pDataPackage.strOrig]:
+      if (pDataPackage.strOrig in self.hshRunningProducers):
+         for [proc, strRunningFilter] in self.hshRunningProducers[pDataPackage.strOrig]:
             if (strRunningFilter == strFilter):
                bIsRunning = True
                break
       return bIsRunning
 
-   def killAllProducers(self):
-      for strHost in self.hshPutchunksProcs:
-         for [proc, strInterest] in self.hshPutchunksProcs[strHost]:
+   def killAllProcesses (self):
+      for strHost in self.hshRunningProducers:
+         for [proc, strInterest] in self.hshRunningProducers[strHost]:
             proc.kill()
 
    def findHostByName(self, strHostName):

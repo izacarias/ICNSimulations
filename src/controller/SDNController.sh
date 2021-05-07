@@ -1,0 +1,1 @@
+ryu-manager --observe-links ./simple_switch_nx.py

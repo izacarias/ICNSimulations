@@ -47,11 +47,12 @@ class TopologyGenerator:
         # Place all nodes at random x,y coordinates
         lstStations = TopologyGenerator.placeStationsRandomly(lstHosts, nMaxX, nMaxY, Station)
         # Place access points connecting to each station
-        lstAccessPoints = []
+        lstAccessPoints = list()
+        lstStationLinks = list()
         nCount = 0
         for pStation in lstStations:
             nCount += 1
-            newAccessPoint = AccessPoint('ap%d' % str(nCount))
+            newAccessPoint = AccessPoint('ap%d' % nCount)
             newAccessPoint.place(pStation.nX, pStation.nY + 1)
             newLink = Link(pStation.strName, newAccessPoint.strName, nDelay=0, nBandwidth=0)
             lstStationLinks.append(newLink)
@@ -60,8 +61,10 @@ class TopologyGenerator:
 
         # Create links connecting each node
         lstApLinks = TopologyGenerator.placeLinksBetweenNodes(lstAccessPoints, nNodeLinks)
+        logging.info('[TopologyGenerator.createRandomTopoWifi] lstStationLinks=%d, lstApLinks=%d' % (len(lstStationLinks), len(lstApLinks)))
         lstLinks = lstStationLinks + lstApLinks
-        return Topology(lstStations, lstLinks, lstAccessPoints)
+        logging.info('[TopologyGenerator.createRandomTopoWifi] lstLinks=%d' % len(lstLinks))
+        return Topology(lstStations, lstApLinks, lstAccessPoints)
 
     @staticmethod
     def placeStationsRandomly(lstHosts, nMaxX, nMaxY, NodeType):

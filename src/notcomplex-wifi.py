@@ -56,6 +56,8 @@ def main():
    # Setup and run experiment
    topo = Topology.fromFile(strTopoPath)
    topo.create(strMode=strMode)
+   if (strMode == 'ip_sdn' or strMode == 'icn_sdn'):
+      topo.net.pingAll()
    logging.info('[main] Begin experiment')
    Experiment = RandomTalks(topo.net.stations, lstDataQueue)
    try:
