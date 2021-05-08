@@ -8,20 +8,20 @@ For MiniNDN and Mininet installation files see [releases](https://github.com/and
 
 **20 nodes**
 
-![topo20](https://github.com/andredxc/ICNSimulations/tree/master/topologies/experiment/img/wifi-topo20.svg)
+![topo20](./topologies/experiment/img/wifi-topo20.svg)
 
 **40 nodes**
 
-![topo40](https://github.com/andredxc/ICNSimulations/tree/master/topologies/experiment/img/wifi-topo40.svg)
+![topo40](./topologies/experiment/img/wifi-topo40.svg)
 
 **60 nodes**
 
-![topo60](https://github.com/andredxc/ICNSimulations/tree/master/topologies/experiment/img/wifi-topo60.svg)
+![topo60](./topologies/experiment/img/wifi-topo60.svg)
 
 **80 nodes**
 
-![topo80](https://github.com/andredxc/ICNSimulations/tree/master/topologies/experiment/img/wifi-topo80.svg)
+![topo80](./topologies/experiment/img/wifi-topo80.svg)
 
 **100 nodes**
 
-![topo100](https://github.com/andredxc/ICNSimulations/tree/master/topologies/experiment/img/wifi-topo100.svg)
+![topo100](./topologies/experiment/img/wifi-topo100.svg)
