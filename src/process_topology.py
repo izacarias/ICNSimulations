@@ -53,7 +53,7 @@ class Topology(object):
       logging.info('AccessPoints (%d) ----------------' % len(self.lstAccessPoints))
       for pAp in self.lstAccessPoints:
          logging.info(pAp.toString() + '')
-         
+
       logging.info('Links (%d) ----------------' % len(self.lstLinks))
       for pLink in self.lstLinks:
          logging.info(pLink.toString() + '')
@@ -68,7 +68,6 @@ class Topology(object):
       # Remove anything in the host directories - does not seem necessary
       # subprocess.Popen('rm -fr /tmp/icnsimulations')
 
-
       privateDirs = [('/var/log', '/tmp/%(name)s/var/log'), ('/var/run', '/tmp/%(name)s/var/run'), ('/run', '/tmp/%(name)s/run'), '/var/mn']
       station = partial( Station, privateDirs=privateDirs )
       self.net = Mininet_wifi(station=station)
@@ -77,7 +76,7 @@ class Topology(object):
       for topoAp in self.lstAccessPoints:
          topoAp.kwargs['client_isolation'] = True
          self.net.addAccessPoint(topoAp.strName, protocols='OpenFlow13', ssid="simpletopo" + str(topoAp.strName), mode="g", channel="5", **topoAp.kwargs)
-      
+
       # Add stations
       for topoStation in self.lstStations:
          self.net.addStation(topoStation.strName, **topoStation.kwargs)
@@ -124,15 +123,15 @@ class Topology(object):
 
       self.createNfdRoutes()
 
-      # if (strMode == 'icn_sdn') or (strMode == 'ip_sdn'):
-      #    self.setSdnFilters(self.net.aps)
+      if (strMode == 'icn_sdn') or (strMode == 'ip_sdn'):
+         self.setSdnFilters(self.net.aps)
 
    def setSdnFilters(self, lstAps):
       hshAPs = self.getApToHostMap()
       for pAp in lstAps:
          for strIntf in pAp.intfNames():
             if (strIntf.find('wlan') >= 0):
-               nMaxBandwidth = 54
+               nMaxBandwidth = 50
                nBandLimit = int(self.getPriorityByHostName(hshAPs[pAp.name])*nMaxBandwidth)
                pHost = Topology.findNodeByName(hshAPs[pAp.name], self.net.stations)
                logging.info('[Topology.setSdnFilters] Host %s for ap %s via %s has nBandLimit=%d' % (pHost.name, strIntf, pAp.name, nBandLimit))
@@ -150,7 +149,6 @@ class Topology(object):
                tc filter add dev ap1-wlan1 parent 1: prio 1 protocol ip handle 0xfa fw flowid 1:fa action ok
                ovs-ofctl -O OpenFlow13 add-flow ap1 "table=0,priority=10,ip,nw_src=10.0.0.3,nw_dst=10.0.0.1,actions=set_field:250->pkt_mark,goto_table:1"
                '''
-               return
 
    def getPriorityByHostName(self, strHost):
       strType = Node.getHostTypeByName(strHost)
@@ -231,11 +229,11 @@ class Topology(object):
       # Find out which APs connect to which hosts
       hshAPs = {}
       lstNewLinks = list()
-      for topoLink in self.lstLinks:       
+      for topoLink in self.lstLinks:
          strAp = strHost = ''
          if (Node.isAccessPoint(topoLink.strNode1) and (not Node.isAccessPoint(topoLink.strNode2))):
             strAp = topoLink.strNode1
-            strHost = topoLink.strNode2         
+            strHost = topoLink.strNode2
          elif (Node.isAccessPoint(topoLink.strNode2) and (not Node.isAccessPoint(topoLink.strNode1))):
             strAp = topoLink.strNode2
             strHost = topoLink.strNode1
@@ -244,7 +242,7 @@ class Topology(object):
             lstNewLinks.append(topoLink)
          else:
             raise Exception('Link %s connects two hosts. Why?' % str(topoLink))
-         
+
          if (strAp != '') and (strHost != ''):
             hshAPs[strAp] = strHost
 
@@ -260,15 +258,15 @@ class Topology(object):
          else:
             raise Exception('Something is wrong 2')
 
-      return lstNewLinks         
+      return lstNewLinks
 
    def getApToHostMap(self):
       hshAPs = {}
-      for topoLink in self.lstLinks:       
+      for topoLink in self.lstLinks:
          strAp = strHost = ''
          if (Node.isAccessPoint(topoLink.strNode1) and (not Node.isAccessPoint(topoLink.strNode2))):
             strAp = topoLink.strNode1
-            strHost = topoLink.strNode2         
+            strHost = topoLink.strNode2
          elif (Node.isAccessPoint(topoLink.strNode2) and (not Node.isAccessPoint(topoLink.strNode1))):
             strAp = topoLink.strNode2
             strHost = topoLink.strNode1

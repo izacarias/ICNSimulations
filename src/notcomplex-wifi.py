@@ -22,13 +22,15 @@ def main():
    strTopoPath = ''
 
    short_options = 'hmt:'
-   long_options  = ['help', 'mock', 'sdn', 'icn', 'ip', 'ip_sdn', 'icn_sdn', 'topology=']
+   long_options  = ['help', 'mock', 'sdn', 'icn', 'ip', 'ip_sdn', 'icn_sdn', 'topo=', 'time=']
    opts, args = getopt.getopt(sys.argv[1:], short_options, long_options)
    for opt, arg in opts:
       if opt in ['-h', '--help']:
          showHelp()
          exit(0)
-      elif opt in ('-t', '--topology'):
+      elif opt in ['-t', '--time']:
+         nTimeSecs = int(arg)
+      elif opt in '--topo':
          strTopoPath = arg
       elif opt in ['-m', '--mock']:
          bIsMock = True
@@ -47,7 +49,7 @@ def main():
    if (strTopoPath != ''):
       lstDataQueue = DataManager.loadDataQueueFromTextFile(strTopoPath)
       # lstDataQueue = list()
-      logging.info('[main] Data queue size=%d' % len(lstDataQueue))  
+      logging.info('[main] Data queue size=%d' % len(lstDataQueue))
    else:
       logging.error('[main] No topology file specified!')
       showHelp()
@@ -62,12 +64,12 @@ def main():
    Experiment = RandomTalks(topo.net.stations, lstDataQueue)
    try:
       Experiment.setup()
-      (dtBegin, dtEnd) = Experiment.run()
+      (dtBegin, dtEnd) = Experiment.run(nTimeSecs)
    except Exception as e:
       logging.error('[main] An exception was raised during the experiment: %s' % str(e))
       raise
-      
-   topo.showCLI()
+
+   # topo.showCLI()
    topo.destroy()
 
 def showHelp():

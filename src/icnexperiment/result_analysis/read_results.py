@@ -16,7 +16,7 @@ from .transmission import Transmission
 c_strConsumerLog = 'consumer.log'
 
 def readNFDLogs(strBasePath, lstData, lstHostNames):
-    
+
     # strBasePath contains the directories for each node
     lstDirs = listdir(strBasePath)
     hshNodes = {}
@@ -31,10 +31,12 @@ def readNFDLogs(strBasePath, lstData, lstHostNames):
                     lstConsumerInterests.append((pPackage.nType, pPackage.nID))
 
             lstTransmissions = readTrasmissionsForHost(strHost, strNfdPath, lstConsumerInterests)
-            hshNodes[strHost] = lstTransmissions
-            (nData, nNack, nTimeout) = countStatusForList(lstTransmissions)
-            sAvg = avgTransTimeForList(lstTransmissions)
-            logging.info('[readNFDLogs] Read %d transmissions for host=%s; DATA=%d; NACK=%d; avgDelay=%.2f ms' % (len(lstTransmissions), strHost, nData, nNack, sAvg/1000))
+            if (lstTransmissions is not None):
+                # None will be returned if the file does not exist
+                hshNodes[strHost] = lstTransmissions
+                (nData, nNack, nTimeout) = countStatusForList(lstTransmissions)
+                sAvg = avgTransTimeForList(lstTransmissions)
+                logging.info('[readNFDLogs] Read %d transmissions for host=%s; DATA=%d; NACK=%d; avgDelay=%.2f ms' % (len(lstTransmissions), strHost, nData, nNack, sAvg/1000))
 
     return hshNodes
 
@@ -70,7 +72,11 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
     lstIncomingData  = list()
     lstIncomingNack  = list()
     lstOutgoingInterest = list()
-    pFile = open(strNfdPath, 'r')
+    try:
+        pFile = open(strNfdPath, 'r')
+    except:
+        return None
+
     if (pFile):
         lstLines = pFile.readlines()
         for strLine in lstLines:
@@ -84,7 +90,7 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
                 nPos = strLine.find(strWord)
                 if (nPos > 0):
                     strFilter = strLine[nPos+len(strWord):].strip()
-                    lstIncomingData.append([sTimestamp, strFilter, False]) 
+                    lstIncomingData.append([sTimestamp, strFilter, False])
                     # logging.info('[nfd] cons=%s IncomingData interest=%s, time=%.3f' % (strHost, strFilter, sTimestamp))
                 else:
                     raise Exception('No %s in line=%s' % (strWord, strLine))
@@ -93,7 +99,7 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
             nPos = strLine.find('onIncomingNack')
             if (nPos > 0):
                 '''
-                1619967955.552597 DEBUG: [nfd.Forwarder] onIncomingNack in=(278,0) nack=/ndn/h0-site/h0/Type1Id0/v=1619967955034/seg=1~None OK  
+                1619967955.552597 DEBUG: [nfd.Forwarder] onIncomingNack in=(278,0) nack=/ndn/h0-site/h0/Type1Id0/v=1619967955034/seg=1~None OK
                 '''
                 sTimestamp = float(strLine.split('DEBUG')[0])
                 strWord = 'nack='
@@ -104,12 +110,12 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
                     nPos = strFilter.find(strWord)
                     if (nPos > 0):
                         strFilter = strFilter[0:nPos].strip()
-                    lstIncomingNack.append((sTimestamp, strFilter)) 
+                    lstIncomingNack.append((sTimestamp, strFilter))
                     lstTransmissions.append(Transmission(strHost, strFilter, 0.0, 'NACK'))
                 else:
                     raise Exception('No %s in line=%s' % (strWord, strLine))
-                continue              
-    
+                continue
+
             nPos = strLine.find('onOutgoingInterest')
             if (nPos > 0):
                 '''
@@ -125,7 +131,7 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
                 else:
                     raise Exception('No %s in line=%s' % (strWord, strLine))
                 continue
-        pFile.close()  
+        pFile.close()
 
     # logging.info('[readTransmissionsForHost] host=%s, nacks=%d' % (strHost, len(lstIncomingNack)))
     for [sEnd, strInterest, bDataEventUsed] in lstIncomingData:
@@ -142,7 +148,7 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
                     [sBegin, strInterest2, bUsed] = lstOutgoingInterest[nIndex]
                     if (strInterest == strInterest2) and (not bUsed):
                         if (sEnd >= sBegin):
-                            # In case there are more than one interest for the received data, 
+                            # In case there are more than one interest for the received data,
                             # consider only the one sent closest to the receive time
                             nLastIntIndex = nIndex
 
@@ -153,12 +159,12 @@ def readTrasmissionsForHost(strHost, strNfdPath, lstConsumedInterests):
                             # logging.info('[nfd] cons=%s match for interest=%s, sBegin=%.2f, sEnd=%.2f' % (strHost, strInterest, sBegin, sEnd))
                             lstOutgoingInterest[nIndex][2] = True
                             break
-                
-                
+
+
             # else:
             #     logging.info('[nfd] cons=%s not my data, filter=%s' % (strHost, strInterest))
 
-    return lstTransmissions    
+    return lstTransmissions
 
 def readConsumerLogs(strPath):
     """
@@ -188,7 +194,7 @@ def readConsumerLogs(strPath):
                         lstHostTransmissions.append(newTrans)
                         lstTransmissions.append(newTrans)
                         logging.debug('[readConsumerLogs] Read new transmission=%s' % newTrans)
-                    
+
                     if (len(lstHostTransmissions) > 0):
                         hshNodes[strConsumer] = lstHostTransmissions
                     pFile.close()
@@ -211,7 +217,7 @@ def avgTransTime(hshNodes):
             if (pTrans.isData()):
                 nTotalTrans  += 1
                 sTotalTimeMs += pTrans.sDelayUs/1000.0
-    
+
     # Calculate average
     if (nTotalTrans > 0):
         sAvgTime = sTotalTimeMs/nTotalTrans
@@ -233,7 +239,7 @@ def stdDeviationTransTime(lstTransmissions, sAvg=-1):
         sAvg = 0.0
         if (nSamples > 0):
             sAvg = sDelaySum/nSamples
-    
+
     # Calculate standard deviation
 
 def avgTransTimePerType(hshNodes):

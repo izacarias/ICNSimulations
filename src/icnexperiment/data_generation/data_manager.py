@@ -148,6 +148,7 @@ class DataManager:
     def createPayloadFiles(lstData, strBasePath):
         lstPayloads = DataManager.getPayloadSizesFromQueue(lstData)
         nFilesCreated = 0
+        subprocess.Popen('mkdir -p %s' % strBasePath, shell=True)
         for nPayloadSize in lstPayloads:
             strFileName = DataManager.nameForPayloadFile(nPayloadSize, strBasePath)
             if (not isfile(strFileName)):
@@ -213,13 +214,13 @@ class DataManager:
         if (not pFile):
             logging.error('[DataManager.saveDataToTextFile] Error opening output file=%s' % strPath)
             return False
-        
+
         for (nTime, pPackage) in lstData:
             strLine = '%d;%s\n' % (nTime, pPackage.toTextLine())
             pFile.write(strLine)
 
-        logging.info('[DataManager.saveDataToTextFile] Saved %d packages' % len(lstData))        
-        pFile.close()        
+        logging.info('[DataManager.saveDataToTextFile] Saved %d packages' % len(lstData))
+        pFile.close()
 
     @staticmethod
     def pickleFileNameForFromTopo(strTopoFilePath):
@@ -233,7 +234,7 @@ class DataManager:
         strDirName = dirname(strTopoFilePath)
         if (strDirName != '') and (strDirName[-1] != '/'):
             strDirName += '/'
-        
+
         strPath = strDirName + 'queue_' + strTopoName + '.pkl'
         return strPath
 
@@ -249,7 +250,7 @@ class DataManager:
         strDirName = dirname(strTopoFilePath)
         if (strDirName != '') and (strDirName[-1] != '/'):
             strDirName += '/'
-        
+
         strPath = strDirName + 'queue_' + strTopoName + '.txt'
         return strPath
 

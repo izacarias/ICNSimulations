@@ -46,7 +46,7 @@ class C2DataType:
         nCount          = 0
         while (nSecondsElapsed <= nMissionSeconds):
             # Create data and add to list with miliseconds offset
-            lstReceivers = self.getRandomDestHosts(lstPossibleReceivers)
+            lstReceivers = self.getAllDestHosts(lstPossibleReceivers)
 
             # Iterate over the received list of receivers and their timestamps
             for pNode in lstReceivers:
@@ -92,6 +92,20 @@ class C2DataType:
             raise Exception('[C2DataTypes.generatePossibleReceiversList] ERROR, no available nodes for data type %s' % self.nType)
         else:
             return lstPossibleReceivers
+
+    def getAllDestHosts(self, lstPossibleReceivers):
+        """
+        Returns list of receivers, containing all available consumers, and send timestamps (in ms) for new packages
+        :rtype list of (int, str)
+        """
+        # Determine send timestamp for each receiver
+        lstResult = []
+        nPeriodMs = self.nPeriodSec*1000
+        for strReceiver in lstPossibleReceivers:
+            nTimetampMs = random.randint(nPeriodMs - nPeriodMs*self.sPeriodWiggleRoom, nPeriodMs + nPeriodMs*self.sPeriodWiggleRoom)
+            lstResult.append((nTimetampMs, strReceiver))
+
+        return lstResult
 
     def getRandomDestHosts(self, lstPossibleReceivers):
         """
