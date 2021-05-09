@@ -17,7 +17,7 @@ c_strTopoFileSuffix = '.conf'
 
 class DataManager:
 
-    def __init__(self):
+    def __init__(self, nTotalReceivers=1):
         """
         Constructor
         """
@@ -34,6 +34,7 @@ class DataManager:
         self.lstDataTypes.append(C2DataType(nTTL=5*60*1000/nFactor,  nPeriodSec=5*60/nFactor,  nType=4, nSize=1024*1024*1, sRatioMaxReceivers=1.0))   # INTEREST 4
         self.lstDataTypes.append(C2DataType(nTTL=10*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=5, nSize=1024*1024*5, sRatioMaxReceivers=1.0))   # INTEREST 5
         self.lstDataTypes.append(C2DataType(nTTL=20*60*1000/nFactor, nPeriodSec=10*60/nFactor, nType=6, nSize=1024*1024*10, sRatioMaxReceivers=1.0))   # INTEREST 6
+        self.lstDataTypes.append(C2DataType(nTTL=2*60*1000/nFactor, nPeriodSec=5, nType=7, nSize=1024*500, sRatioMaxReceivers=1.0, nTotalReceivers=nTotalReceivers))   # INTEREST 6
 
     def avgPayloadSize(self):
         nAvg = 0
@@ -62,11 +63,33 @@ class DataManager:
         """
         Generates a simple data queue for spreading packets from only one node.
         """
+        """
+        Generates an unordered queue with packages and send time
+        """
         lstDataQueue = []
-        if (len(lstHosts) > 0):
-            strHost = lstHosts[0]
-            self.lstDataTypes[0].generateSpreadDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+        for strHost in lstHosts:
+            # Generate data from each host
+            if(strHost[0] == 'd'):
+                # Drone
+                logging.info('[generateDataQueue] Node type drone, strHost=%s' % (strHost))
+                self.lstDataTypes[6].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+            elif(strHost[0] == 'h'):
+                # Human
+                logging.info('[generateDataQueue] Node type human, strHost=%s' % (strHost))
+                self.lstDataTypes[6].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+            elif(strHost[0] == 's'):
+                # Sensor
+                logging.info('[generateDataQueue] Node type sensor, strHost=%s' % (strHost))
+                self.lstDataTypes[6].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+            elif(strHost[0] == 'v'):
+                # Vehicle
+                logging.info('[generateDataQueue] Node type vehicle, strHost=%s' % (strHost))
+                self.lstDataTypes[6].generateDataQueue(strHost, nMissionMinutes, lstDataQueue, lstHosts)
+            else:
+                # Unrecognized host type
+                logging.error('[generateDataQueue] Unrecognized host type ' + strHost)
 
+        lstDataQueue.sort(key=lambda x: x[0])
         return lstDataQueue
 
     def generateDataQueue(self, lstHosts, nMissionMinutes):

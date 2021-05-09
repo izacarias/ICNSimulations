@@ -9,6 +9,7 @@ from process_topology import Topology
 from icnexperiment.data_generation import DataManager
 from icnexperiment.dir_config import c_strLogDir
 from random_talks import RandomTalks
+from read_nfd_results import readNfdResults
 
 # Create logging
 c_strLogFile = c_strLogDir + '/notcomplex-witi.log'
@@ -20,9 +21,11 @@ def main():
    bIsMock = False
    strMode = 'icn'
    strTopoPath = ''
+   sCacheRatio = 1.0
+   nIterations = 1
 
    short_options = 'hmt:'
-   long_options  = ['help', 'mock', 'sdn', 'icn', 'ip', 'ip_sdn', 'icn_sdn', 'topo=', 'time=']
+   long_options  = ['help', 'mock', 'sdn', 'icn', 'ip', 'ip_sdn', 'icn_sdn', 'topo=', 'time=', 'cache-ratio=', 'iterations=']
    opts, args = getopt.getopt(sys.argv[1:], short_options, long_options)
    for opt, arg in opts:
       if opt in ['-h', '--help']:
@@ -44,6 +47,10 @@ def main():
          strMode = 'ip_sdn'
       elif opt == '--icn_sdn':
          strMode = 'icn_sdn'
+      elif opt == '--cache-ratio':
+         sCacheRatio = float(arg)
+      elif opt == '--iterations':
+         nIterations = int(arg)
 
    # Load data queue
    if (strTopoPath != ''):
@@ -57,17 +64,27 @@ def main():
 
    # Setup and run experiment
    topo = Topology.fromFile(strTopoPath)
-   topo.create(strMode=strMode)
+   topo.create(strMode=strMode, sCacheRatio=sCacheRatio)
    if (strMode == 'ip_sdn' or strMode == 'icn_sdn'):
-      topo.net.pingAll()
-   logging.info('[main] Begin experiment')
-   Experiment = RandomTalks(topo.net.stations, lstDataQueue)
-   try:
-      Experiment.setup()
-      (dtBegin, dtEnd) = Experiment.run(nTimeSecs)
-   except Exception as e:
-      logging.error('[main] An exception was raised during the experiment: %s' % str(e))
-      raise
+      topo.net.pingAll(timeout='0.5s')
+
+   nIterationsCompleted = 0
+   while(nIterationsCompleted < nIterations):
+      logging.info('[main] Begin experiment %d out of %d' % (nIterationsCompleted+1, nIterations))
+      Experiment = RandomTalks(topo.net.stations, lstDataQueue)
+      try:
+         Experiment.setup()
+         (dtBegin, dtEnd) = Experiment.run(nTimeSecs)
+         nIterationsCompleted += 1
+
+         # Read results
+         readNfdResults(strTopoPath)
+
+         # Clear everything stored in cache before next iteration
+         topo.clearAllCache()
+      except Exception as e:
+         logging.error('[main] An exception was raised during the experiment: %s' % str(e))
+         raise
 
    # topo.showCLI()
    topo.destroy()

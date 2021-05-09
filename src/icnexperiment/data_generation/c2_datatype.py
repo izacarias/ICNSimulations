@@ -10,7 +10,7 @@ from .data_package import DataPackage
 
 class C2DataType:
 
-    def __init__(self, nTTL, nPeriodSec, nType, nSize, sRatioMaxReceivers, sPeriodWiggleRoom=0.2, lstAllowedHostTypes=['d', 'h', 'v']):
+    def __init__(self, nTTL, nPeriodSec, nType, nSize, sRatioMaxReceivers, sPeriodWiggleRoom=0.2, lstAllowedHostTypes=['d', 'h', 'v'], nTotalReceivers=1):
         """
         Constructor
         """
@@ -19,6 +19,7 @@ class C2DataType:
         self.nType        = nType       # Type number
         self.nPayloadSize = nSize       # Package payload size
         self.nCurID       = 0           # Used for generating new packages
+        self.nTotalReceivers = nTotalReceivers
 
         self.sRatioMaxReceivers = sRatioMaxReceivers    # Ratio of possible receivers out of the receivers specified in the lstPossibleReceivers
         self.sPeriodWiggleRoom  = sPeriodWiggleRoom     # Ratio of acceptable period variation amongs sent packages
@@ -46,7 +47,12 @@ class C2DataType:
         nCount          = 0
         while (nSecondsElapsed <= nMissionSeconds):
             # Create data and add to list with miliseconds offset
-            lstReceivers = self.getAllDestHosts(lstPossibleReceivers)
+            if (self.nType == 7):
+                # This data type is not part of the C2 data types, its only purpose is to test how the network operates with the number of data flows
+                lstReceivers = self.getNDestHosts(lstPossibleReceivers, self.nTotalReceivers)
+                logging.info('[C2DataType.generateDataType] Type 7, using %d total receivers' % self.nTotalReceivers)
+            else:
+                lstReceivers = self.getAllDestHosts(lstPossibleReceivers)
 
             # Iterate over the received list of receivers and their timestamps
             for pNode in lstReceivers:
@@ -92,6 +98,25 @@ class C2DataType:
             raise Exception('[C2DataTypes.generatePossibleReceiversList] ERROR, no available nodes for data type %s' % self.nType)
         else:
             return lstPossibleReceivers
+
+    def getNDestHosts(self, lstPossibleReceivers, nReceivers):
+        """
+        Returns list of up to nReceivers receivers
+        :rtype list of (int, str)
+        """
+        lstReceivers = list()
+        while (len(lstReceivers) < nReceivers):
+            nIndex = random.randrange(len(lstPossibleReceivers)-1)
+            lstReceivers.append(lstPossibleReceivers[nIndex])
+
+        # Determine send timestamp for each receiver
+        lstResult = []
+        nPeriodMs = self.nPeriodSec*1000
+        for strReceiver in lstReceivers:
+            nTimetampMs = random.randint(nPeriodMs - nPeriodMs*self.sPeriodWiggleRoom, nPeriodMs + nPeriodMs*self.sPeriodWiggleRoom)
+            lstResult.append((nTimetampMs, strReceiver))
+
+        return lstResult
 
     def getAllDestHosts(self, lstPossibleReceivers):
         """

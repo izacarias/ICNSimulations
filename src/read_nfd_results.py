@@ -17,12 +17,14 @@ from icnexperiment.dir_config import c_strLogDir
 # Constants ----------------------------------------------------
 c_strLogFile = c_strLogDir + 'read_consumer_results.log'
 
-logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
-logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+
 
 # ---------------------------------------------------------------------- main
 def main():
     # Log file location
+
+    logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
+    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
     if (len(sys.argv) > 1):
         strTopoPath = sys.argv[1]
@@ -35,6 +37,10 @@ def main():
     else:
         strPath = '/tmp/icnsimulations'
 
+    readNfdResults(strTopoPath, strPath)
+
+def readNfdResults(strTopoPath, strLogPath='/tmp/icnsimulations'):
+
     lstData = DataManager.loadDataQueueFromTextFile(strTopoPath)
 
     # Get hostnames from the data queue
@@ -45,15 +51,13 @@ def main():
         if (pDataPackage.strDest not in lstHostNames):
             lstHostNames.append(pDataPackage.strDest)
 
-    hshNodes = readNFDLogs(strPath, lstData, lstHostNames)
-    
+    hshNodes = readNFDLogs(strLogPath, lstData, lstHostNames)
+
     if (len(hshNodes) > 0):
         sAvgTransTime = avgTransTime(hshNodes)
-        logging.info('[main] Transmission time average=%f ms' % (sAvgTransTime))
+        logging.info('[readNfdResults] Transmission time average=%f ms' % (sAvgTransTime))
     else:
-        logging.info('[main] No trasnmissions!')
-
-    
+        logging.info('[readNfdResults] No trasnmissions!')
 
 if (__name__ == '__main__'):
     main()

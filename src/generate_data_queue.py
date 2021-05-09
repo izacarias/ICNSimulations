@@ -24,7 +24,7 @@ def main():
     Generates a data queue saved with pickle which can be read by ICN experiments.
     The location of the pickle file is defined in DataManager and is set to the same directory as the topology file.
     """
-    Manager = DataManager()
+    Manager = DataManager(nTotalReceivers=2)
 
     # Read command line parameter
     if (len(sys.argv) == 1):
@@ -38,8 +38,8 @@ def main():
     # Read hostnames from the topology file and generate queue
     lstHostNames = readHostNamesFromTopoFile(strTopologyPath)
     logging.info('[main] Generating queue, missionMinutes= %d; hostnames=%s; topoFile=%s' % (c_nMissionMinutes, str(lstHostNames), strTopologyPath))
-    # lstDataQueue = Manager.generateSpreadDataQueue(lstHostNames, c_nMissionMinutes)
-    lstDataQueue = Manager.generateDataQueue(lstHostNames, c_nMissionMinutes)
+    lstDataQueue = Manager.generateSpreadDataQueue(lstHostNames, c_nMissionMinutes)
+    # lstDataQueue = Manager.generateDataQueue(lstHostNames, c_nMissionMinutes)
 
     # Log resulting data queue
     for nIndex, node in enumerate(lstDataQueue):

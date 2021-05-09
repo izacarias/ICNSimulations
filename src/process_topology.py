@@ -24,6 +24,7 @@ from random_talks import RandomTalks
 
 # Each unit of cache is equivalent to aprox. 8KB
 c_nMaxCacheSize = 80000
+# c_nMaxCacheSize = 20000
 
 class Topology(object):
 
@@ -58,9 +59,9 @@ class Topology(object):
       for pLink in self.lstLinks:
          logging.info(pLink.toString() + '')
 
-   def create(self, strMode='icn'):
+   def create(self, strMode='icn', sCacheRatio=1.0):
 
-      logging.info('[Topology.create] mode=%s' % strMode)
+      logging.info('[Topology.create] mode=%s, cacheRatio=%f' % (strMode, sCacheRatio))
 
       # Preparation
       # Kill any nfd processes that might be running
@@ -108,7 +109,8 @@ class Topology(object):
       self.lstNfdProcs = list()
       strNFDLogLevel = 'DEBUG'
       for pStation in self.net.stations:
-         nCacheSize = self.cacheSizeForHost(pStation.name, strMode)
+         nCacheSize = self.cacheSizeForHost(pStation.name, strMode, sCacheRatio)
+         logging.info('[Topology.create] host=%s cacheRatio=%.2f, cacheSize=%d' % (pStation.name, sCacheRatio, nCacheSize))
          strHomeDir = '/tmp/icnsimulations/%s/' % pStation.name
          pStation.cmd('mkdir -p %s' % strHomeDir)
          strConfFile = strHomeDir + 'nfd.conf'
@@ -163,16 +165,16 @@ class Topology(object):
       else:
          raise Exception('Unrecognizes host type %s for host=%s' % (strType, strHost))
 
-   def cacheSizeForHost(self, strHost, strMode):
+   def cacheSizeForHost(self, strHost, strMode, sCacheRatio=1.0):
       if (strMode == 'icn') or (strMode == 'icn_sdn'):
          if (strHost[0] == 'v'):
-            return c_nMaxCacheSize
+            return c_nMaxCacheSize*sCacheRatio
          elif (strHost[0] == 'h'):
-            return int(0.75*c_nMaxCacheSize)
+            return int(0.75*c_nMaxCacheSize*sCacheRatio)
          elif (strHost[0] == 'd'):
-            return int(0.75*c_nMaxCacheSize)
+            return int(0.75*c_nMaxCacheSize*sCacheRatio)
          elif (strHost[0] == 's'):
-            return int(0.5*c_nMaxCacheSize)
+            return int(0.5*c_nMaxCacheSize*sCacheRatio)
       elif (strMode == 'ip') or (strMode == 'ip_sdn'):
          return 0
       else:
@@ -273,6 +275,19 @@ class Topology(object):
          if (strAp != '') and (strHost != ''):
             hshAPs[strAp] = strHost
       return hshAPs
+
+   def clearAllCache(self):
+
+      lstFilters = list()
+      for pStation in self.net.stations:
+         lstFilters.append(RandomTalks.getFilterByHostname(pStation.name))
+
+      for pStation in self.net.stations:
+         for strFilter in lstFilters:
+            pStation.cmd('nfdc cs erase %s' % strFilter)
+
+      logging.info('[RandomTalks.clearAllCache] Everything erased!')
+      return
 
    def destroy(self):
       logging.info('')
