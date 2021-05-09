@@ -25,9 +25,10 @@ run_benchmark () {
     # $2 -> experiment type (icn_sdn, ip, ip_sdn)
     # $3 -> experiment iteration
     # $4 -> cache ratio
+    # $5 -> number of iterations
     date >> $log_path
     date >> $experiment_log_path
-    echo "Running $2 experiment for topo $1, iteration $3, cache ratio $4" >> $log_path
+    echo "Running $2 experiment for topo $1, iteration $3, cache ratio $4, iterations $5" >> $log_path
 
     cd controller
     if [ "$2" = "icn" ] || [ "$2" = "ip" ]; then
@@ -38,7 +39,7 @@ run_benchmark () {
     fi
     cd -
 
-    sudo python ./notcomplex-wifi.py -t $experiment_time --topo $1 --$2 --cache-ratio=$4 >> $experiment_log_path
+    sudo python ./notcomplex-wifi.py -t $experiment_time --topo $1 --$2 --iterations=$5 >> $experiment_log_path
     python ./read_nfd_results.py $1 >> $log_path
     for host_dir in $(ls /tmp/icnsimulations)
     do
@@ -54,25 +55,25 @@ run_benchmark () {
 }
 
 cleanup
-# BENCHMARK FOR CACHE RATIO
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 0_1 0.0
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 0_2 0.0
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 0_3 0.0
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 025_1 0.25
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 025_2 0.25
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 025_3 0.25
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 05_1 0.5
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 05_2 0.5
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 05_3 0.5
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 075_1 0.75
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 075_2 0.75
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 075_3 0.75
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 1_1 1.0
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 1_2 1.0
-run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20.conf" "icn_sdn" 1_3 1.0
+# BENCHMARK FOR LARGE TOPOLOGIES
+# run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo40.conf" "icn_sdn" 1 1.0 3
+# run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo40.conf" "ip_sdn" 1 1.0 3
+# run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo40.conf" "ip" 1 1.0 3
 
+run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo80.conf" "icn_sdn" 1 1.0 3
+run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo80.conf" "ip_sdn" 1 1.0 3
+# run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo80.conf" "ip" 1 1.0 3
+
+run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo60.conf" "icn_sdn" 1 1.0 3
+run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo60.conf" "ip_sdn" 1 1.0 3
+# run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo60.conf" "ip" 1 1.0 3
+
+run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo100.conf" "icn_sdn" 1 1.0 3
+run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo100.conf" "ip_sdn" 1 1.0 3
+# run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo100.conf" "ip" 1 1.0 3
+
+exit
 # BENCHMARK FOR NETWORK LOSS
-
 run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20_10loss.conf" "icn_sdn" 10loss1 1.0
 run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20_20loss.conf" "icn_sdn" 20loss1 1.0
 run_benchmark "/home/vagrant/icnsimulations/topologies/experiment/wifi-topo20_30loss.conf" "icn_sdn" 30loss1 1.0

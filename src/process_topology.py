@@ -289,6 +289,11 @@ class Topology(object):
       logging.info('[RandomTalks.clearAllCache] Everything erased!')
       return
 
+   def clearNfdLogs(self):
+      for pStation in self.net.stations:
+         subprocess.Popen('echo \'\' > /tmp/icnsimulations/%s/nfd.log' % (pStation.name), shell=True)
+      return
+
    def destroy(self):
       logging.info('')
       for proc in self.lstNfdProcs:
