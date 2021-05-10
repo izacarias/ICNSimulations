@@ -52,15 +52,15 @@ def main():
         lstAccessCoord.append(pAP.getCoord())
 
     # Draw points
-    humanScatter   = plt.scatter([x[0] for x in lstHumanCoord], [x[1] for x in lstHumanCoord], marker='*', s=120)
-    sensorScatter  = plt.scatter([x[0] for x in lstSensorCoord], [x[1] for x in lstSensorCoord], marker='x', s=120)
-    droneScatter   = plt.scatter([x[0] for x in lstDroneCoord], [x[1] for x in lstDroneCoord], marker='^', s=120)
-    vehicleScatter = plt.scatter([x[0] for x in lstVehicleCoord], [x[1] for x in lstVehicleCoord], marker='s', s=120)
+    humanScatter   = plt.scatter([x[0] for x in lstHumanCoord], [x[1] for x in lstHumanCoord], marker='*', s=200)
+    sensorScatter  = plt.scatter([x[0] for x in lstSensorCoord], [x[1] for x in lstSensorCoord], marker='x', s=200)
+    droneScatter   = plt.scatter([x[0] for x in lstDroneCoord], [x[1] for x in lstDroneCoord], marker='^', s=200)
+    vehicleScatter = plt.scatter([x[0] for x in lstVehicleCoord], [x[1] for x in lstVehicleCoord], marker='s', s=200)
     accessScatter  = plt.scatter([x[0] for x in lstAccessCoord], [x[1] for x in lstAccessCoord], c='k', marker='.', s=120)
 
     # Draw hostnames
     for pNode in pTopology.lstNodes:
-        plt.annotate(pNode.Name(), (pNode.nX, pNode.nY), xytext=(pNode.nX+0.5, pNode.nY+0.5))
+        plt.annotate(pNode.Name(), (pNode.nX, pNode.nY), xytext=(pNode.nX+800, pNode.nY+800))
 
     # Draw legend
     lstScatters = [humanScatter, sensorScatter, droneScatter, vehicleScatter]
@@ -68,7 +68,10 @@ def main():
     if (len(lstAccessCoord) > 0):
         lstScatters.append(accessScatter)
         lstLabels.append('AccessPoint')
-    plt.legend(lstScatters, lstLabels, loc='upper right')
+    plt.legend(lstScatters, lstLabels, loc='lower left')
+
+    plt.xlabel('Coordenada X (M)')
+    plt.ylabel('Coordenada Y (M)')
 
     #################################################
     # Draw links between nodes
