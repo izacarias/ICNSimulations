@@ -80,9 +80,10 @@ def main():
          # Read results
          readNfdResults(strTopoPath)
 
-         # Clear everything stored in cache before next iteration
-         topo.clearAllCache()
-         topo.clearNfdLogs()
+         if (nIterationsCompleted < nIterations):
+            # Clear everything stored in cache before next iteration
+            topo.clearAllCache()
+            topo.clearNfdLogs()
       except Exception as e:
          logging.error('[main] An exception was raised during the experiment: %s' % str(e))
          raise

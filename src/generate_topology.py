@@ -18,19 +18,19 @@ from icnexperiment.dir_config import c_strLogDir
 # ---------------------------------------------------------------------- Constants
 c_strLogFile = c_strLogDir + 'generate_topology.log'
 c_nNodeLinks = 3
-c_nSensors   = 25
-c_nDrones    = 25
-c_nHumans    = 25
-c_nVehicles  = 5
+c_nSensors   = 2
+c_nDrones    = 4
+c_nHumans    = 3
+c_nVehicles  = 1
 c_nMaxX      = 100000
 c_nMaxY      = 100000
 
 """
-        20 40 60 80 100 nodes
-Sensors  4 10 18 25  31
-UAVs     8 14 22 25  38
-Humans   6 12 16 25  25
-Vehicles 2  4  4  5   6
+        10 20 30 40 60 80 100 nodes
+Sensors  2  4  8 10 18 25  31
+UAVs     4  8 12 14 22 25  38
+Humans   3  6  9 12 16 25  25
+Vehicles 1  2  1  4  4  5   6
 """
 
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
