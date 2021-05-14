@@ -89,14 +89,14 @@ def delay_over_cachePercentage(bAnnotate=True, bShowTitle=False):
    lstIpStpTimes.append((100, lstIpStpTimes[0][1]))
    # IP SDN
    lstIcnSdnTimes = list()
-   lstIcnSdnTimes.append((0, [47.02]))
+   lstIcnSdnTimes.append((0, [30.67]))
    lstIcnSdnTimes.append((25, [26.68, 21.9, 21.97]))
    lstIcnSdnTimes.append((50, [26.19, 21.78, 27.98]))
    lstIcnSdnTimes.append((75, [23.5, 26.38, 20.98]))
    lstIcnSdnTimes.append((100, [20.79, 26.52, 20.98]))
    # ICN SDN
    lstIpSdnTimes = list()
-   lstIpSdnTimes.append((0, [46.52]))
+   lstIpSdnTimes.append((0, [30.67]))
    lstIpSdnTimes.append((25, lstIpSdnTimes[0][1]))
    lstIpSdnTimes.append((50, lstIpSdnTimes[0][1]))
    lstIpSdnTimes.append((75, lstIpSdnTimes[0][1]))
@@ -303,8 +303,107 @@ def interests_over_nodes(bAnnotate=True, bShowLegend=False):
    plt.legend()
    plt.show()
 
+def datas_over_nodes(bAnnotate=True, bShowLegend=False):
+
+   # 8KB in MB
+   nDataSize = 0.0078125
+
+   # IP STP
+   lstIpStpTimes = list()
+   lstIpStpTimes.append((10, [4953]))
+   lstIpStpTimes.append((20, [31149.6]))
+   lstIpStpTimes.append((30, [87000]))
+   lstIpStpTimes.append((40, [160448.666]))
+   # IP SDN
+   lstIpSdnTimes = list()
+   lstIpSdnTimes.append((10, [4992]))
+   lstIpSdnTimes.append((20, [31326]))
+   lstIpSdnTimes.append((30, [87000]))
+   lstIpSdnTimes.append((40, [157280.33]))
+   # ICN SDN
+   lstIcnSdnTimes = list()
+   lstIcnSdnTimes.append((10, [2609]))
+   lstIcnSdnTimes.append((20, [16176]))
+   lstIcnSdnTimes.append((30, [46012]))
+   lstIcnSdnTimes.append((40, [84850]))
+
+   # Calculate averages
+   lstNodesIpStp = list()
+   lstAvgsIpStp = list()
+   for (nNodes, lstTimes) in lstIpStpTimes:
+      sAvg = 0
+      if (len(lstTimes) > 0):
+         sAvg = sum(lstTimes)/len(lstTimes)
+      lstNodesIpStp.append(nNodes)
+      lstAvgsIpStp.append(sAvg*nDataSize)
+      if (bAnnotate):
+         plt.annotate('%.2f' % sAvg, xy=(nNodes, sAvg))
+
+   # Calculate averages
+   lstNodesIpSdn = list()
+   lstAvgsIpSdn = list()
+   for (nNodes, lstTimes) in lstIpSdnTimes:
+      sAvg = 0
+      if (len(lstTimes) > 0):
+         sAvg = sum(lstTimes)/len(lstTimes)
+      lstNodesIpSdn.append(nNodes)
+      lstAvgsIpSdn.append(sAvg*nDataSize)
+      if (bAnnotate):
+         plt.annotate('%.2f' % sAvg, xy=(nNodes, sAvg))
+
+   # Calculate averages
+   lstNodesIcnSdn = list()
+   lstAvgsIcnSdn = list()
+   for (nNodes, lstTimes) in lstIcnSdnTimes:
+      sAvg = 0
+      if (len(lstTimes) > 0):
+         sAvg = sum(lstTimes)/len(lstTimes)
+      lstNodesIcnSdn.append(nNodes)
+      lstAvgsIcnSdn.append(sAvg*nDataSize)
+      if (bAnnotate):
+         plt.annotate('%.2f' % sAvg, xy=(nNodes, sAvg))
+
+   plt.plot(lstNodesIcnSdn, lstAvgsIcnSdn, marker=c_strIcnSdnMarker, color=c_strIcnSdnColor, markersize=6, label='ICN+SDN')
+   plt.plot(lstNodesIpSdn, lstAvgsIpSdn, marker=c_strIpSdnMarker, color=c_strIpSdnColor, markersize=6, label='SDN')
+   plt.plot(lstNodesIpStp, lstAvgsIpStp, marker=c_strIpStpMarker, color=c_strIpStpColor, markersize=6, label='IP')
+
+   # plt.errorbar(x, y, yerr=yerr, color='r')
+
+   if (bShowLegend):
+      plt.title('Number of outgoing interests')
+   plt.grid()
+   plt.xlabel('Número de nós da rede')
+   plt.ylabel('Dados trafegados pela rede (MB)')
+   plt.legend()
+   plt.show()
+
+def consumer_over_network(bAnnotate=True, bShowLegend=False):
+
+   # 8KB in MB
+   nDataSize = 0.0078125
+
+   lstX = [10, 20, 40]
+   lstConsumerInterests = [1541, 7385.6875, 33369]
+   lstTotalInterests = [3453, 22176.46875, 116433]
+
+   plt.plot(lstX, lstConsumerInterests, marker=c_strIcnSdnMarker, color=c_strIcnSdnColor, markersize=6, label='ICN+SDN')
+   plt.plot(lstX, lstTotalInterests, marker=c_strIpSdnMarker, color=c_strIpSdnColor, markersize=6, label='SDN')
+
+   # plt.errorbar(x, y, yerr=yerr, color='r')
+
+   if (bShowLegend):
+      plt.title('Number of outgoing interests')
+   plt.grid()
+   plt.xlabel('Número de nós da rede')
+   plt.ylabel('Dados trafegados pela rede (MB)')
+   plt.legend()
+   plt.show()
+
+
 if (__name__ == '__main__'):
    # delay_over_nodes(bAnnotate=False)
    # delay_over_cachePercentage(bAnnotate=False)
-   delay_over_dataFlows(bAnnotate=False)
+   # delay_over_dataFlows(bAnnotate=False)
    # interests_over_nodes(bAnnotate=False)
+   # datas_over_nodes(bAnnotate=True)
+   consumer_over_network(bAnnotate=True)
