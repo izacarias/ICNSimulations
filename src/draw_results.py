@@ -373,21 +373,24 @@ def datas_over_nodes(bAnnotate=True, bShowLegend=False):
       plt.title('Number of outgoing interests')
    plt.grid()
    plt.xlabel('Número de nós da rede')
-   plt.ylabel('Dados trafegados pela rede (MB)')
+   plt.ylabel('Volume de dados trafegados pela rede (MB)')
    plt.legend()
    plt.show()
 
 def consumer_over_network(bAnnotate=True, bShowLegend=False):
 
-   # 8KB in MB
-   nDataSize = 0.0078125
+   # 94 bytes for each request in MB
+   nDataSize = 94/(1024.0*1024.0)
 
-   lstX = [10, 20, 40]
-   lstConsumerInterests = [1541, 7385.6875, 33369]
-   lstTotalInterests = [3453, 22176.46875, 116433]
+   lstX = [10, 20, 30, 40]
+   lstConsumerInterests = [1541, 7385.6875, 18212.321, 33369]
+   lstTotalInterests = [3453, 22176.46875, 61189.987,116433]
 
-   plt.plot(lstX, lstConsumerInterests, marker=c_strIcnSdnMarker, color=c_strIcnSdnColor, markersize=6, label='ICN+SDN')
-   plt.plot(lstX, lstTotalInterests, marker=c_strIpSdnMarker, color=c_strIpSdnColor, markersize=6, label='SDN')
+   lstConsumerInterests = [x*nDataSize for x in lstConsumerInterests]
+   lstTotalInterests    = [x*nDataSize for x in lstTotalInterests]
+
+   plt.plot(lstX, lstConsumerInterests, marker=c_strIcnSdnMarker, color='maroon', markersize=6, label='Enviados por consumidores')
+   plt.plot(lstX, lstTotalInterests, marker=c_strIpSdnMarker, color='darkgreen', markersize=6, label='Propagados pela rede')
 
    # plt.errorbar(x, y, yerr=yerr, color='r')
 
@@ -395,15 +398,15 @@ def consumer_over_network(bAnnotate=True, bShowLegend=False):
       plt.title('Number of outgoing interests')
    plt.grid()
    plt.xlabel('Número de nós da rede')
-   plt.ylabel('Dados trafegados pela rede (MB)')
+   plt.ylabel('Volume de requisições NDN (MB)')
    plt.legend()
    plt.show()
 
 
 if (__name__ == '__main__'):
-   # delay_over_nodes(bAnnotate=False)
-   # delay_over_cachePercentage(bAnnotate=False)
-   # delay_over_dataFlows(bAnnotate=False)
-   # interests_over_nodes(bAnnotate=False)
-   # datas_over_nodes(bAnnotate=True)
+   delay_over_nodes(bAnnotate=False)
+   delay_over_cachePercentage(bAnnotate=False)
+   delay_over_dataFlows(bAnnotate=False)
+   interests_over_nodes(bAnnotate=False)
+   datas_over_nodes(bAnnotate=True)
    consumer_over_network(bAnnotate=True)
