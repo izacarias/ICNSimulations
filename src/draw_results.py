@@ -90,10 +90,12 @@ def delay_over_cachePercentage(bAnnotate=True, bShowTitle=False):
    # IP SDN
    lstIcnSdnTimes = list()
    lstIcnSdnTimes.append((0, [30.67]))
-   lstIcnSdnTimes.append((25, [26.68, 21.9, 21.97]))
-   lstIcnSdnTimes.append((50, [26.19, 21.78, 27.98]))
-   lstIcnSdnTimes.append((75, [23.5, 26.38, 20.98]))
-   lstIcnSdnTimes.append((100, [20.79, 26.52, 20.98]))
+   lstIcnSdnTimes.append((25, [19.598]))
+   lstIcnSdnTimes.append((50, [19.923]))
+   lstIcnSdnTimes.append((75, [19.713]))
+   lstIcnSdnTimes.append((100, [19.713]))
+   lstIcnSdnStds = list()
+   lstIcnSdnStds = [1.11, 1.109, 1.023, 1.132, 1.123]
    # ICN SDN
    lstIpSdnTimes = list()
    lstIpSdnTimes.append((0, [30.67]))
@@ -140,7 +142,9 @@ def delay_over_cachePercentage(bAnnotate=True, bShowTitle=False):
 
    plt.plot(lstNodesIpStp, lstAvgsIpStp, marker=c_strIpStpMarker, color=c_strIpStpColor, markersize=6, label='IP')
    plt.plot(lstNodesIpSdn, lstAvgsIpSdn, marker=c_strIpSdnMarker, color=c_strIpSdnColor, markersize=6, label='SDN')
+
    plt.plot(lstNodesIcnSdn, lstAvgsIcnSdn, marker=c_strIcnSdnMarker, color=c_strIcnSdnColor, markersize=6, label='ICN+SDN')
+   plt.errorbar(lstNodesIcnSdn, lstAvgsIcnSdn, yerr=lstIcnSdnStds, color=c_strIcnSdnColor, barsabove=True)
 
    # plt.errorbar(x, y, yerr=yerr, color='r')
 
@@ -402,11 +406,10 @@ def consumer_over_network(bAnnotate=True, bShowLegend=False):
    plt.legend()
    plt.show()
 
-
 if (__name__ == '__main__'):
-   delay_over_nodes(bAnnotate=False)
-   delay_over_cachePercentage(bAnnotate=False)
+   # delay_over_nodes(bAnnotate=False)
+   # delay_over_cachePercentage(bAnnotate=False)
    delay_over_dataFlows(bAnnotate=False)
-   interests_over_nodes(bAnnotate=False)
-   datas_over_nodes(bAnnotate=True)
-   consumer_over_network(bAnnotate=True)
+   # interests_over_nodes(bAnnotate=False)
+   # datas_over_nodes(bAnnotate=True)
+   # consumer_over_network(bAnnotate=True)
