@@ -15,18 +15,21 @@ def delay_over_nodes(bAnnotate=True, bShowLegend=False):
    lstIpStpTimes.append((20, [51.48]))
    lstIpStpTimes.append((30, [87.84]))
    lstIpStpTimes.append((40, [97.57]))
+   lstIpStpErrors = [6.251, 7.231, 8.11, 9.67]
    # IP SDN
    lstIpSdnTimes = list()
    lstIpSdnTimes.append((10, [24.42]))
    lstIpSdnTimes.append((20, [30.67]))
    lstIpSdnTimes.append((30, [24.68]))
    lstIpSdnTimes.append((40, [30.65]))
+   lstIpSdnErrors = [3.52, 3.15, 3.82, 4.65]
    # ICN SDN
    lstIcnSdnTimes = list()
    lstIcnSdnTimes.append((10, [18.79]))
    lstIcnSdnTimes.append((20, [19.62]))
    lstIcnSdnTimes.append((30, [15.88]))
    lstIcnSdnTimes.append((40, [17.03]))
+   lstIcnSdnErrors = [2.15, 2.85, 3.12, 4.09]
 
    # Calculate averages
    lstNodesIpStp = list()
@@ -65,10 +68,13 @@ def delay_over_nodes(bAnnotate=True, bShowLegend=False):
          plt.annotate('%.2f ms' % sAvg, xy=(nNodes, sAvg))
 
    plt.plot(lstNodesIcnSdn, lstAvgsIcnSdn, marker=c_strIcnSdnMarker, color=c_strIcnSdnColor, markersize=6, label='ICN+SDN')
-   plt.plot(lstNodesIpStp, lstAvgsIpStp, marker=c_strIpStpMarker, color=c_strIpStpColor, markersize=6, label='IP')
-   plt.plot(lstNodesIpSdn, lstAvgsIpSdn, marker=c_strIpSdnMarker, color=c_strIpSdnColor, markersize=6, label='SDN')
+   plt.errorbar(lstNodesIcnSdn, lstAvgsIcnSdn, yerr=lstIcnSdnErrors, color=c_strIcnSdnColor)
 
-   # plt.errorbar(x, y, yerr=yerr, color='r')
+   plt.plot(lstNodesIpStp, lstAvgsIpStp, marker=c_strIpStpMarker, color=c_strIpStpColor, markersize=6, label='IP')
+   plt.errorbar(lstNodesIpStp, lstAvgsIpStp, yerr=lstIpStpErrors, color=c_strIpStpColor)
+
+   plt.plot(lstNodesIpSdn, lstAvgsIpSdn, marker=c_strIpSdnMarker, color=c_strIpSdnColor, markersize=6, label='SDN')
+   plt.errorbar(lstNodesIpSdn, lstAvgsIpSdn, yerr=lstIpSdnErrors, color=c_strIpSdnColor)
 
    if (bShowLegend):
       plt.title('End to end delay RTT')
@@ -87,6 +93,7 @@ def delay_over_cachePercentage(bAnnotate=True, bShowTitle=False):
    lstIpStpTimes.append((50, lstIpStpTimes[0][1]))
    lstIpStpTimes.append((75, lstIpStpTimes[0][1]))
    lstIpStpTimes.append((100, lstIpStpTimes[0][1]))
+   lstIpStpErrors = [7.23, 7.33, 7.14, 7.29, 7.21]
    # IP SDN
    lstIcnSdnTimes = list()
    lstIcnSdnTimes.append((0, [30.67]))
@@ -94,8 +101,7 @@ def delay_over_cachePercentage(bAnnotate=True, bShowTitle=False):
    lstIcnSdnTimes.append((50, [19.923]))
    lstIcnSdnTimes.append((75, [19.713]))
    lstIcnSdnTimes.append((100, [19.713]))
-   lstIcnSdnStds = list()
-   lstIcnSdnStds = [1.11, 1.109, 1.023, 1.132, 1.123]
+   lstIcnSdnErrors = [1.21, 1.14, 1.34, 1.24, 1.7]
    # ICN SDN
    lstIpSdnTimes = list()
    lstIpSdnTimes.append((0, [30.67]))
@@ -103,6 +109,7 @@ def delay_over_cachePercentage(bAnnotate=True, bShowTitle=False):
    lstIpSdnTimes.append((50, lstIpSdnTimes[0][1]))
    lstIpSdnTimes.append((75, lstIpSdnTimes[0][1]))
    lstIpSdnTimes.append((100, lstIpSdnTimes[0][1]))
+   lstIpSdnErrors = [3.15, 3.15, 3.15, 3.15, 3.15]
 
    # Calculate averages
    lstNodesIpStp = list()
@@ -141,10 +148,13 @@ def delay_over_cachePercentage(bAnnotate=True, bShowTitle=False):
          plt.annotate('%.2f ms' % sAvg, xy=(nPercentage, sAvg))
 
    plt.plot(lstNodesIpStp, lstAvgsIpStp, marker=c_strIpStpMarker, color=c_strIpStpColor, markersize=6, label='IP')
+   plt.errorbar(lstNodesIpStp, lstAvgsIpStp, yerr=lstIpStpErrors, color=c_strIpStpColor)
+
    plt.plot(lstNodesIpSdn, lstAvgsIpSdn, marker=c_strIpSdnMarker, color=c_strIpSdnColor, markersize=6, label='SDN')
+   plt.errorbar(lstNodesIpSdn, lstAvgsIpSdn, yerr=lstIpSdnErrors, color=c_strIpSdnColor)
 
    plt.plot(lstNodesIcnSdn, lstAvgsIcnSdn, marker=c_strIcnSdnMarker, color=c_strIcnSdnColor, markersize=6, label='ICN+SDN')
-   plt.errorbar(lstNodesIcnSdn, lstAvgsIcnSdn, yerr=lstIcnSdnStds, color=c_strIcnSdnColor, barsabove=True)
+   plt.errorbar(lstNodesIcnSdn, lstAvgsIcnSdn, yerr=lstIcnSdnErrors, color=c_strIcnSdnColor)
 
    # plt.errorbar(x, y, yerr=yerr, color='r')
 
@@ -407,9 +417,9 @@ def consumer_over_network(bAnnotate=True, bShowLegend=False):
    plt.show()
 
 if (__name__ == '__main__'):
-   # delay_over_nodes(bAnnotate=False)
+   delay_over_nodes(bAnnotate=False)
    # delay_over_cachePercentage(bAnnotate=False)
-   delay_over_dataFlows(bAnnotate=False)
+   # delay_over_dataFlows(bAnnotate=False)
    # interests_over_nodes(bAnnotate=False)
    # datas_over_nodes(bAnnotate=True)
    # consumer_over_network(bAnnotate=True)
