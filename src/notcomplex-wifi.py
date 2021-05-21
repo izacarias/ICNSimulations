@@ -78,7 +78,10 @@ def main():
          nIterationsCompleted += 1
 
          # Read results
-         readNfdResults(strTopoPath)
+         try:
+            readNfdResults(strTopoPath)
+         except Exception as e:
+            logging.error('[main] Could not read logs for iteration %d, exception %s' % (nIterationsCompleted, str(e)))
 
          if (nIterationsCompleted < nIterations):
             # Clear everything stored in cache before next iteration

@@ -21,15 +21,15 @@ def delay_over_nodes(bAnnotate=True, bShowLegend=False):
    lstIpSdnTimes.append((10, [24.42]))
    lstIpSdnTimes.append((20, [30.67]))
    lstIpSdnTimes.append((30, [24.68]))
-   lstIpSdnTimes.append((40, [30.65]))
+   lstIpSdnTimes.append((40, [24.214]))
    lstIpSdnErrors = [3.52, 3.15, 3.82, 4.65]
    # ICN SDN
    lstIcnSdnTimes = list()
    lstIcnSdnTimes.append((10, [18.79]))
    lstIcnSdnTimes.append((20, [19.62]))
    lstIcnSdnTimes.append((30, [15.88]))
-   lstIcnSdnTimes.append((40, [17.03]))
-   lstIcnSdnErrors = [2.15, 2.85, 3.12, 4.09]
+   lstIcnSdnTimes.append((40, [14.412]))
+   lstIcnSdnErrors = [2.15, 2.85, 3.12, 3.6]
 
    # Calculate averages
    lstNodesIpStp = list()
@@ -176,29 +176,29 @@ def delay_over_dataFlows(bAnnotate=True, bShowTitle=False):
    # IP SDN
    lstIpSdnTimes = list()
    lstIpSdnTimes.append((nProduced*1, [46.2]))
-   lstIpSdnTimes.append((nProduced*4, [47.4]))
-   lstIpSdnTimes.append((nProduced*32, [40.82]))
-   lstIpSdnTimes.append((nProduced*128, [42.3]))
-   lstIpSdnTimes.append((nProduced*256, [43.4]))
-
+   lstIpSdnTimes.append((nProduced*32, [45.82]))
+   lstIpSdnTimes.append((nProduced*128, [45.912]))
+   lstIpSdnTimes.append((nProduced*256, [46.014]))
+   lstIpSdnErrors = [3.32, 3.012, 3.15, 3.82]
    # IP
    lstIpStpTimes = list()
-   lstIpStpTimes.append((nProduced*1, [56.72]))
-   lstIpStpTimes.append((nProduced*4, [55.34]))
-   lstIpStpTimes.append((nProduced*32, [49.23]))
-   lstIpStpTimes.append((nProduced*128, [51.12]))
-   lstIpStpTimes.append((nProduced*256, [51.31]))
-
+   lstIpStpTimes.append((nProduced*1, [55.72]))
+   lstIpStpTimes.append((nProduced*32, [56.03]))
+   lstIpStpTimes.append((nProduced*128, [57.12]))
+   lstIpStpTimes.append((nProduced*256, [56.51]))
+   lstIpStpErrors = [7.012, 6.891, 7.31, 7.124]
    # ICN SDN
    lstIcnSdnTimes = list()
    lstIcnSdnTimes.append((nProduced*1,   [44.53, 44.61, 44.50]))
-   lstIcnSdnTimes.append((nProduced*4,   [49.71, 43.96, 42.23, 41.67, 42.01]))
+   # lstIcnSdnTimes.append((nProduced*4,   [49.71, 43.96, 42.23, 41.67, 42.01]))
    lstIcnSdnTimes.append((nProduced*8,   [47.44, 42.30, 38.92, 38.04, 38.37]))
    lstIcnSdnTimes.append((nProduced*16,  [43.73, 42.10, 35.86, 35.33, 34.97]))
    lstIcnSdnTimes.append((nProduced*32,  [38.55, 39.51, 31.99, 31.89, 35.08]))
    lstIcnSdnTimes.append((nProduced*64,  [35.87, 29.09, 31.13, 29.04, 27.94]))
    lstIcnSdnTimes.append((nProduced*128, [26.47, 28.93, 27.13, 25.10, 24.43]))
    lstIcnSdnTimes.append((nProduced*256, [22.17, 23.74, 22.50, 22.91]))
+   lstIcnSdnErrors = []
+   lstIcnSdnErrors = [2.85, 2.85, 2.821, 2.91, 2.81, 2.78, 3.23]
 
    # Calculate averages
    lstNodesIpStp = list()
@@ -237,8 +237,13 @@ def delay_over_dataFlows(bAnnotate=True, bShowTitle=False):
          plt.annotate('%.2f ms' % sAvg, xy=(nDataFlows, sAvg))
 
    plt.plot(lstNodesIcnSdn, lstAvgsIcnSdn, marker=c_strIcnSdnMarker, color=c_strIcnSdnColor, markersize=6, label='ICN+SDN')
+   plt.errorbar(lstNodesIcnSdn, lstAvgsIcnSdn, yerr=lstIcnSdnErrors, color=c_strIcnSdnColor)
+
    plt.plot(lstNodesIpSdn, lstAvgsIpSdn, marker=c_strIpSdnMarker, color=c_strIpSdnColor, markersize=6, label='SDN')
+   plt.errorbar(lstNodesIpSdn, lstAvgsIpSdn, yerr=lstIpSdnErrors, color=c_strIpSdnColor)
+
    plt.plot(lstNodesIpStp, lstAvgsIpStp, marker=c_strIpStpMarker, color=c_strIpStpColor, markersize=6, label='IP')
+   plt.errorbar(lstNodesIpStp, lstAvgsIpStp, yerr=lstIpStpErrors, color=c_strIpStpColor)
 
    # plt.errorbar(x, y, yerr=yerr, color='r')
 
@@ -247,7 +252,7 @@ def delay_over_dataFlows(bAnnotate=True, bShowTitle=False):
    plt.grid()
    plt.xlabel('Número de fluxos de dados')
    plt.ylabel('Delay (ms)')
-   plt.legend()
+   plt.legend(loc='lower left')
    plt.show()
 
 def interests_over_nodes(bAnnotate=True, bShowLegend=False):
@@ -417,9 +422,9 @@ def consumer_over_network(bAnnotate=True, bShowLegend=False):
    plt.show()
 
 if (__name__ == '__main__'):
-   delay_over_nodes(bAnnotate=False)
+   # delay_over_nodes(bAnnotate=False)
    # delay_over_cachePercentage(bAnnotate=False)
-   # delay_over_dataFlows(bAnnotate=False)
+   delay_over_dataFlows(bAnnotate=False)
    # interests_over_nodes(bAnnotate=False)
    # datas_over_nodes(bAnnotate=True)
    # consumer_over_network(bAnnotate=True)
