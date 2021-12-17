@@ -1,2 +1,42 @@
 2020-12-22 21:12:15,429 createRandomTopo: begin maxX=100, maxY=100, NodeLinks=4
 2020-12-22 21:12:15,431 [main] topology file written to path=../topologies/test-topo.conf
+2021-07-23 19:38:37,347 [main] Generating topology for nHumans=3, nSensors=2, nDrones=4, nVehicles=1
+2021-07-23 19:38:37,347 [createRandomTopoWifi] Begin maxX=100000, maxY=100000, NodeLinks=3
+2021-07-23 19:38:37,349 [TopologyGenerator.createRandomTopoWifi] lstStationLinks=10, lstApLinks=20
+2021-07-23 19:38:37,349 [TopologyGenerator.createRandomTopoWifi] lstLinks=30
+2021-07-23 19:38:37,350 [main] pTopology.lstLinks=20
+2021-07-23 20:06:29,006 [main] Generating topology for nHumans=3, nSensors=2, nDrones=4, nVehicles=1
+2021-07-23 20:06:29,006 [createRandomTopoWifi] Begin maxX=100000, maxY=100000, NodeLinks=3
+2021-07-23 20:06:29,008 [TopologyGenerator.createRandomTopoWifi] lstStationLinks=10, lstApLinks=19
+2021-07-23 20:06:29,009 [TopologyGenerator.createRandomTopoWifi] lstLinks=29
+2021-07-23 20:06:29,009 [main] pTopology.lstLinks=19
+2021-07-23 20:06:29,011 [Topology.areAllNodesConnected] All nodes are connected!
+2021-07-23 20:06:29,011 [main] topology file written to path=nw_topo10
+2021-07-23 20:12:19,022 [main] Generating topology for nHumans=3, nSensors=2, nDrones=4, nVehicles=1
+2021-07-23 20:12:19,023 [createRandomTopoWifi] Begin maxX=100000, maxY=100000, NodeLinks=3
+2021-07-23 20:12:19,025 [TopologyGenerator.createRandomTopoWifi] lstStationLinks=10, lstApLinks=21
+2021-07-23 20:12:19,025 [TopologyGenerator.createRandomTopoWifi] lstLinks=31
+2021-07-23 20:12:19,064 [main] pTopology.lstLinks=21
+2021-07-23 20:12:19,067 [Topology.areAllNodesConnected] All nodes are connected!
+2021-07-23 20:12:19,067 [main] topology file written to path=nw_topo_10
+2021-07-23 20:12:29,664 [main] Generating topology for nHumans=6, nSensors=4, nDrones=8, nVehicles=2
+2021-07-23 20:12:29,665 [createRandomTopoWifi] Begin maxX=100000, maxY=100000, NodeLinks=3
+2021-07-23 20:12:29,671 [TopologyGenerator.createRandomTopoWifi] lstStationLinks=20, lstApLinks=37
+2021-07-23 20:12:29,671 [TopologyGenerator.createRandomTopoWifi] lstLinks=57
+2021-07-23 20:12:29,672 [main] pTopology.lstLinks=37
+2021-07-23 20:12:29,683 [Topology.areAllNodesConnected] All nodes are connected!
+2021-07-23 20:12:29,686 [main] topology file written to path=nw_topo_20
+2021-07-23 20:12:40,299 [main] Generating topology for nHumans=9, nSensors=8, nDrones=12, nVehicles=1
+2021-07-23 20:12:40,299 [createRandomTopoWifi] Begin maxX=100000, maxY=100000, NodeLinks=3
+2021-07-23 20:12:40,312 [TopologyGenerator.createRandomTopoWifi] lstStationLinks=30, lstApLinks=59
+2021-07-23 20:12:40,313 [TopologyGenerator.createRandomTopoWifi] lstLinks=89
+2021-07-23 20:12:40,313 [main] pTopology.lstLinks=59
+2021-07-23 20:12:40,420 [Topology.areAllNodesConnected] All nodes are connected!
+2021-07-23 20:12:40,421 [main] topology file written to path=nw_topo_30
+2021-07-23 20:12:48,992 [main] Generating topology for nHumans=12, nSensors=10, nDrones=14, nVehicles=4
+2021-07-23 20:12:48,993 [createRandomTopoWifi] Begin maxX=100000, maxY=100000, NodeLinks=3
+2021-07-23 20:12:49,045 [TopologyGenerator.createRandomTopoWifi] lstStationLinks=40, lstApLinks=77
+2021-07-23 20:12:49,045 [TopologyGenerator.createRandomTopoWifi] lstLinks=117
+2021-07-23 20:12:49,045 [main] pTopology.lstLinks=77
+2021-07-23 20:12:49,153 [Topology.areAllNodesConnected] All nodes are connected!
+2021-07-23 20:12:49,155 [main] topology file written to path=nw_topo_40

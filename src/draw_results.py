@@ -1,3 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+
 import matplotlib.pyplot as plt
 
 c_strIcnSdnMarker = 'x'
@@ -250,7 +254,7 @@ def delay_over_dataFlows(bAnnotate=True, bShowTitle=False):
    if (bShowTitle):
       plt.title('Delay over the number of data flows')
    plt.grid()
-   plt.xlabel('Número de fluxos de dados')
+   plt.xlabel("Número de fluxos de dados")
    plt.ylabel('Delay (ms)')
    plt.legend(loc='lower left')
    plt.show()

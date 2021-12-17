@@ -14,6 +14,7 @@ from mn_wifi.cli import CLI
 from mn_wifi.net import Mininet_wifi
 from minindn.apps.nlsr import Nlsr
 from minindn.apps.app_manager import AppManager
+from minindn.apps.tshark import Tshark
 import configparser
 import logging
 import time
@@ -100,6 +101,11 @@ class Topology(object):
       logging.info("[Topology.create] Starting network")
       self.net.build()
 
+      # logging.info("[Topology.create] Starting TShark capture on nodes")
+      # tshark = AppManager(self, self.net.stations, logFolder="./tshark/", singleLogFile=False)
+      print('[Topology.create] List of stations')
+      print(self.net.stations)
+
       c0.start()
       for pAp in self.net.aps:
          pAp.start([c0])
@@ -124,6 +130,7 @@ class Topology(object):
          self.lstNfdProcs.append(proc)
 
       self.createNfdRoutes()
+      self.runTsharkOnStations()
 
       if (strMode == 'icn_sdn') or (strMode == 'ip_sdn'):
          self.setSdnFilters(self.net.aps)
@@ -180,8 +187,26 @@ class Topology(object):
       else:
          raise Exception('[Topology.cacheSizeForHost] Unrecognized mode=%s' % strMode)
 
-   def createNfdRoutes(self):
 
+   def runTsharkOnStations(self):
+      sLogFolder = '/tmp/tshark'
+      for pStation in self.net.stations:
+         # Create logfile folder in case it does not exist
+         pStation.cmd('mkdir -p {}'.format(sLogFolder))
+         for intf in pStation.intfNames():
+            ndnDumpFile = "{}/{}.pcap".format(sLogFolder, intf)
+            logging.info('[Topology.runTsharkOnStations] Running tshark with dump file %s' % (ndnDumpFile))
+            # pStation.cmd("tshark -i {} -w {} -q -s 40 -f \"udp and port 6363\" &".format(intf, ndnDumpFile))
+            pStation.cmd("tshark -i {} -w {} -q -s 40 &".format(intf, ndnDumpFile))
+
+   def stopTsharkOnStations(self):
+      for pStation in self.net.stations:
+         # kill tshark app in order to copy dump files
+         logging.info('[Topology.stopTsharkOnStations] Stopping tshark on station %s' % (pStation.name))
+         pStation.cmd("killall -9 tshark")
+
+
+   def createNfdRoutes(self):
       logging.info('[Topology.createNfdRoutes] Creating routes for %d stations and %d APs' % (len(self.net.stations), len(self.net.aps)))
       lstHostLinks = self.abstractApsFromLinks()
       # Create faces to all neighbouring hosts
@@ -277,7 +302,6 @@ class Topology(object):
       return hshAPs
 
    def clearAllCache(self):
-
       lstFilters = list()
       for pStation in self.net.stations:
          lstFilters.append(RandomTalks.getFilterByHostname(pStation.name))
@@ -302,8 +326,9 @@ class Topology(object):
       for pFile in self.lstLogFiles:
          pFile.close()
 
-      subprocess.Popen('killall -9 putchunks', shell=True)
-      subprocess.Popen('killall -9 catchunks', shell=True)
+      # subprocess.Popen('killall -9 putchunks', shell=True)
+      # subprocess.Popen('killall -9 catchunks', shell=True)
+      # subprocess.Popen('killall -9 tshark', shell=True)
 
       logging.info("*** Stopping network")
       self.net.stop()

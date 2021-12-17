@@ -5,14 +5,16 @@
 import sys
 import logging
 import getopt
+import shutil
+import os
 from process_topology import Topology
 from icnexperiment.data_generation import DataManager
-from icnexperiment.dir_config import c_strLogDir
+from icnexperiment.dir_config import c_strLogDir 
 from random_talks import RandomTalks
 from read_nfd_results import readNfdResults
 
 # Create logging
-c_strLogFile = c_strLogDir + '/notcomplex-witi.log'
+c_strLogFile = c_strLogDir + '/notcomplex-wifi.log'
 logging.basicConfig(filename=c_strLogFile, format='%(asctime)s %(message)s', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
@@ -74,7 +76,9 @@ def main():
       Experiment = RandomTalks(topo.net.stations, lstDataQueue)
       try:
          Experiment.setup()
+         topo.runTsharkOnStations()
          (dtBegin, dtEnd) = Experiment.run(nTimeSecs)
+         topo.stopTsharkOnStations()
          nIterationsCompleted += 1
 
          # Read results
@@ -82,6 +86,11 @@ def main():
          #    readNfdResults(strTopoPath)
          # except Exception as e:
          #    logging.error('[main] Could not read logs for iteration %d, exception %s' % (nIterationsCompleted, str(e)))
+   
+         # copy thsark capture files
+         copyTsharkFiles(strMode, strTopoPath, nIterationsCompleted)
+         copyNdnLogs(strMode, strTopoPath, nIterationsCompleted)
+
 
          if (nIterationsCompleted < nIterations):
             # Clear everything stored in cache before next iteration
@@ -90,9 +99,65 @@ def main():
       except Exception as e:
          logging.error('[main] An exception was raised during the experiment: %s' % str(e))
          raise
-
    # topo.showCLI()
    topo.destroy()
+
+
+def copyTsharkFiles(strMode, strTopoPath, iteration):
+   strTopoName = os.path.split(strTopoPath)[1]
+   strRun = 'run' + str(iteration)
+   srcFolder = '/tmp/tshark/'
+   dstFolder = os.path.join(c_strLogDir, strMode, strTopoName, strRun, 'tshark')
+   try:
+      os.makedirs(dstFolder)
+   except:
+      logging.info('[copyTsharkFiles] Directory exists.')
+   srcFiles = os.listdir(srcFolder)
+   error = False
+   for fileName in srcFiles:
+      fullFileName = os.path.join(srcFolder, fileName)
+      if os.path.isfile(fullFileName):
+         try:
+            logging.info('[copyTsharkFiles] Copying file ' + fullFileName)
+            destFile = shutil.copy(fullFileName, dstFolder)
+         except:
+            logging.info('[copyTsharkFiles] Error copying file ' + fullFileName)
+            error = True
+   if not error:
+      logging.info('[copyTsharkFiles] All files copied. Removing old files.')
+      for fileName in srcFiles:
+         fullFileName = os.path.join(srcFolder, fileName)
+         if os.path.isfile(fullFileName):
+            logging.info('[copyTsharkFiles] Removing file ' + fullFileName +'.')
+            os.remove(fullFileName)
+
+
+def copyNdnLogs(strMode, strTopoPath, iteration):
+   strTopoName = os.path.split(strTopoPath)[1]
+   strRun = 'run' + str(iteration)
+   srcFolder = os.path.join('/', 'tmp', 'icnsimulations')
+   dstFolder = os.path.join(c_strLogDir, strMode, strTopoName, strRun, 'ndn')
+   srcDirs = os.listdir(srcFolder)
+   error = True # disable file exclusion
+   if not os.path.exists(dstFolder):
+       os.makedirs(dstFolder)
+   for dirToCopy in srcDirs:
+      fullSrcName = os.path.join(srcFolder, dirToCopy, 'nfd.log')
+      fullDstName = os.path.join(dstFolder, dirToCopy)
+      if not os.path.exists(fullDstName):
+         os.makedirs(fullDstName)
+      try:
+         logging.info('[copyNdnLogs] Copying file ' + fullSrcName)
+         fileCopied = shutil.copy(fullSrcName, fullDstName)
+      except:
+         logging.info('[copyNdnLogs] Error copying file ' + fullSrcName)
+         error = True
+      if not error:
+         # logging.info('[copyNdnLogs] All files copied. Removing old files.')
+         if os.path.isfile(fullSrcName):
+            logging.info('[copyTsharkFiles] Removing file ' + fullSrcName +'.')
+            os.remove(fullSrcName)
+
 
 def showHelp():
    strHelp  = 'Help: -----------------------------------------------\n'

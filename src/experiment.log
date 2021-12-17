@@ -1,0 +1,895 @@
+seg jul 26 19:20:03 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo80.conf, iteration 1, cache ratio 1.0, iterations 3
+seg jul 26 19:20:09 -03 2021
+Running ip_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo80.conf, iteration 1, cache ratio 1.0, iterations 3
+seg jul 26 19:20:14 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo60.conf, iteration 1, cache ratio 1.0, iterations 3
+seg jul 26 19:20:20 -03 2021
+Running ip_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo60.conf, iteration 1, cache ratio 1.0, iterations 3
+seg jul 26 19:20:26 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo100.conf, iteration 1, cache ratio 1.0, iterations 3
+seg jul 26 19:20:31 -03 2021
+Running ip_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo100.conf, iteration 1, cache ratio 1.0, iterations 3
+qua ago 11 18:37:39 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+qua ago 11 18:37:46 -03 2021
+Running ip_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+qua ago 11 18:37:52 -03 2021
+Running ip experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+Done!
+qua ago 11 19:12:22 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 0 transmissions for host=d0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d3; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s0; DATA=0; NACK=0; avgDelay=0.00 ms
+[avgTransTime] average=0, transmissions=0
+[readNfdResults] Transmission time average=0.000000 ms
+qua ago 11 19:23:27 -03 2021
+Running ip_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 330 transmissions for host=d0; DATA=234; NACK=96; avgDelay=30.80 ms
+[readNFDLogs] Read 714 transmissions for host=v0; DATA=546; NACK=168; avgDelay=22.87 ms
+[readNFDLogs] Read 330 transmissions for host=d3; DATA=234; NACK=96; avgDelay=28.33 ms
+[readNFDLogs] Read 330 transmissions for host=d2; DATA=234; NACK=96; avgDelay=32.02 ms
+[readNFDLogs] Read 330 transmissions for host=h0; DATA=234; NACK=96; avgDelay=31.75 ms
+[readNFDLogs] Read 330 transmissions for host=d1; DATA=234; NACK=96; avgDelay=30.52 ms
+[readNFDLogs] Read 906 transmissions for host=h1; DATA=702; NACK=204; avgDelay=22.07 ms
+[readNFDLogs] Read 330 transmissions for host=h2; DATA=234; NACK=96; avgDelay=27.83 ms
+[readNFDLogs] Read 48 transmissions for host=s1; DATA=0; NACK=48; avgDelay=0.00 ms
+[readNFDLogs] Read 156 transmissions for host=s0; DATA=0; NACK=156; avgDelay=0.00 ms
+[avgTransTime] average=26.5450936996, transmissions=2652
+[readNfdResults] Transmission time average=26.545094 ms
+qua ago 11 19:38:20 -03 2021
+Running ip experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 330 transmissions for host=d0; DATA=234; NACK=96; avgDelay=130.25 ms
+[readNFDLogs] Read 714 transmissions for host=v0; DATA=546; NACK=168; avgDelay=112.63 ms
+[readNFDLogs] Read 330 transmissions for host=d3; DATA=234; NACK=96; avgDelay=152.75 ms
+[readNFDLogs] Read 330 transmissions for host=d2; DATA=234; NACK=96; avgDelay=160.49 ms
+[readNFDLogs] Read 330 transmissions for host=h0; DATA=234; NACK=96; avgDelay=108.19 ms
+[readNFDLogs] Read 330 transmissions for host=d1; DATA=234; NACK=96; avgDelay=122.15 ms
+[readNFDLogs] Read 881 transmissions for host=h1; DATA=677; NACK=204; avgDelay=87.22 ms
+[readNFDLogs] Read 330 transmissions for host=h2; DATA=234; NACK=96; avgDelay=233.91 ms
+[readNFDLogs] Read 48 transmissions for host=s1; DATA=0; NACK=48; avgDelay=0.00 ms
+[readNFDLogs] Read 156 transmissions for host=s0; DATA=0; NACK=156; avgDelay=0.00 ms
+[avgTransTime] average=126.743941603, transmissions=2627
+[readNfdResults] Transmission time average=126.743942 ms
+Done!
+qua set 15 17:01:16 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+Done!
+qua set 15 17:06:13 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+Done!
+qua set 15 17:15:59 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 287 transmissions for host=d0; DATA=208; NACK=79; avgDelay=24.51 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 299 transmissions for host=d3; DATA=208; NACK=91; avgDelay=22.36 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=21.58 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=20.52 ms
+[readNFDLogs] Read 158 transmissions for host=d1; DATA=104; NACK=54; avgDelay=21.01 ms
+[readNFDLogs] Read 455 transmissions for host=h1; DATA=299; NACK=156; avgDelay=16.92 ms
+[readNFDLogs] Read 158 transmissions for host=h2; DATA=104; NACK=54; avgDelay=18.97 ms
+[readNFDLogs] Read 30 transmissions for host=s1; DATA=0; NACK=30; avgDelay=0.00 ms
+[readNFDLogs] Read 114 transmissions for host=s0; DATA=0; NACK=114; avgDelay=0.00 ms
+[avgTransTime] average=20.7194357266, transmissions=1235
+[readNfdResults] Transmission time average=20.719436 ms
+Done!
+qua set 15 23:39:27 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNfdResults] No trasnmissions!
+Done!
+qua set 15 23:41:01 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 0 transmissions for host=d0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d3; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s0; DATA=0; NACK=0; avgDelay=0.00 ms
+[avgTransTime] average=0, transmissions=0
+[readNfdResults] Transmission time average=0.000000 ms
+Done!
+qua set 15 23:43:54 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 287 transmissions for host=d0; DATA=208; NACK=79; avgDelay=36.56 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 299 transmissions for host=d3; DATA=208; NACK=91; avgDelay=28.48 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=28.52 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=27.69 ms
+[readNFDLogs] Read 158 transmissions for host=d1; DATA=104; NACK=54; avgDelay=27.53 ms
+[readNFDLogs] Read 455 transmissions for host=h1; DATA=299; NACK=156; avgDelay=23.92 ms
+[readNFDLogs] Read 158 transmissions for host=h2; DATA=104; NACK=54; avgDelay=25.84 ms
+[readNFDLogs] Read 30 transmissions for host=s1; DATA=0; NACK=30; avgDelay=0.00 ms
+[readNFDLogs] Read 114 transmissions for host=s0; DATA=0; NACK=114; avgDelay=0.00 ms
+[avgTransTime] average=28.3760580457, transmissions=1235
+[readNfdResults] Transmission time average=28.376058 ms
+Done!
+qui set 16 00:06:21 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 0 transmissions for host=d0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d3; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s0; DATA=0; NACK=0; avgDelay=0.00 ms
+[avgTransTime] average=0, transmissions=0
+[readNfdResults] Transmission time average=0.000000 ms
+Done!
+qui set 16 00:13:30 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+ter set 21 21:55:47 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 0 transmissions for host=d0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d3; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s0; DATA=0; NACK=0; avgDelay=0.00 ms
+[avgTransTime] average=0, transmissions=0
+[readNfdResults] Transmission time average=0.000000 ms
+Done!
+ter set 21 23:02:40 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 0 transmissions for host=d0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d3; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s0; DATA=0; NACK=0; avgDelay=0.00 ms
+[avgTransTime] average=0, transmissions=0
+[readNfdResults] Transmission time average=0.000000 ms
+Done!
+ter set 21 23:06:21 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 0 transmissions for host=d0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d3; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s0; DATA=0; NACK=0; avgDelay=0.00 ms
+[avgTransTime] average=0, transmissions=0
+[readNfdResults] Transmission time average=0.000000 ms
+Done!
+ter set 21 23:12:28 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 287 transmissions for host=d0; DATA=208; NACK=79; avgDelay=42.64 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 299 transmissions for host=d3; DATA=208; NACK=91; avgDelay=32.32 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=37.53 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=31.86 ms
+[readNFDLogs] Read 158 transmissions for host=d1; DATA=104; NACK=54; avgDelay=33.61 ms
+[readNFDLogs] Read 455 transmissions for host=h1; DATA=299; NACK=156; avgDelay=30.48 ms
+[readNFDLogs] Read 158 transmissions for host=h2; DATA=104; NACK=54; avgDelay=27.51 ms
+[readNFDLogs] Read 29 transmissions for host=s1; DATA=0; NACK=29; avgDelay=0.00 ms
+[readNFDLogs] Read 113 transmissions for host=s0; DATA=0; NACK=113; avgDelay=0.00 ms
+[avgTransTime] average=34.1544000726, transmissions=1235
+[readNfdResults] Transmission time average=34.154400 ms
+Done!
+ter set 21 23:32:33 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 287 transmissions for host=d0; DATA=208; NACK=79; avgDelay=37.63 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 299 transmissions for host=d3; DATA=208; NACK=91; avgDelay=29.69 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=28.78 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=27.54 ms
+[readNFDLogs] Read 158 transmissions for host=d1; DATA=104; NACK=54; avgDelay=29.45 ms
+[readNFDLogs] Read 455 transmissions for host=h1; DATA=299; NACK=156; avgDelay=23.93 ms
+[readNFDLogs] Read 158 transmissions for host=h2; DATA=104; NACK=54; avgDelay=28.28 ms
+[readNFDLogs] Read 29 transmissions for host=s1; DATA=0; NACK=29; avgDelay=0.00 ms
+[readNFDLogs] Read 113 transmissions for host=s0; DATA=0; NACK=113; avgDelay=0.00 ms
+[avgTransTime] average=29.1599804573, transmissions=1235
+[readNfdResults] Transmission time average=29.159980 ms
+Done!
+qua set 22 15:51:03 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 287 transmissions for host=d0; DATA=208; NACK=79; avgDelay=44.20 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 299 transmissions for host=d3; DATA=208; NACK=91; avgDelay=34.66 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=35.11 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=54.68 ms
+[readNFDLogs] Read 158 transmissions for host=d1; DATA=104; NACK=54; avgDelay=34.20 ms
+[readNFDLogs] Read 454 transmissions for host=h1; DATA=299; NACK=155; avgDelay=28.75 ms
+[readNFDLogs] Read 158 transmissions for host=h2; DATA=104; NACK=54; avgDelay=30.58 ms
+[readNFDLogs] Read 30 transmissions for host=s1; DATA=0; NACK=30; avgDelay=0.00 ms
+[readNFDLogs] Read 114 transmissions for host=s0; DATA=0; NACK=114; avgDelay=0.00 ms
+[avgTransTime] average=36.2163072656, transmissions=1235
+[readNfdResults] Transmission time average=36.216307 ms
+Done!
+qua set 22 18:18:40 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 1
+[readNFDLogs] Read 287 transmissions for host=d0; DATA=208; NACK=79; avgDelay=47.75 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 299 transmissions for host=d3; DATA=208; NACK=91; avgDelay=40.60 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=39.58 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=36.95 ms
+[readNFDLogs] Read 158 transmissions for host=d1; DATA=104; NACK=54; avgDelay=37.29 ms
+[readNFDLogs] Read 455 transmissions for host=h1; DATA=299; NACK=156; avgDelay=33.28 ms
+[readNFDLogs] Read 158 transmissions for host=h2; DATA=104; NACK=54; avgDelay=31.03 ms
+[readNFDLogs] Read 30 transmissions for host=s1; DATA=0; NACK=30; avgDelay=0.00 ms
+[readNFDLogs] Read 114 transmissions for host=s0; DATA=0; NACK=114; avgDelay=0.00 ms
+[avgTransTime] average=38.4661632028, transmissions=1235
+[readNfdResults] Transmission time average=38.466163 ms
+Done!
+sex set 24 17:21:14 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+Done!
+sex set 24 17:50:24 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+sex set 24 18:17:37 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 2, cache ratio 1.0, iterations 35
+sex set 24 18:23:55 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 10
+sex set 24 18:35:08 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 2, cache ratio 1.0, iterations 10
+sex set 24 20:50:55 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 286 transmissions for host=d0; DATA=208; NACK=78; avgDelay=45.48 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 292 transmissions for host=d3; DATA=204; NACK=88; avgDelay=39.50 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=38.13 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=36.66 ms
+[readNFDLogs] Read 157 transmissions for host=d1; DATA=104; NACK=53; avgDelay=37.33 ms
+[readNFDLogs] Read 447 transmissions for host=h1; DATA=295; NACK=152; avgDelay=34.18 ms
+[readNFDLogs] Read 156 transmissions for host=h2; DATA=104; NACK=52; avgDelay=37.04 ms
+[readNFDLogs] Read 30 transmissions for host=s1; DATA=0; NACK=30; avgDelay=0.00 ms
+[readNFDLogs] Read 113 transmissions for host=s0; DATA=0; NACK=113; avgDelay=0.00 ms
+[avgTransTime] average=38.3672352816, transmissions=1227
+[readNfdResults] Transmission time average=38.367235 ms
+sex set 24 21:02:02 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 2, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 286 transmissions for host=d0; DATA=208; NACK=78; avgDelay=47.90 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 295 transmissions for host=d3; DATA=206; NACK=89; avgDelay=39.71 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=38.51 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=38.17 ms
+[readNFDLogs] Read 157 transmissions for host=d1; DATA=104; NACK=53; avgDelay=38.97 ms
+[readNFDLogs] Read 449 transmissions for host=h1; DATA=296; NACK=153; avgDelay=29.97 ms
+[readNFDLogs] Read 157 transmissions for host=h2; DATA=104; NACK=53; avgDelay=31.72 ms
+[readNFDLogs] Read 30 transmissions for host=s1; DATA=0; NACK=30; avgDelay=0.00 ms
+[readNFDLogs] Read 113 transmissions for host=s0; DATA=0; NACK=113; avgDelay=0.00 ms
+[avgTransTime] average=37.6815842419, transmissions=1230
+[readNfdResults] Transmission time average=37.681584 ms
+sex set 24 21:14:43 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 3, cache ratio 1.0, iterations 3
+[readNFDLogs] Read 287 transmissions for host=d0; DATA=208; NACK=79; avgDelay=47.68 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 299 transmissions for host=d3; DATA=208; NACK=91; avgDelay=39.43 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=40.07 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=37.06 ms
+[readNFDLogs] Read 158 transmissions for host=d1; DATA=104; NACK=54; avgDelay=37.51 ms
+[readNFDLogs] Read 455 transmissions for host=h1; DATA=299; NACK=156; avgDelay=28.22 ms
+[readNFDLogs] Read 158 transmissions for host=h2; DATA=104; NACK=54; avgDelay=29.91 ms
+[readNFDLogs] Read 30 transmissions for host=s1; DATA=0; NACK=30; avgDelay=0.00 ms
+[readNFDLogs] Read 114 transmissions for host=s0; DATA=0; NACK=114; avgDelay=0.00 ms
+[avgTransTime] average=37.0478838562, transmissions=1235
+[readNfdResults] Transmission time average=37.047884 ms
+Done!
+sex set 24 21:35:14 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 4, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=17.44 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=15.92 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.83 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=15.66 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=14.84 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.42 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=12.66 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.0641037686, transmissions=202
+[readNfdResults] Transmission time average=15.064104 ms
+sex set 24 23:09:51 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 5, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=18.66 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.21 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.83 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=18.22 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=13.29 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=14.12 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=13.59 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.3406669598, transmissions=202
+[readNfdResults] Transmission time average=15.340667 ms
+sáb set 25 00:49:30 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 6, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=17.33 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=13.11 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=16.90 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=16.13 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=16.12 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.92 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=12.01 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.0026354459, transmissions=202
+[readNfdResults] Transmission time average=15.002635 ms
+sáb set 25 02:26:46 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 7, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=18.37 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=16.02 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=14.62 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=16.26 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=14.70 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.65 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=13.44 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.2004638521, transmissions=202
+[readNfdResults] Transmission time average=15.200464 ms
+sáb set 25 04:04:10 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 8, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=17.34 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.52 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=16.42 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=13.59 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=13.91 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=14.25 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=13.18 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=14.9635713879, transmissions=202
+[readNfdResults] Transmission time average=14.963571 ms
+sáb set 25 05:36:41 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 9, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=17.80 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.36 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.19 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=15.20 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=17.28 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.74 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=11.41 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=14.9223875291, transmissions=202
+[readNfdResults] Transmission time average=14.922388 ms
+sáb set 25 07:12:36 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 10, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=19.18 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.70 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.32 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=14.11 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=13.98 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=14.20 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=15.31 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.3072859981, transmissions=202
+[readNfdResults] Transmission time average=15.307286 ms
+sáb set 25 08:44:19 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 11, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=17.89 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.55 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.05 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=14.50 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=14.29 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=14.15 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=12.23 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=14.8342116044, transmissions=202
+[readNfdResults] Transmission time average=14.834212 ms
+sáb set 25 10:21:49 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 12, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=18.98 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.92 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.70 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=16.33 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=15.68 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.47 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=12.55 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.2561404917, transmissions=202
+[readNfdResults] Transmission time average=15.256140 ms
+sáb set 25 11:54:03 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 13, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=17.04 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.98 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.37 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=14.00 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=14.38 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.54 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=13.12 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=14.6802474957, transmissions=202
+[readNfdResults] Transmission time average=14.680247 ms
+sáb set 25 13:40:43 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 14, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=18.18 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=16.32 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=16.57 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=14.62 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=15.64 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=14.35 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=12.34 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.5845585436, transmissions=202
+[readNfdResults] Transmission time average=15.584559 ms
+sáb set 25 15:16:53 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 15, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=16.08 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.76 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=14.61 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=13.24 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=14.66 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.73 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=12.57 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=14.3469064543, transmissions=202
+[readNfdResults] Transmission time average=14.346906 ms
+sáb set 25 16:52:40 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 16, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=16.42 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.30 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=14.47 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=14.01 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=16.47 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=12.87 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=12.39 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=14.2494605319, transmissions=202
+[readNfdResults] Transmission time average=14.249461 ms
+sáb set 25 18:26:34 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 17, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=18.15 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.14 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.49 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=17.68 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=15.91 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=14.23 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=12.91 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.339471326, transmissions=202
+[readNfdResults] Transmission time average=15.339471 ms
+sáb set 25 20:02:55 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 18, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=17.20 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.84 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.30 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=13.43 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=18.14 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.74 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=13.53 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.0153495298, transmissions=202
+[readNfdResults] Transmission time average=15.015350 ms
+sáb set 25 21:40:48 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 19, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=16.49 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.73 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=14.97 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=15.13 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=14.95 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.70 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=12.01 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=14.5829738957, transmissions=202
+[readNfdResults] Transmission time average=14.582974 ms
+sáb set 25 23:13:51 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 20, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=17.12 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=15.19 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.92 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=15.32 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=16.72 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=14.53 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=14.07 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.4658461561, transmissions=202
+[readNfdResults] Transmission time average=15.465846 ms
+dom set 26 00:47:49 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 21, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=18.34 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.32 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=14.80 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=13.62 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=15.40 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=14.79 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=16.59 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.3782757202, transmissions=202
+[readNfdResults] Transmission time average=15.378276 ms
+dom set 26 02:17:20 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 22, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=16.86 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.69 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=17.10 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=13.30 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=17.10 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.87 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=14.01 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.2057421089, transmissions=202
+[readNfdResults] Transmission time average=15.205742 ms
+dom set 26 03:56:20 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 23, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 0 transmissions for host=d0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d3; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s0; DATA=0; NACK=0; avgDelay=0.00 ms
+[avgTransTime] average=0, transmissions=0
+[readNfdResults] Transmission time average=0.000000 ms
+dom set 26 19:14:29 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 23, cache ratio 1.0, iterations 35
+dom set 26 21:27:21 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 23, cache ratio 1.0, iterations 35
+dom set 26 21:27:26 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 24, cache ratio 1.0, iterations 35
+dom set 26 21:27:47 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 23, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 230 transmissions for host=d0; DATA=176; NACK=54; avgDelay=37.17 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 237 transmissions for host=d3; DATA=176; NACK=61; avgDelay=33.65 ms
+[readNFDLogs] Read 233 transmissions for host=d2; DATA=176; NACK=57; avgDelay=28.02 ms
+[readNFDLogs] Read 120 transmissions for host=h0; DATA=88; NACK=32; avgDelay=28.41 ms
+[readNFDLogs] Read 124 transmissions for host=d1; DATA=88; NACK=36; avgDelay=26.68 ms
+[readNFDLogs] Read 348 transmissions for host=h1; DATA=243; NACK=105; avgDelay=23.93 ms
+dom set 26 22:34:33 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 23, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=17.67 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.83 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.91 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=12.62 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=14.80 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.70 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=12.52 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=14.7664381726, transmissions=202
+[readNfdResults] Transmission time average=14.766438 ms
+seg set 27 00:08:33 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 24, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=15.10 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=15.32 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.86 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=12.99 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=13.43 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=13.68 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=14.33 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=14.4883842752, transmissions=202
+[readNfdResults] Transmission time average=14.488384 ms
+seg set 27 01:44:35 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 25, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=16.19 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=13.93 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=14.39 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=18.97 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=13.88 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=12.62 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=14.39 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=14.4169401414, transmissions=202
+[readNfdResults] Transmission time average=14.416940 ms
+seg set 27 03:13:53 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 26, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=13.28 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=10.53 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=10.59 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=10.01 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=10.44 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=9.10 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=8.84 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=10.3808216529, transmissions=202
+[readNfdResults] Transmission time average=10.380822 ms
+seg set 27 04:47:41 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 27, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=12.05 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=10.47 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=10.90 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=10.69 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=10.14 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=8.88 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=8.96 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=10.2035373744, transmissions=202
+[readNfdResults] Transmission time average=10.203537 ms
+seg set 27 06:24:59 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 28, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=18.88 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.03 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=15.65 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=13.70 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=13.35 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=15.03 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=11.98 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.100833213, transmissions=202
+[readNfdResults] Transmission time average=15.100833 ms
+seg set 27 08:02:56 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 29, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=21.08 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=15.76 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=14.97 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=12.91 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=14.67 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=15.15 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=13.23 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=15.789152372, transmissions=202
+[readNfdResults] Transmission time average=15.789152 ms
+seg set 27 09:37:06 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 30, cache ratio 1.0, iterations 35
+seg set 27 11:22:12 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 287 transmissions for host=d0; DATA=208; NACK=79; avgDelay=52.94 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 299 transmissions for host=d3; DATA=208; NACK=91; avgDelay=40.61 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=38.81 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=40.73 ms
+[readNFDLogs] Read 158 transmissions for host=d1; DATA=104; NACK=54; avgDelay=38.53 ms
+[readNFDLogs] Read 455 transmissions for host=h1; DATA=299; NACK=156; avgDelay=32.08 ms
+[readNFDLogs] Read 158 transmissions for host=h2; DATA=104; NACK=54; avgDelay=34.81 ms
+[readNFDLogs] Read 30 transmissions for host=s1; DATA=0; NACK=30; avgDelay=0.00 ms
+[readNFDLogs] Read 114 transmissions for host=s0; DATA=0; NACK=114; avgDelay=0.00 ms
+[avgTransTime] average=39.664284903, transmissions=1235
+[readNfdResults] Transmission time average=39.664285 ms
+seg set 27 11:26:02 -03 2021
+Running ip_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 335 transmissions for host=d0; DATA=243; NACK=92; avgDelay=83.27 ms
+[readNFDLogs] Read 724 transmissions for host=v0; DATA=560; NACK=164; avgDelay=47.83 ms
+[readNFDLogs] Read 329 transmissions for host=d3; DATA=238; NACK=91; avgDelay=56.63 ms
+[readNFDLogs] Read 344 transmissions for host=d2; DATA=250; NACK=94; avgDelay=88.21 ms
+[readNFDLogs] Read 338 transmissions for host=h0; DATA=243; NACK=95; avgDelay=65.59 ms
+[readNFDLogs] Read 332 transmissions for host=d1; DATA=240; NACK=92; avgDelay=64.36 ms
+[readNFDLogs] Read 914 transmissions for host=h1; DATA=718; NACK=196; avgDelay=51.97 ms
+[readNFDLogs] Read 341 transmissions for host=h2; DATA=249; NACK=92; avgDelay=62.88 ms
+[readNFDLogs] Read 47 transmissions for host=s1; DATA=0; NACK=47; avgDelay=0.00 ms
+[readNFDLogs] Read 150 transmissions for host=s0; DATA=0; NACK=150; avgDelay=0.00 ms
+[avgTransTime] average=60.8938436185, transmissions=2741
+[readNfdResults] Transmission time average=60.893844 ms
+seg set 27 11:31:39 -03 2021
+Running ip experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+ter out  5 21:51:24 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 287 transmissions for host=d0; DATA=208; NACK=79; avgDelay=36.62 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 299 transmissions for host=d3; DATA=208; NACK=91; avgDelay=32.05 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=29.75 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=31.81 ms
+[readNFDLogs] Read 158 transmissions for host=d1; DATA=104; NACK=54; avgDelay=28.16 ms
+[readNFDLogs] Read 455 transmissions for host=h1; DATA=299; NACK=156; avgDelay=25.87 ms
+[readNFDLogs] Read 158 transmissions for host=h2; DATA=104; NACK=54; avgDelay=28.22 ms
+[readNFDLogs] Read 30 transmissions for host=s1; DATA=0; NACK=30; avgDelay=0.00 ms
+[readNFDLogs] Read 114 transmissions for host=s0; DATA=0; NACK=114; avgDelay=0.00 ms
+[avgTransTime] average=30.2632349223, transmissions=1235
+[readNfdResults] Transmission time average=30.263235 ms
+ter out  5 21:58:28 -03 2021
+Running ip_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+ter out  5 22:23:58 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 287 transmissions for host=d0; DATA=208; NACK=79; avgDelay=40.79 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 299 transmissions for host=d3; DATA=208; NACK=91; avgDelay=32.85 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=34.72 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=26.66 ms
+[readNFDLogs] Read 158 transmissions for host=d1; DATA=104; NACK=54; avgDelay=36.88 ms
+[readNFDLogs] Read 455 transmissions for host=h1; DATA=299; NACK=156; avgDelay=25.05 ms
+[readNFDLogs] Read 158 transmissions for host=h2; DATA=104; NACK=54; avgDelay=30.11 ms
+[readNFDLogs] Read 30 transmissions for host=s1; DATA=0; NACK=30; avgDelay=0.00 ms
+[readNFDLogs] Read 114 transmissions for host=s0; DATA=0; NACK=114; avgDelay=0.00 ms
+[avgTransTime] average=32.2016142641, transmissions=1235
+[readNfdResults] Transmission time average=32.201614 ms
+ter out  5 22:31:38 -03 2021
+Running ip_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 344 transmissions for host=d0; DATA=248; NACK=96; avgDelay=58.38 ms
+[readNFDLogs] Read 732 transmissions for host=v0; DATA=564; NACK=168; avgDelay=36.71 ms
+[readNFDLogs] Read 339 transmissions for host=d3; DATA=243; NACK=96; avgDelay=40.37 ms
+[readNFDLogs] Read 348 transmissions for host=d2; DATA=252; NACK=96; avgDelay=58.67 ms
+[readNFDLogs] Read 339 transmissions for host=h0; DATA=243; NACK=96; avgDelay=49.75 ms
+[readNFDLogs] Read 336 transmissions for host=d1; DATA=240; NACK=96; avgDelay=45.60 ms
+[readNFDLogs] Read 933 transmissions for host=h1; DATA=729; NACK=204; avgDelay=35.64 ms
+[readNFDLogs] Read 345 transmissions for host=h2; DATA=249; NACK=96; avgDelay=45.73 ms
+[readNFDLogs] Read 48 transmissions for host=s1; DATA=0; NACK=48; avgDelay=0.00 ms
+[readNFDLogs] Read 156 transmissions for host=s0; DATA=0; NACK=156; avgDelay=0.00 ms
+[avgTransTime] average=43.4167436782, transmissions=2768
+[readNfdResults] Transmission time average=43.416744 ms
+ter out  5 22:38:34 -03 2021
+Running ip experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 358 transmissions for host=d0; DATA=244; NACK=114; avgDelay=691.79 ms
+[readNFDLogs] Read 745 transmissions for host=v0; DATA=534; NACK=211; avgDelay=1780.54 ms
+[readNFDLogs] Read 355 transmissions for host=d3; DATA=239; NACK=116; avgDelay=582.19 ms
+[readNFDLogs] Read 368 transmissions for host=d2; DATA=250; NACK=118; avgDelay=678.66 ms
+[readNFDLogs] Read 348 transmissions for host=h0; DATA=241; NACK=107; avgDelay=707.41 ms
+[readNFDLogs] Read 356 transmissions for host=d1; DATA=237; NACK=119; avgDelay=991.91 ms
+[readNFDLogs] Read 976 transmissions for host=h1; DATA=719; NACK=257; avgDelay=992.50 ms
+[readNFDLogs] Read 355 transmissions for host=h2; DATA=247; NACK=108; avgDelay=590.87 ms
+[readNFDLogs] Read 53 transmissions for host=s1; DATA=0; NACK=53; avgDelay=0.00 ms
+[readNFDLogs] Read 187 transmissions for host=s0; DATA=0; NACK=187; avgDelay=0.00 ms
+[avgTransTime] average=993.556421826, transmissions=2711
+[readNfdResults] Transmission time average=993.556422 ms
+Done!
+ter out  5 23:11:44 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 287 transmissions for host=d0; DATA=208; NACK=79; avgDelay=43.28 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 299 transmissions for host=d3; DATA=208; NACK=91; avgDelay=35.68 ms
+[readNFDLogs] Read 293 transmissions for host=d2; DATA=208; NACK=85; avgDelay=33.12 ms
+[readNFDLogs] Read 152 transmissions for host=h0; DATA=104; NACK=48; avgDelay=29.66 ms
+[readNFDLogs] Read 158 transmissions for host=d1; DATA=104; NACK=54; avgDelay=30.33 ms
+[readNFDLogs] Read 455 transmissions for host=h1; DATA=299; NACK=156; avgDelay=28.64 ms
+[readNFDLogs] Read 158 transmissions for host=h2; DATA=104; NACK=54; avgDelay=28.38 ms
+[readNFDLogs] Read 30 transmissions for host=s1; DATA=0; NACK=30; avgDelay=0.00 ms
+[readNFDLogs] Read 114 transmissions for host=s0; DATA=0; NACK=114; avgDelay=0.00 ms
+[avgTransTime] average=33.2523770661, transmissions=1235
+[readNfdResults] Transmission time average=33.252377 ms
+ter out  5 23:16:14 -03 2021
+Running ip_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+ter out  5 23:17:57 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+ter out  5 23:34:47 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 58 transmissions for host=d0; DATA=32; NACK=26; avgDelay=18.37 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 62 transmissions for host=d3; DATA=32; NACK=30; avgDelay=14.35 ms
+[readNFDLogs] Read 60 transmissions for host=d2; DATA=32; NACK=28; avgDelay=16.10 ms
+[readNFDLogs] Read 32 transmissions for host=h0; DATA=16; NACK=16; avgDelay=14.05 ms
+[readNFDLogs] Read 34 transmissions for host=d1; DATA=16; NACK=18; avgDelay=13.53 ms
+[readNFDLogs] Read 110 transmissions for host=h1; DATA=58; NACK=52; avgDelay=12.45 ms
+[readNFDLogs] Read 34 transmissions for host=h2; DATA=16; NACK=18; avgDelay=12.72 ms
+[readNFDLogs] Read 10 transmissions for host=s1; DATA=0; NACK=10; avgDelay=0.00 ms
+[readNFDLogs] Read 38 transmissions for host=s0; DATA=0; NACK=38; avgDelay=0.00 ms
+[avgTransTime] average=14.5000054104, transmissions=202
+[readNfdResults] Transmission time average=14.500005 ms
+qua out  6 01:11:42 -03 2021
+Running ip_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 68 transmissions for host=d0; DATA=36; NACK=32; avgDelay=20.93 ms
+[readNFDLogs] Read 140 transmissions for host=v0; DATA=84; NACK=56; avgDelay=14.66 ms
+[readNFDLogs] Read 68 transmissions for host=d3; DATA=36; NACK=32; avgDelay=17.32 ms
+[readNFDLogs] Read 68 transmissions for host=d2; DATA=36; NACK=32; avgDelay=18.39 ms
+[readNFDLogs] Read 68 transmissions for host=h0; DATA=36; NACK=32; avgDelay=19.02 ms
+[readNFDLogs] Read 68 transmissions for host=d1; DATA=36; NACK=32; avgDelay=20.99 ms
+[readNFDLogs] Read 176 transmissions for host=h1; DATA=108; NACK=68; avgDelay=12.83 ms
+[readNFDLogs] Read 68 transmissions for host=h2; DATA=36; NACK=32; avgDelay=19.28 ms
+[readNFDLogs] Read 16 transmissions for host=s1; DATA=0; NACK=16; avgDelay=0.00 ms
+[readNFDLogs] Read 52 transmissions for host=s0; DATA=0; NACK=52; avgDelay=0.00 ms
+[avgTransTime] average=16.6432366652, transmissions=408
+[readNfdResults] Transmission time average=16.643237 ms
+qua out  6 02:43:52 -03 2021
+Running ip experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo10.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 68 transmissions for host=d0; DATA=36; NACK=32; avgDelay=39.10 ms
+[readNFDLogs] Read 140 transmissions for host=v0; DATA=84; NACK=56; avgDelay=30.75 ms
+[readNFDLogs] Read 68 transmissions for host=d3; DATA=36; NACK=32; avgDelay=40.34 ms
+[readNFDLogs] Read 68 transmissions for host=d2; DATA=36; NACK=32; avgDelay=38.84 ms
+[readNFDLogs] Read 68 transmissions for host=h0; DATA=36; NACK=32; avgDelay=30.61 ms
+[readNFDLogs] Read 68 transmissions for host=d1; DATA=36; NACK=32; avgDelay=41.91 ms
+[readNFDLogs] Read 176 transmissions for host=h1; DATA=108; NACK=68; avgDelay=28.11 ms
+[readNFDLogs] Read 68 transmissions for host=h2; DATA=36; NACK=32; avgDelay=42.04 ms
+[readNFDLogs] Read 16 transmissions for host=s1; DATA=0; NACK=16; avgDelay=0.00 ms
+[readNFDLogs] Read 52 transmissions for host=s0; DATA=0; NACK=52; avgDelay=0.00 ms
+[avgTransTime] average=34.3158122371, transmissions=408
+[readNfdResults] Transmission time average=34.315812 ms
+Done!
+ter out 19 16:32:22 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo40-l05.conf, iteration 1, cache ratio 1.0, iterations 35
+ter out 19 18:55:09 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo40-l05.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNfdResults] No trasnmissions!
+ter out 19 18:56:53 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo40-l05.conf, iteration 1, cache ratio 1.0, iterations 35
+ter out 19 19:16:46 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo40-l05.conf, iteration 1, cache ratio 1.0, iterations 35
+ter out 19 19:21:16 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo40-l05.conf, iteration 1, cache ratio 1.0, iterations 35
+[readNFDLogs] Read 0 transmissions for host=d0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=v2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=v0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h5; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d3; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d12; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s3; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s8; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h10; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h9; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d11; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s4; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d6; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s7; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d7; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h6; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s6; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d5; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d13; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h3; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=v3; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s9; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s5; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=v1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h7; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d10; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s2; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d8; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s1; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d4; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=s0; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h8; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=d9; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h11; DATA=0; NACK=0; avgDelay=0.00 ms
+[readNFDLogs] Read 0 transmissions for host=h4; DATA=0; NACK=0; avgDelay=0.00 ms
+[avgTransTime] average=0, transmissions=0
+[readNfdResults] Transmission time average=0.000000 ms
+qua out 20 08:44:43 -03 2021
+Running ip_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo40-l05.conf, iteration 1, cache ratio 1.0, iterations 35
+qua out 20 19:04:46 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo40-l05.conf, iteration 1, cache ratio 1.0, iterations 35
+qui out 21 18:30:35 -03 2021
+Running icn_sdn experiment for topo /home/vagrant/icnsimulations/topologies/experiment/wifi-topo40-l05.conf, iteration 1, cache ratio 1.0, iterations 35

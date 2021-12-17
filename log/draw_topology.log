@@ -6853,3 +6853,7 @@
 2020-12-22 22:34:31,026 findfont: score(<Font 'Lato' (Lato-HeavyItalic.ttf) italic normal 800 normal>) = 11.43
 2020-12-22 22:34:31,026 findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-BoldItalic.otf) italic normal 700 normal>) = 11.335
 2020-12-22 22:34:31,026 findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0 to DejaVu Sans ('/home/andre/.local/lib/python3.8/site-packages/matplotlib/mpl-data/fonts/ttf/DejaVuSans.ttf') with score of 0.050000.
+2021-09-03 22:37:03,099 [main] No topology specified as first parameter!
+2021-09-03 22:37:28,468 [main] Drawing topology from path=../topologies/wifi-topo.conf
+2021-09-03 22:37:28,765 [main] Topology has links=28; humans=4; drones=4; sensors=4; vehicles=4
+2021-09-03 22:37:55,621 [main] Done! Log written to /home/vagrant/icnsimulations/log/draw_topology.log
